@@ -1,0 +1,24 @@
+version: "3.7"
+
+x-common: &common
+  stop_grace_period: 5s
+  logging:
+    options:
+      max-size: "250k"
+      max-file: "10"
+  labels:
+    - "nuvlaedge.component=True"
+    - "nuvlaedge.deployment=production"
+
+volumes:
+  nuvlabox-db:
+    driver: local
+    labels:
+      - "nuvlaedge.volume=True"
+      - "nuvlaedge.deployment=production"
+
+services:
+  system-manager:
+    <<: *common
+    image: ${org}/system-manager:${version}
+    restart: always

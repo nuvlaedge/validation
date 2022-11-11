@@ -1,0 +1,3 @@
+pydantic
+fabric
+nuvla-api
