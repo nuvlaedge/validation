@@ -1,0 +1,7 @@
+pydantic
+requests
+toml
+unittest-xml-reporting
+xmltodict
+fabric
+nuvla-api

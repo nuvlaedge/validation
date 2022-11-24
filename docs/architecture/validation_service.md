@@ -4,9 +4,8 @@ The validation service provides an API server as entrypoint and deployment tools
 services which then report the tests.
 
 The architecture proposal for the validation system is as follows:
-- API server
-- DataBase (either file based or service based)
-- Validator server
+- GitHub Runner
+- GitHub action
 
 Then, for each device and test a Validation framework will be deployed, each of them composed by:
 - Validator

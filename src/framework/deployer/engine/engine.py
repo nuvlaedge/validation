@@ -49,7 +49,7 @@ class EngineHandler:
 
     def download_requested_releases(self):
         """
-        Downloads the requested version of the device into the target device
+        Downloads the requested version of the device into the target_device device
         :return: None
         """
         req_release: ReleaseSchema = self.releases.get(self.engine_configuration.version)
@@ -72,12 +72,12 @@ class EngineHandler:
 
     def start_nuvlaedge(self):
         """
-        Starts a NuvlaEdge on the target and preconfigured device
+        Starts a NuvlaEdge on the target_device and preconfigured device
         :return: None
         """
         req_release: ReleaseSchema = self.releases.get(self.engine_configuration.version)
         files: str = " -f ".join(req_release.downloaded_components)
-        base_command: str = f'docker-compose -p {self.engine_configuration.project_name} -f {files} up -d'
+        base_command: str = f'nohup docker-compose -p {self.engine_configuration.project_name} -f {files} up -d &'
         command_location: str = ROOT_PATH + '/' + ENGINE_PATH + '/' + self.engine_configuration.version
 
         self.logger.info(f'Starting NuvlaEdge with command {base_command} in {command_location}')

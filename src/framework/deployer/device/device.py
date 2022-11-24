@@ -5,11 +5,10 @@ remote with other techniques
 """
 import logging
 from abc import ABC, abstractmethod
-from pathlib import Path
 
 import fabric
 
-from framework.deployer.deployer.schemas.device import DeviceConfig
+from framework.deployer.schemas.device import DeviceConfig
 from framework.deployer.schemas.release import ReleaseSchema
 
 
@@ -89,7 +88,7 @@ class Device(ABC):
     @abstractmethod
     def get_logs(self) -> None:
         """
-        Retrieves all the logs from the deployed target engine
+        Retrieves all the logs from the deployed target_device engine
         :return: None
         """
         pass
@@ -106,6 +105,6 @@ class Device(ABC):
     @abstractmethod
     def get_engine_db(self) -> None:
         """
-        Retrieves the whole target engine database
+        Retrieves the whole target_device engine database
         :return: None
         """

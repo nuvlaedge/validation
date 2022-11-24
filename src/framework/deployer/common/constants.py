@@ -18,4 +18,3 @@ ROOT_PATH: str = '~/.nuvlaedge_validation'
 ENGINE_PATH: str = '/engines/'
 DEPLOYER_PATH: str = '/deployer/'
 DEPLOYER_CONFIG_FILE: Path = GENERAL_CONFIG_PATH / '.deployer_config'
-

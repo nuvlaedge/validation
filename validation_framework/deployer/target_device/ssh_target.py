@@ -1,0 +1,121 @@
+"""
+Target Device SSH implementation
+"""
+
+import logging
+from contextlib import contextmanager
+
+import fabric
+from fabric import Connection
+
+from common.constants import *
+from common.nuvla_uuid import NuvlaUUID
+from common.schemas.target_device import TargetDeviceConfig
+from deployer.target_device.target import TargetDevice
+
+
+class SSHTarget(TargetDevice):
+
+    def __init__(self, target_config: TargetDeviceConfig):
+        """
+        SSH target_device device constructor
+        :param target_config: Target device configuration stored in the parent class
+        """
+        super().__init__(target_config, logging.getLogger(__name__))
+
+        if not self.is_reachable():
+            self.logger.debug(f'Device {self.target_config.alias} not reachable in {self.target_config.address} ')
+            raise ConnectionError(f'Device {self.target_config.alias} not reachable in {self.target_config.address} ')
+        else:
+            self.logger.info(f'Device {self.target_config.alias} online and ready')
+            self.build_directory_tree()
+
+    @contextmanager
+    def connection(self) -> Connection:
+
+        new_connection: Connection = Connection(host=self.address,
+                                                user=self.user,
+                                                connect_timeout=3,
+                                                connect_kwargs={"password": self.target_config.password})
+        yield new_connection
+        new_connection.close()
+
+    def is_reachable(self) -> bool:
+        try:
+            self.logger.info('Running connection')
+            it_result: fabric.Result = self.run_command('hostname')
+            self.hostname = it_result.stdout.strip()
+            self.logger.info(f'Host {self.hostname} reachable')
+            return not it_result.failed
+        except TimeoutError:
+            self.logger.error(f'Host address {self.address} not reachable')
+            return False
+
+    def build_directory_tree(self) -> None:
+        # check main folder
+        with self.connection() as connection:
+            connection.run(f'mkdir -p {ROOT_PATH}')
+
+            # check subdirectories
+            connection.run(f'mkdir -p {ROOT_PATH + DEPLOYER_PATH}')
+            connection.run(f'mkdir -p {ROOT_PATH + ENGINE_PATH}')
+
+    def get_logs(self) -> None:
+        pass
+
+    def get_ms_logs(self, microservice: str) -> None:
+        pass
+
+    def get_engine_db(self) -> None:
+        pass
+
+    def run_command(self, command: str, envs: dict | None = None) -> fabric.Result:
+
+        self.logger.debug(f'Running {command} in {self.target_config.address}')
+        with self.connection() as connection:
+            return connection.run(command, env=envs, hide=True)
+
+    def run_command_within_folder(self, command: str, folder: str, envs: dict | None = None) -> fabric.Result:
+
+        self.logger.debug(f'Running {command} in {self.target_config.address} within {folder} folder')
+        with self.connection() as connection:
+            with connection.cd(folder):
+                return connection.run(command, env=envs, hide=True)
+
+    def download_file(self, link: str, file_name: str, directory: str) -> bool:
+        download_result: fabric.Result = self.run_command(f'wget {link} -t 3 -T 5 -O {directory}/{file_name}')
+
+        return not download_result.failed
+
+    def clean_target(self):
+        """
+        Removes docker containers, services, volumes and networks from previous runs
+        :return: None
+        """
+        try:
+            self.run_command('docker service rm $(docker service ls -q)')
+            self.run_command('docker stop $(docker ps -a -q)')
+            self.run_command('docker rm $(docker ps -a -q)')
+            self.run_command('docker network prune --force')
+            self.run_command('docker volume prune --force')
+        except Exception as ex:
+            self.logger.warning(f'System not present')
+
+    def start_edge(self, nuvlaedge_uuid: NuvlaUUID) -> None:
+        """
+        Starts a nuvla edge given the UUID in the target device. This function should not block and return once
+        the engine has been started
+        :param nuvlaedge_uuid: NuvlaEdge engine to start the engine wiht
+        :return:  None
+        """
+        start_command: str = f'nohup docker-compose -p {"nuvlaedge"} -f {"docker-compose.yml"} up -d'
+        self.run_command_within_folder(start_command,
+                                       'some_folder_where the file is',
+                                       envs={'NUVLABOX_UUID': nuvlaedge_uuid})
+
+    def stop_edge(self):
+        """
+        Stops the started engine
+        :return:
+        """
+        stop_command: str = f''

@@ -76,8 +76,14 @@ def main():
 
     # 6. Start engine
     engine_handler.start_nuvlaedge()
+    logging.warning("Starter surpassed... waiting 5 mins")
     # 7. Gather data until validation stops
+    time.sleep(5)
+    logging.info('Gatherings data...')
+    time.sleep(3000)
     # 8. Stop engine
+    engine_handler.stop_nuvlaedge()
+    logging.info('Successfully stopped')
     # 9. gather execution data
 
 

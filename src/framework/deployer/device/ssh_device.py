@@ -5,6 +5,7 @@ import logging
 
 import fabric
 from fabric import Connection
+
 from fabric.runners import Result
 
 from framework.deployer.common.constants import *
@@ -14,6 +15,9 @@ from framework.deployer.schemas.release import ReleaseSchema
 
 
 class SSHDevice(Device):
+
+    def stop_engine(self) -> bool:
+        pass
 
     def __init__(self, device_config: DeviceConfig):
         """
@@ -33,7 +37,7 @@ class SSHDevice(Device):
         Removes docker containers, services, volumes and networks from previous runs
         :return: None
         """
-        self.run_command('docker service rm $(docker service ls -q)')
+        self.run_command('docker controller rm $(docker controller ls -q)')
         self.run_command('docker stop $(docker ps -a -q)')
         self.run_command('docker rm $(docker ps -a -q)')
         self.run_command('docker network prune --force')
@@ -52,6 +56,7 @@ class SSHDevice(Device):
         return self.connection.is_connected
 
     def run_command(self, command: str) -> fabric.Result:
+
         return self.connection.run(command, hide=True)
 
     def run_command_within_folder(self, command: str, folder: str) -> fabric.Result:
@@ -96,7 +101,6 @@ class SSHDevice(Device):
         """
         req_release: ReleaseSchema = self.releases.get(self.engine_configuration.version)
         files: str = " -f ".join(req_release.downloaded_components)
-
 
     def get_logs(self) -> None:
         pass
