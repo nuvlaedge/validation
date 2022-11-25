@@ -7,6 +7,7 @@ from contextlib import contextmanager
 
 import fabric
 from fabric import Connection
+import invoke
 
 from common.constants import *
 from common.nuvla_uuid import NuvlaUUID
@@ -15,6 +16,8 @@ from deployer.target_device.target import TargetDevice
 
 
 class SSHTarget(TargetDevice):
+    SUDO_PASS = invoke.Responder(pattern=r'\[sudo\] password:',
+                                 response='pi\n')
 
     def __init__(self, target_config: TargetDeviceConfig):
         """
@@ -69,6 +72,11 @@ class SSHTarget(TargetDevice):
     def get_engine_db(self) -> None:
         pass
 
+    def run_sudo_command(self, command: str, envs: dict | None = None) -> fabric.Result:
+        self.logger.debug(f'Running {command} as SuperUser in {self.target_config.address}')
+        with self.connection() as connection:
+            return connection.run(command, env=envs, hide=True, watchers=[self.SUDO_PASS])
+
     def run_command(self, command: str, envs: dict | None = None) -> fabric.Result:
 
         self.logger.debug(f'Running {command} in {self.target_config.address}')
@@ -94,6 +102,10 @@ class SSHTarget(TargetDevice):
         """
         try:
             self.run_command('docker service rm $(docker service ls -q)')
+        except invoke.exceptions.UnexpectedExit:
+            pass
+
+        try:
             self.run_command('docker stop $(docker ps -a -q)')
             self.run_command('docker rm $(docker ps -a -q)')
             self.run_command('docker network prune --force')

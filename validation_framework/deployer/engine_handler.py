@@ -103,6 +103,7 @@ class EngineHandler:
         print(start_command)
         envs_configuration: dict = {'NUVLABOX_UUID': nuvlaedge_uuid}
         # self.release_handler.build_envs_configuration()
+        self.logger.info(f'Starting engine with Edge uuid: {nuvlaedge_uuid}')
 
         self.device.run_command(start_command, envs=envs_configuration)
         self.logger.info('Device started')
@@ -125,6 +126,7 @@ class EngineHandler:
 
         :return:
         """
+        self.device.run_command('docker ps')
         return True
 
     def clean_device(self):

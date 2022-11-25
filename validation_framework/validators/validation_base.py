@@ -7,7 +7,7 @@ import unittest
 from pathlib import Path
 
 from nuvla.api import Api as NuvlaClient
-from nuvla.api.models import CimiResponse
+from nuvla.api.models import CimiResponse, CimiCollection
 
 from common import constants as cte, Release
 from common.nuvla_uuid import NuvlaUUID
@@ -49,6 +49,25 @@ class ValidationBase(ParametrizedTests):
     DESCRIPTION: str = 'Tests a simple deployment  Start -> Activation -> Commission -> Decommission -> Stop'
     uuid: NuvlaUUID = ''
 
+    def get_nuvlaedge_status(self) -> tuple[str, str]:
+        """
+        This function retrieves the Edge state and status. Status will be setup once the NuvlaEdge engine has started.
+        State is defined by Nuvla Logic and status is defined by the NuvlaEdge system depending on the NuvlaEdge
+         initialization progress.
+        :return: Tuple [state, status].
+        """
+        response: CimiCollection = self.nuvla_client.search('nuvlabox',
+                                                            filter=f'id=="{self.uuid}"')
+
+        try:
+            status_response: CimiCollection = self.nuvla_client.search(
+                'nuvlabox-status',
+                filter=f'id=="{response.resources[0].data["nuvlabox-status"]}"')
+            status = status_response.resources[0].data['status']
+        except:
+            status = 'UNKNOWN'
+        return response.resources[0].data['state'], status
+
     def create_nuvlaedge_in_nuvla(self) -> NuvlaUUID:
         """
         Given API keys from remote NuvlaInstallation creates a new NuvlaEdge
@@ -56,6 +75,8 @@ class ValidationBase(ParametrizedTests):
         """
         if self.uuid:
             return self.uuid
+        self.nuvla_client.login_apikey('credential/a94f8d2f-ff7b-4bc9-bf22-a6ca07602829',
+                                       'acpnMs.4fcgXZ.gfuhh2.QDhPTv.NA2Wxn')
         if self.engine_handler.release_handler.release_tag:
             it_release: int = self.engine_handler.release_handler.release_tag.major
         else:
@@ -67,6 +88,7 @@ class ValidationBase(ParametrizedTests):
                   'name': cte.NUVLAEDGE_NAME.format(device=self.engine_handler.device_config.alias),
                   'tags': ['nuvlaedge.validation=True', 'cli.created=True'],
                   'version': it_release})
+
         return NuvlaUUID(response.data.get('resource-id'))
 
     def remove_nuvlaedge_from_nuvla(self) -> None:
@@ -74,13 +96,21 @@ class ValidationBase(ParametrizedTests):
 
         :return:
         """
-        ...
+        ne_state: str = self.get_nuvlaedge_status()[0]
+
+        if ne_state in ['COMMISSIONED', 'ACTIVATED']:
+            self.nuvla_client.get(self.uuid + "/decommission")
+
+        while ne_state not in ['DECOMMISSIONED', 'NEW']:
+            time.sleep(1)
+            ne_state = self.get_nuvlaedge_status()[0]
+        self.logger.info(f'Decommissioning...')
+        self.nuvla_client.delete(self.uuid)
 
     def setUp(self) -> None:
         super(ValidationBase, self).setUp()
         self.logger: logging.Logger = logging.getLogger(__name__)
 
-        self.logger.info(f'THIS IS MAGIC {self.target_config_file}')
         self.nuvla_client: NuvlaClient = NuvlaClient()
         self.engine_handler: EngineHandler = EngineHandler(1, Release('2.4.3'))
         self.uuid: NuvlaUUID = self.create_nuvlaedge_in_nuvla()
@@ -88,5 +118,10 @@ class ValidationBase(ParametrizedTests):
         self.logger.info(f'Target device: {self.engine_handler.device_config.hostname}')
 
     def tearDown(self) -> None:
-        # self.device.stop_engine()
-        ...
+        super(ValidationBase, self).tearDown()
+
+        self.engine_handler.stop_engine()
+
+        self.remove_nuvlaedge_from_nuvla()
+
+

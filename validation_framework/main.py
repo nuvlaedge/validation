@@ -2,14 +2,14 @@
 Validator entrypoint python script
 """
 import io
+import json
 import unittest
 from datetime import datetime
 from enum import Enum, auto
 import logging
 import time
+from pathlib import Path
 from logging import config as logger_config
-from pprint import pprint as pp
-
 
 import xmlrunner
 from xmlrunner.extra.xunit_plugin import transform
@@ -17,9 +17,9 @@ import xmltodict
 
 import common.constants as cte
 from common.settings import ValidatorSettings
-from validators.tests import active_validators
-from validators.validation_base import ParametrizedTests, ValidationBase
-from validators.tests.test_standard_engine_run import TestStandardEngineRun
+from validators.tests.basic_tests import active_validators, get_validator
+from validators.validation_base import ParametrizedTests
+
 # Entrypoint logging object
 logger: logging.Logger = logging.getLogger()
 
@@ -31,16 +31,52 @@ class AvailableTests(Enum):
     STANDARD_DEPLOYMENT = auto()
 
 
-def parse_results(results: io.BytesIO) -> tuple[bytes, dict]:
+def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
     """
     Converts a bytes stream xml formatted into a dict
     :param results: bytes stream
     :return: UnitTests results in dict format
     """
     # Convert bytes into xml string
-    xml_result: bytes = transform(results.getvalue())
-    # Return dict form the XML
-    return xml_result, xmltodict.parse(xml_result)
+    parsed_data: list[tuple] = []
+    for res in results:
+        xml_result: bytes = transform(res.getvalue())
+        # Return dict form the XML
+        parsed_data.append((xml_result, xmltodict.parse(xml_result)))
+
+    return parsed_data
+
+
+def run_test_on_device(device_config_path: Path) -> list[io.BytesIO]:
+
+    test_results: list[io.BytesIO] = []
+
+    for name, v in active_validators.items():
+        logger.info(f'Detected {name}')
+        logger.info(f'Validator: {get_validator(name)}')
+
+        test_report: io.BytesIO = io.BytesIO()
+        runner = xmlrunner.XMLTestRunner(output=test_report, verbosity=1)
+
+        suite = unittest.TestSuite()
+        suite.addTest(ParametrizedTests.parametrize(get_validator(name),
+                                                    target_device_config='1_rpi4.toml',
+                                                    target_engine_version='2.4.3'))
+        result = runner.run(suite)
+        test_results.append(test_report)
+
+    return test_results
+
+
+def save_results(results: list, location: Path) -> None:
+    for res in results:
+        it = res[1]
+        location = location.expanduser()
+
+        logger.info(f'{json.dumps(res[1], indent=4)} ')
+        it_location = location / (it.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.json')
+        with it_location.open('w') as file:
+            json.dump(it, file, indent=4)
 
 
 def main():
@@ -54,26 +90,11 @@ def main():
     elapsed_time: float = time.time()
 
     # Run validation
-    name = ''
-    tester = None
-    for name, v in active_validators.items():
-        name = name
-        tester = v
-        logger.info(f'Detected')
-    # deployer: Deployer = Deployer('devel', 'engine', 'target_device')
-    test_report: io.BytesIO = io.BytesIO()
-    runner = xmlrunner.XMLTestRunner(output=test_report, verbosity=1)
-
-    suite = unittest.TestSuite()
-    suite.addTest(ParametrizedTests.parametrize(TestStandardEngineRun,
-                                                target_device_config='1_rpi4.toml',
-                                                target_engine_version='2.4.3'))
-    result = runner.run(suite)
-
+    logger.info(f'Validators size {len(active_validators)} : {active_validators.items()}')
     time.sleep(2)
-    xml_result, dict_result = parse_results(test_report)
-    pp(dict_result)
-    pp(type(xml_result.decode()))
+    test_report: list = run_test_on_device(Path('/random/path'))
+    results = parse_results(test_report)
+    save_results(results, Path('~/PycharmProjects/nuvlaedge/devel/validation/temp_results/'))
     validation_time = time.process_time() - validation_time
     elapsed_time = time.time() - elapsed_time
     logger.info(f'Successfully finishing validation in {validation_time}s with a total of '

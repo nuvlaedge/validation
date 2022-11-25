@@ -1,7 +1,8 @@
-pydantic
-requests
-toml
-unittest-xml-reporting
-xmltodict
-fabric
+pydantic~=1.10.2
+requests~=2.27.1
+toml~=0.10.2
+unittest-xml-reporting~=3.2.0
+xmltodict~=0.13.0
+fabric~=2.7.1
 nuvla-api
+invoke~=1.7.3
