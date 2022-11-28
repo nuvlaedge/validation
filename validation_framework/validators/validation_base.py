@@ -87,7 +87,8 @@ class ValidationBase(ParametrizedTests):
             data={'refresh-interval': 30,
                   'name': cte.NUVLAEDGE_NAME.format(device=self.engine_handler.device_config.alias),
                   'tags': ['nuvlaedge.validation=True', 'cli.created=True'],
-                  'version': it_release})
+                  'version': it_release,
+                  'vpn-server-id': 'infrastructure-service/eb8e09c2-8387-4f6d-86a4-ff5ddf3d07d7'})
 
         return NuvlaUUID(response.data.get('resource-id'))
 

@@ -29,39 +29,26 @@ class TestDeviceRestart(ValidationBase):
     def setUp(self) -> None:
         super(TestDeviceRestart, self).setUp()
 
-        self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
+        # self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
 
-    def test_device_restarts(self):
-        # 1. Restart after activation
-        # 2. Restart after commissioning
-        expected_states: list[str] = ['ACTIVATED', 'COMMISSIONED', 'NEW', 'OFFLINE']
-        expected_status: list[str] = ['DEGRADED', 'UNKNOWN', 'RUNNING']
-
-        state, status = self.get_nuvlaedge_status()
-        # self.assertTrue(status in expected_status)
-        # self.assertTrue(state in expected_states)
-
-        while status in ['COMMISSIONED']:
-            self.logger.info(f'NuvlaEdge not commission yet '
-                             f'\n\tStatus: {status} {status in ["COMMISSIONED"]}'
-                             f'\n\tState: {state}')
-            status, state = self.get_nuvlaedge_status()
-            time.sleep(1)
-
-        self.trigger_restart()
-
-        # Wait the telemetry period
-        time.sleep(35)
-
-        while state in ['OPERATIONAL']:
-            time.sleep(1)
-            state, status = self.get_nuvlaedge_status()
-
-        self.assertTrue(state in ['OPERATIONAL'])
-
-        self.logger.info(self.get_nuvlaedge_status())
-
-
+    def test_restart_before_activation(self):
+        """
+        Tests the correct behaviour of the NuvlaEdge when the device is restarted right before the activation
+        :return: None
+        """
         assert True
 
+    def test_restart_before_commission(self):
+        """
+        Tests the correct behaviour of the NuvlaEdge when the device is restarted right before commissioning
+        :return:
+        """
+        assert True
+
+    def test_restart_after_commissioning(self):
+        """
+        Tests the correct behaviour of the NuvlaEdge when the device is restarted after commissioning
+        :return:
+        """
+        assert False
 

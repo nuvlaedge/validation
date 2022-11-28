@@ -7,5 +7,7 @@ The validation system is composed by two main components: Validation software an
 
 **TestBed**: Cluster of devices integrated by the top 10 most used devices of SixSq clients.
 
-**Validation Service**: A collection of microservices exposing a service (triggered on demand) that runs a set of pre-established tests on the testbed devices. 
+**Validation Service**: A collection of microservices trigger by GitHub actions. When triggered, it will create a validation 
+framework per configured device and run a set of test batteries on that device. There are multiple typer of battery 
+tests depicted in the [tests](../tests/) folder. 
 
