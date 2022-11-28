@@ -1,29 +1,40 @@
-# Validation Service
+# Validation Framework
 
-The validation service provides an API server as entrypoint and deployment tools to run tests. At the same time, it has the test evaluation 
-services which then report the tests.
+The validation framework implements a generic platform to perform validation tests over the NuvlaEdge software.
 
-The architecture proposal for the validation system is as follows:
-- GitHub Runner
-- GitHub action
+The framework consists in two main components: 
 
-Then, for each device and test a Validation framework will be deployed, each of them composed by:
-- Validator
-- Deployer
+- Base framework
+- Validation tests
+- GitHub action runners
 
-The main workflow of the validation system consists on having a API server entry point which can retrieve test results from the DB and at the same time trigger tests based on simple configuration files.
+![Validation workflow](../graffle/Validation_Workflow.jpg)
 
-When the tests are triggered, the validator server runs the framework with a specific configuration (Possible configurations or look up table* synchronized between the server and the framework)
+## 1. Base Framework
+The first extends Python UnitTests providing a parent class which can easily be extended. This service comes with a 
+subset of tools:
 
-***Look up** tables consists in a set of predefined test setups and its corresponding configuration in the validator.
+- Remote device handler: TargetDevice
+- NuvlaEdge release handler: ReleaseHandler
+- Nuvla client interface: NuvlaClient
 
+### TargetDevice
+This tool provides an interface to run remote commands in the configured device.
 
+### ReleaseHandler
+Currently implemented for Standard releases on nuvlaedge/deployment repo.
+Controls the release to be tested. Checks and triggers the download of the remote required files
 
-## Validation Services
-Composition of microservices that compose the validation server.
+### NuvlaClient
+Interfaces the creation and removal of the Edges to be tested. Also allows for 
+configurations on different edge starts
 
-## Validation Framework
-The validation framework is an instance which runs during the lifetime of the validation process of a single test and exists afterwards.
+## 2. Validation Tests
+The actual test implementations. It always extends the ValidationBase class and have to be decorated with @validator tag and a unique name.
+This notation allows the system to recognize it as a test and include it in the test battery (Corresponding folder).  
 
-It is composed by a deployer and a tester module. 
+## 3. GitHub Actions Runner
+A custom GitHub runner with an updated version of the framework and the preconfigured devices that runs one battery of tests at a time in all the available devices.
+Available devices are those which configuration is stored in the default folder and online (will be checked automatically)
+
 
