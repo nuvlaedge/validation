@@ -75,8 +75,8 @@ class ValidationBase(ParametrizedTests):
         """
         if self.uuid:
             return self.uuid
-        self.nuvla_client.login_apikey('',
-                                       '')
+        self.nuvla_client.login_apikey('credential/724bc2b6-4a2f-4f15-9239-bf375ba8174e',
+                                       'pvWZNa.bXZ8AS.Les692.dYyU3F.4LtD9W')
         if self.engine_handler.release_handler.release_tag:
             it_release: int = self.engine_handler.release_handler.release_tag.major
         else:

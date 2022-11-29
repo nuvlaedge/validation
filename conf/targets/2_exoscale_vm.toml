@@ -1,15 +1,15 @@
-alias = "rpi4"
+alias = "exo_vm"
 
 # Network data
-address = "192.168.40.70"
+address = "159.100.243.225"
 port = 22
 hostname = ""
 
 # Naming data
-user = "pi"
+user = "debian"
 
 # Security data
 pub_key_path = "~/.ssh/id_rsa.pub"
 private_key_path = "~/.ssh/id_rsa.pub"
-password = 'pi'
+password = ''
 

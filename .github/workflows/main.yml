@@ -1,0 +1,19 @@
+name: UPDATE
+
+on:
+  push:
+    branches:
+      - main
+    pull_request:
+    workflow_dispatch:
+
+jobs:
+  update-validator:
+    runs-on: validation-runner
+    steps:
+      steps:
+        - name: Pull repo
+          uses: actions/checkout@v2
+          with:
+            # Disabling shallow clone is recommended for improving relevancy of reporting for sonar
+            fetch-depth: 0
