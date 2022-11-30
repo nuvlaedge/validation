@@ -36,5 +36,6 @@ jobs:
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always()
+        working-directory: ./temp_results
         with:
-          files: "temp_results/*.xml"
+          files: "xml/*.xml"

@@ -14,6 +14,7 @@ from logging import config as logger_config
 import xmlrunner
 from xmlrunner.extra.xunit_plugin import transform
 import xmltodict
+import xml.etree.ElementTree as ET
 
 import common.constants as cte
 from common.settings import ValidatorSettings
@@ -40,6 +41,7 @@ def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
     # Convert bytes into xml string
     parsed_data: list[tuple] = []
     for res in results:
+        logger.info(f'Resultados {res}')
         xml_result: bytes = transform(res.getvalue())
         # Return dict form the XML
         parsed_data.append((xml_result, xmltodict.parse(xml_result)))
@@ -84,9 +86,8 @@ def save_results(results: list, location: Path) -> None:
         xml_location = cte.XML_RESULTS_PATH / (
                     json_results.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.xml')
         with xml_location.open('wb') as file:
-            logger.info(xml_results)
-            logger.info(type(xml_results))
-            file.write(xml_results)
+            tree = ET.ElementTree(ET.fromstring(xml_results))
+            tree.write(file, encoding='utf-8')
 
 
 def main():
