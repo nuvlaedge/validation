@@ -6,7 +6,7 @@ from . import validator
 
 @validator('1_standard_engine_start')
 class TestStandardEngineRun(ValidationBase):
-    TEST_RUN_TIME: float = 60*5
+    TEST_RUN_TIME: float = 60*0.5
     STATUS_LIST: list[str] = ['NEW', 'ACTIVE', 'COMMISSIONED']
 
     def setUp(self) -> None:

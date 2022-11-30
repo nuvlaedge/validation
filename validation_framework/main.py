@@ -69,14 +69,24 @@ def run_test_on_device(device_config_path: Path) -> list[io.BytesIO]:
 
 
 def save_results(results: list, location: Path) -> None:
+    cte.JSON_RESULTS_PATH.mkdir(exist_ok=True, parents=True)
+    cte.XML_RESULTS_PATH.mkdir(exist_ok=True, parents=True)
     for res in results:
-        it = res[1]
-        location = location.expanduser()
+        xml_results = res[0]
+        json_results = res[1]
 
         logger.info(f'{json.dumps(res[1], indent=4)} ')
-        it_location = location / (it.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.json')
-        with it_location.open('w') as file:
-            json.dump(it, file, indent=4)
+        json_location = cte.JSON_RESULTS_PATH / (
+                json_results.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.json')
+        with json_location.open('w') as file:
+            json.dump(json_results, file, indent=4)
+
+        xml_location = cte.XML_RESULTS_PATH / (
+                    json_results.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.xml')
+        with xml_location.open('wb') as file:
+            logger.info(xml_results)
+            logger.info(type(xml_results))
+            file.write(xml_results)
 
 
 def main():
@@ -95,7 +105,6 @@ def main():
     test_report: list = run_test_on_device(Path('/random/path'))
     results = parse_results(test_report)
 
-    cte.RESULTS_PATH.mkdir(exist_ok=True, parents=True)
     save_results(results, cte.RESULTS_PATH)
     validation_time = time.process_time() - validation_time
     elapsed_time = time.time() - elapsed_time

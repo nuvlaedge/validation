@@ -32,3 +32,5 @@ NUVLAEDGE_NAME: str = '[{device}] Validation'
 
 # Report paths
 RESULTS_PATH: Path = Path('../temp_results').resolve()
+JSON_RESULTS_PATH: Path = RESULTS_PATH / 'json'
+XML_RESULTS_PATH: Path = RESULTS_PATH / 'xml'
