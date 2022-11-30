@@ -94,6 +94,8 @@ def main():
     time.sleep(2)
     test_report: list = run_test_on_device(Path('/random/path'))
     results = parse_results(test_report)
+
+    cte.RESULTS_PATH.mkdir(exist_ok=True, parents=True)
     save_results(results, cte.RESULTS_PATH)
     validation_time = time.process_time() - validation_time
     elapsed_time = time.time() - elapsed_time
