@@ -29,3 +29,6 @@ COMPOSE_DOWN: str = 'docker-compose -p {project_name} -f {files} down -d'
 # NuvlaEdge engine configuration constants
 PROJECT_NAME: str = 'NuvlaEdge_Validator'
 NUVLAEDGE_NAME: str = '[{device}] Validation'
+
+# Report paths
+RESULTS_PATH: Path = Path('../temp_results').resolve()

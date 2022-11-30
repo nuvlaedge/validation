@@ -44,3 +44,34 @@ To add tests to this framework there are some considerations to take into accoun
 4. Every TestCase must contain one single test_* method as they are intended to test a single specific functionally. However, if the testing target requires it, multiple operations can be performed.
 
 
+## Validation integration with GH CI actions
+This service is developed in order to be used within a organization scope. The organization should contain the validation repository.
+
+The workflow action of this repository is in charge of updating the software in the runner everytime there is a new push into main. 
+
+Then, trigger the validation tests the required container will have to contain a job inside its GitHub workflow as follows:
+
+
+Sample template:
+```yaml
+jobs:
+  update-validator:
+    runs-on: validation-runner  # This is the runner containing the updated validation service
+    strategy:
+      matrix:
+        board-config: ["device_conf_1.toml", "device_conf_2.toml", "device_conf_3.toml", ...]
+
+    steps:
+      - name: Setup Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.8'
+
+      - name: Install dependencies
+        working-directory: /path/to/validation_framework
+        run: pip install -r requirements.txt
+
+      - name: Run Validation on board ${{ matrix.board-config }}
+        working-directory: /path/to/validation_framework
+        run: python main.py --repo <repo_name> --branch <branch_name>
+```

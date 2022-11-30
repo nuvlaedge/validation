@@ -94,7 +94,7 @@ def main():
     time.sleep(2)
     test_report: list = run_test_on_device(Path('/random/path'))
     results = parse_results(test_report)
-    save_results(results, Path('~/PycharmProjects/nuvlaedge/devel/validation/temp_results/'))
+    save_results(results, cte.RESULTS_PATH)
     validation_time = time.process_time() - validation_time
     elapsed_time = time.time() - elapsed_time
     logger.info(f'Successfully finishing validation in {validation_time}s with a total of '
