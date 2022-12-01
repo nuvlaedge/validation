@@ -1,6 +1,7 @@
 """
 Validator entrypoint python script
 """
+import argparse
 import io
 import json
 import unittest
@@ -49,12 +50,11 @@ def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
     return parsed_data
 
 
-def run_test_on_device(device_config_path: Path) -> list[io.BytesIO]:
+def run_test_on_device(device_config_file: str) -> list[io.BytesIO]:
 
     test_results: list[io.BytesIO] = []
 
     for name, v in active_validators.items():
-        logger.info(f'Detected {name}')
         logger.info(f'Validator: {get_validator(name)}')
 
         test_report: io.BytesIO = io.BytesIO()
@@ -62,7 +62,7 @@ def run_test_on_device(device_config_path: Path) -> list[io.BytesIO]:
 
         suite = unittest.TestSuite()
         suite.addTest(ParametrizedTests.parametrize(get_validator(name),
-                                                    target_device_config='1_rpi4.toml',
+                                                    target_device_config=device_config_file,
                                                     target_engine_version='2.4.3'))
         result = runner.run(suite)
         test_results.append(test_report)
@@ -90,7 +90,14 @@ def save_results(results: list, location: Path) -> None:
             tree.write(file, encoding='utf-8')
 
 
-def main():
+def parse_arguments() -> argparse.Namespace:
+    arguments: argparse.ArgumentParser = argparse.ArgumentParser()
+    arguments.add_argument("--target")
+    arguments.add_argument("--microservice", default=None)
+    return arguments.parse_args()
+
+
+def main(arguments: argparse.Namespace):
     """
     Main script for test running. Its main functionality is selecting the test parsed as parameter
     :return:
@@ -103,7 +110,8 @@ def main():
     # Run validation
     logger.info(f'Validators size {len(active_validators)} : {active_validators.items()}')
     time.sleep(2)
-    test_report: list = run_test_on_device(Path('/random/path'))
+    logger.info(f'Starting validation process in {arguments.target}')
+    test_report: list = run_test_on_device('2_ubuntu_vm.toml')
     results = parse_results(test_report)
 
     save_results(results, cte.RESULTS_PATH)
@@ -117,6 +125,7 @@ if __name__ == '__main__':
 
     # Configure the logger by file. Should be adaptable via command line
     logger_config.fileConfig(cte.LOGGING_CONFIG_FILE)
-
-    main()
+    args: argparse.Namespace = parse_arguments()
+    logger.info(f'Parsed arguments: {args}')
+    main(args)
 

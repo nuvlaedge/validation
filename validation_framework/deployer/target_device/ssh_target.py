@@ -1,7 +1,7 @@
 """
 Target Device SSH implementation
 """
-
+import os
 import logging
 from contextlib import contextmanager
 
@@ -39,7 +39,9 @@ class SSHTarget(TargetDevice):
         new_connection: Connection = Connection(host=self.address,
                                                 user=self.user,
                                                 connect_timeout=3,
-                                                connect_kwargs={"password": self.target_config.password})
+                                                connect_kwargs={
+                                                    "key_filename": os.path.expanduser(
+                                                                        self.target_config.private_key_path)})
         yield new_connection
         new_connection.close()
 

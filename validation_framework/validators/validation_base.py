@@ -21,7 +21,7 @@ class ParametrizedTests(unittest.TestCase):
         super().__init__(test_name)
 
         self.test_name: str = test_name
-        self.target_config_file: Path = Path(target_device_config)
+        self.target_config_file: str = target_device_config
         self.target_engine_version: str = target_engine_version
 
     @staticmethod
@@ -113,7 +113,8 @@ class ValidationBase(ParametrizedTests):
         self.logger: logging.Logger = logging.getLogger(__name__)
 
         self.nuvla_client: NuvlaClient = NuvlaClient()
-        self.engine_handler: EngineHandler = EngineHandler(1, Release('2.4.3'))
+        self.engine_handler: EngineHandler = EngineHandler(cte.DEVICE_CONFIG_PATH / self.target_config_file,
+                                                           Release('2.4.3'))
         self.uuid: NuvlaUUID = self.create_nuvlaedge_in_nuvla()
 
         self.logger.info(f'Target device: {self.engine_handler.device_config.hostname}')

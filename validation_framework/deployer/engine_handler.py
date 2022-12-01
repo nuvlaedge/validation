@@ -22,7 +22,7 @@ class EngineHandler:
     target_dir: str = ''
     nuvlaedge_uuid: NuvlaUUID = ''
 
-    def __init__(self, target_device: int | str, target_release: str):
+    def __init__(self, target_device: int | Path, target_release: str):
         """
         Engine handler constructor. It is in charge of assessing if the targets are passed as index or path to file.
         If an index is passed has to find the corresponding file in the default folder, if it's a path, directly
@@ -38,7 +38,7 @@ class EngineHandler:
             self.device_config_file: Path = Path(self.get_device_config_by_index(target_device))
         else:
             self.logger.error('Gather information from path')
-            self.device_config_file: Path = Path(target_device)
+            self.device_config_file: Path = target_device
         if not self.device_config_file.is_file():
             raise FileNotFoundError(f'Provided file {self.device_config_file} does not exists')
 

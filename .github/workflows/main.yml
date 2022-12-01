@@ -5,14 +5,14 @@ on:
     branches:
       - main
     pull_request:
-    workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
   update-validator:
     runs-on: validation-runner
     strategy:
       matrix:
-        board-config: ["1_rpi4.toml"]
+        board-config: ["1_rpi4.toml", "2_ubuntu_vm.toml"]
 
     steps:
       - name: Pull repo
@@ -31,7 +31,7 @@ jobs:
 
       - name: Run Validation on board ${{ matrix.board-config }}
         working-directory: ./validation_framework
-        run: python main.py
+        run: python main.py --target ${{ matrix.board-config }}
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
