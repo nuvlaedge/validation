@@ -22,7 +22,7 @@ class NuvlaIO:
         self.logger: logging.Logger = logging.getLogger(self.__class__.__name__)
 
         # Nuvla API instance
-        self.nuvla_client: Api = Api(endpoint=endpoint)
+        self.nuvla_client: Api = Api(endpoint=endpoint, persist_cookie=False)
 
         # UserInfo
         self.user_info: UserSchema = UserSchema()
