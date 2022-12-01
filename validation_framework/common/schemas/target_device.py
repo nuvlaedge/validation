@@ -2,7 +2,7 @@
 
 """
 
-from pydantic import BaseModel
+from pydantic import BaseModel, BaseSettings, Field
 
 from common.release import Release
 
@@ -33,4 +33,5 @@ class TargetDeviceConfig(BaseModel):
     # Security data
     pub_key_path: str | None
     private_key_path: str | None
+
     password: str | None

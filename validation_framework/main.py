@@ -111,7 +111,7 @@ def main(arguments: argparse.Namespace):
     logger.info(f'Validators size {len(active_validators)} : {active_validators.items()}')
     time.sleep(2)
     logger.info(f'Starting validation process in {arguments.target}')
-    test_report: list = run_test_on_device('2_ubuntu_vm.toml')
+    test_report: list = run_test_on_device(arguments.target)
     results = parse_results(test_report)
 
     save_results(results, cte.RESULTS_PATH)
