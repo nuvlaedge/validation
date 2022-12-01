@@ -26,7 +26,6 @@ RUN chown -R runner ~runner
 USER runner
 
 RUN chmod +x start_runner.sh
-COPY ~/.ssh/id_rsa* /home/runner/.shh/
 
 
-CMD ./start_runner.sh
+ENTRYPOINT ["bash", "start_runner.sh"]
