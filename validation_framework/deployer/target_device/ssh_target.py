@@ -9,10 +9,10 @@ import fabric
 from fabric import Connection
 import invoke
 
-from common.constants import *
-from common.nuvla_uuid import NuvlaUUID
-from common.schemas.target_device import TargetDeviceConfig
-from deployer.target_device.target import TargetDevice
+from validation_framework.common.constants import *
+from validation_framework.common.nuvla_uuid import NuvlaUUID
+from validation_framework.common.schemas.target_device import TargetDeviceConfig
+from validation_framework.deployer.target_device.target import TargetDevice
 
 
 class SSHTarget(TargetDevice):

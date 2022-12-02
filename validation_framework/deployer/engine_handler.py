@@ -4,14 +4,13 @@ Higher class that wraps together the device and the release handler
 import logging
 from pathlib import Path
 
-from common import Release
-from common import utils
-from common.nuvla_uuid import NuvlaUUID
-from common.schemas.release import TargetReleaseConfig
-from common.schemas.target_device import TargetDeviceConfig
-from common import  constants as cte
-from deployer import SSHTarget
-from deployer.release_handler import ReleaseHandler
+from validation_framework.common import (Release, utils)
+from validation_framework.common.nuvla_uuid import NuvlaUUID
+from validation_framework.common.schemas.release import TargetReleaseConfig
+from validation_framework.common.schemas.target_device import TargetDeviceConfig
+from validation_framework.common import constants as cte
+from validation_framework.deployer import SSHTarget
+from validation_framework.deployer.release_handler import ReleaseHandler
 
 
 class EngineHandler:

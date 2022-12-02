@@ -5,7 +5,6 @@ import logging
 from pathlib import Path
 
 import toml
-from pydantic import BaseModel
 
 
 utils_logger: logging.Logger = logging.getLogger(__name__)

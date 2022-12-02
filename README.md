@@ -73,5 +73,5 @@ jobs:
 
       - name: Run Validation on board ${{ matrix.board-config }}
         working-directory: /path/to/validation_framework
-        run: python main.py --repo <repo_name> --branch <branch_name>
+        run: python __main__.py --repo <repo_name> --branch <branch_name>
 ```

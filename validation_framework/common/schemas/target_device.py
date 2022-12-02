@@ -4,7 +4,7 @@
 
 from pydantic import BaseModel, BaseSettings, Field
 
-from common.release import Release
+from validation_framework.common.release import Release
 
 
 class SystemSetup(BaseModel):

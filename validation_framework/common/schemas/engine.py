@@ -1,6 +1,6 @@
 from pydantic import BaseModel
 
-from common import Release
+from validation_framework.common import Release
 
 
 class EngineConfig(BaseModel):

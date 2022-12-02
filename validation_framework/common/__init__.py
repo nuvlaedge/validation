@@ -1,1 +1,1 @@
-from common.release import Release
+from validation_framework.common.release import Release

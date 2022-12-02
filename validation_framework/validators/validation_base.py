@@ -4,14 +4,13 @@ General purpose class for NuvlaEdge validation
 import logging
 import time
 import unittest
-from pathlib import Path
 
 from nuvla.api import Api as NuvlaClient
 from nuvla.api.models import CimiResponse, CimiCollection
 
-from common import constants as cte, Release
-from common.nuvla_uuid import NuvlaUUID
-from deployer.engine_handler import EngineHandler
+from validation_framework.common import constants as cte, Release
+from validation_framework.common.nuvla_uuid import NuvlaUUID
+from validation_framework.deployer.engine_handler import EngineHandler
 
 
 class ParametrizedTests(unittest.TestCase):
@@ -48,6 +47,7 @@ class ValidationBase(ParametrizedTests):
     INDEX: int = 1
     DESCRIPTION: str = 'Tests a simple deployment  Start -> Activation -> Commission -> Decommission -> Stop'
     uuid: NuvlaUUID = ''
+    STATE_HIST: list[str]
 
     def get_nuvlaedge_status(self) -> tuple[str, str]:
         """
@@ -66,6 +66,8 @@ class ValidationBase(ParametrizedTests):
             status = status_response.resources[0].data['status']
         except:
             status = 'UNKNOWN'
+
+        self.STATE_HIST.append(response.resources[0].data['state'])
         return response.resources[0].data['state'], status
 
     def create_nuvlaedge_in_nuvla(self) -> NuvlaUUID:

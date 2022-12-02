@@ -1,11 +1,11 @@
 """
 
 """
-from validators import ValidationBase
+from validation_framework.validators import ValidationBase
 from . import validator
 
 
-@validator('ConnectivityLoss')
+# @validator('ConnectivityLoss')
 class TestConnectivityLoss(ValidationBase):
 
     def test_connectivity_loss(self):

@@ -30,7 +30,7 @@ jobs:
 
       - name: Run Validation on board ${{ matrix.board-config }}
         working-directory: /path/to/validation_framework
-        run: python main.py --repo <repo_name> --branch <branch_name> --target_device ${{matrix.board-config}}
+        run: python __main__.py --repo <repo_name> --branch <branch_name> --target_device ${{matrix.board-config}}
 ```
 
 Where the first step, sets up the local python environment, the second installs the required libraries (if not present) 

@@ -1,6 +1,7 @@
 """
 Validator entrypoint python script
 """
+
 import argparse
 import io
 import json
@@ -17,10 +18,10 @@ from xmlrunner.extra.xunit_plugin import transform
 import xmltodict
 import xml.etree.ElementTree as ET
 
-import common.constants as cte
-from common.settings import ValidatorSettings
-from validators.tests.basic_tests import active_validators, get_validator
-from validators.validation_base import ParametrizedTests
+import validation_framework.common.constants as cte
+from validation_framework.common.settings import ValidatorSettings
+from validation_framework.validators.tests.basic_tests import active_validators, get_validator
+from validation_framework.validators.validation_base import ParametrizedTests
 
 # Entrypoint logging object
 logger: logging.Logger = logging.getLogger()

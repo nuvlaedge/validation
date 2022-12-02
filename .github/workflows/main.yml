@@ -37,7 +37,7 @@ jobs:
 
       - name: Run Validation on board ${{ matrix.board-config }}
         working-directory: ./validation_framework
-        run: python main.py --target ${{ matrix.board-config }}
+        run: python __main__.py --target ${{ matrix.board-config }}
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2

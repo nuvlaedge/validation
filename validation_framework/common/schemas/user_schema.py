@@ -5,7 +5,7 @@ from typing import Optional
 
 from pydantic import BaseSettings, Field, BaseModel, Extra
 
-from common.nuvla_uuid import NuvlaUUID
+from validation_framework.common.nuvla_uuid import NuvlaUUID
 
 
 class UserSchema(BaseSettings):

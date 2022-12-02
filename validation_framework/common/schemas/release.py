@@ -3,7 +3,7 @@
 """
 from pydantic import BaseModel
 
-from common.release import Release
+from validation_framework.common.release import Release
 
 
 class TargetReleaseConfig(BaseModel):

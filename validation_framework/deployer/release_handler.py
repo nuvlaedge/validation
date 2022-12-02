@@ -8,9 +8,9 @@ import logging
 import requests
 
 
-from common import Release
-from common.schemas.release import TargetReleaseConfig, ReleaseSchema
-from common import constants as cte
+from validation_framework.common import Release
+from validation_framework.common.schemas.release import TargetReleaseConfig, ReleaseSchema
+from validation_framework.common import constants as cte
 
 
 class ReleaseHandler:

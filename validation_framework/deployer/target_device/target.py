@@ -8,8 +8,7 @@ from abc import ABC, abstractmethod
 
 import fabric
 
-from common.schemas.engine import EngineConfig
-from common.schemas.target_device import TargetDeviceConfig
+from validation_framework.common.schemas.target_device import TargetDeviceConfig
 
 
 class TargetDevice(ABC):

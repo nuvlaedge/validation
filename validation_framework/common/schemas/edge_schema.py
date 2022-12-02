@@ -3,8 +3,8 @@ from typing import Optional, List
 
 from pydantic import BaseModel, Field
 
-from common.nuvla_uuid import NuvlaUUID
-from common.release import Release
+from validation_framework.common.nuvla_uuid import NuvlaUUID
+from validation_framework.common.release import Release
 
 
 class EdgeSchema(BaseModel):

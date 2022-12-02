@@ -5,11 +5,11 @@ import time
 
 import invoke
 
-from validators import ValidationBase
+from validation_framework.validators import ValidationBase
 from . import validator
 
 
-@validator('DeviceRestart')
+# @validator('DeviceRestart')
 class TestDeviceRestart(ValidationBase):
     """
 
