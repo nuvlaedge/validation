@@ -30,43 +30,19 @@ class TestDeviceRestart(ValidationBase):
     def setUp(self) -> None:
         super(TestDeviceRestart, self).setUp()
 
-    def test_restart_before_commission(self):
-        """
-        Tests the correct behaviour of the NuvlaEdge when the device is restarted right before commissioning
-        :return:
-        """
-        self.assertTrue(self.get_nuvlaedge_status()[0] == self.STATE_LIST[0], 'Initial Status must by NEW')
-        self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
-
-        self.logger.info('Waiting for the device to activate')
-        last_state: str = self.get_nuvlaedge_status()[0]
-        while last_state != self.STATE_LIST[1]:
-            time.sleep(0.5)
-            last_state = self.get_nuvlaedge_status()[0]
-
-        self.trigger_restart()
-
-        last_status: str = self.get_nuvlaedge_status()[1]
-        start_time: float = time.time()
-
-        while time.time() - start_time < self.operational_time:
-            last_status = self.get_nuvlaedge_status()[1]
-            if last_status == 'OPERATIONAL':
-                self.assertTrue(True, 'System returned to operational status')
-
-        self.assertTrue(last_status == 'OPERATIONAL', 'Status should be opearationsl')
-
     def test_restart_after_commissioning(self):
         """
         Tests the correct behaviour of the NuvlaEdge when the device is restarted after commissioning
         :return:
         """
         self.assertTrue(self.get_nuvlaedge_status()[0] == self.STATE_LIST[0], 'Initial Status must by NEW')
+        print(self.engine_handler.device.run_command('echo $NUVLABOX_UUID', envs={'NUVLABOX_UUID': self.uuid}))
+        time.sleep(5)
         self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
 
-        self.logger.info('Waiting for the device to activate')
         last_state: str = self.get_nuvlaedge_status()[0]
         while last_state != self.STATE_LIST[2]:
+            self.logger.info(f'Waiting for the device to activate: {last_state}')
             time.sleep(0.5)
             last_state = self.get_nuvlaedge_status()[0]
 
@@ -79,6 +55,7 @@ class TestDeviceRestart(ValidationBase):
             self.logger.info(f'Current status {last_status}')
             if last_status == 'OPERATIONAL':
                 self.assertTrue(True, 'System returned to operational status')
+                break
             time.sleep(1)
         last_status: str = self.get_nuvlaedge_status()[1]
         self.logger.info(f'Last registered status {last_status}')

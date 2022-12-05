@@ -26,7 +26,7 @@ from validation_framework.validators import ValidationBase
 from . import validator
 
 
-# @validator('StandardEngineRun')
+@validator('StandardEngineRun')
 class TestStandardEngineRun(ValidationBase):
     TEST_RUN_TIME: float = 60*5
     STATE_LIST: list[str] = ['NEW', 'ACTIVATED', 'COMMISSIONED', 'DECOMMISSIONED']
