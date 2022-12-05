@@ -47,7 +47,7 @@ class ValidationBase(ParametrizedTests):
     INDEX: int = 1
     DESCRIPTION: str = 'Tests a simple deployment  Start -> Activation -> Commission -> Decommission -> Stop'
     uuid: NuvlaUUID = ''
-    STATE_HIST: list[str]
+    STATE_HIST: list[str] = []
 
     def get_nuvlaedge_status(self) -> tuple[str, str]:
         """

@@ -1,14 +1,35 @@
+"""
+Validation test for NuvlaEdge
+id: StandardEngineRun
+name: Standard engine run test
+
+description: The goal of this test is to run a simple deployment on the given NuvlaEdge version. It compares
+status and state simultaneously against a predefined ordered list of strings.
+
+State must follow the next order:
+ 1. New
+ 2. Activated
+ 3. Commissioned
+ 4. Decommissioned
+
+Status order:
+ 1. Unknown
+ 2. ---
+ 3. Operational
+
+For this test, the NuvlaEdge engine is started after asserting the initial state of the machine.
+"""
+
 import time
 
 from validation_framework.validators import ValidationBase
 from . import validator
 
 
-@validator('1_standard_engine_start')
+# @validator('StandardEngineRun')
 class TestStandardEngineRun(ValidationBase):
     TEST_RUN_TIME: float = 60*5
     STATE_LIST: list[str] = ['NEW', 'ACTIVATED', 'COMMISSIONED', 'DECOMMISSIONED']
-    STATE_HIST: list[str] = []
 
     def setUp(self) -> None:
         super(TestStandardEngineRun, self).setUp()
@@ -43,8 +64,6 @@ class TestStandardEngineRun(ValidationBase):
 
                 time.sleep(5)
 
-        except Exception:
-            ...
-
-
-
+        except Exception as ex:
+            # Capture all the exception so the teardown is always executed and cleans Nuvla and the device
+            self.logger.exception(f'Something went wrong passing the test {__name__}', ex)

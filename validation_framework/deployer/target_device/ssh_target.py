@@ -102,18 +102,19 @@ class SSHTarget(TargetDevice):
         Removes docker containers, services, volumes and networks from previous runs
         :return: None
         """
-        try:
-            self.run_command('docker service rm $(docker service ls -q)')
-        except invoke.exceptions.UnexpectedExit:
-            pass
+        command_list: list = ['docker service rm $(docker service ls -q)',
+                              'docker stop $(docker ps -a -q)',
+                              'docker rm $(docker ps -a -q)',
+                              'docker network prune --force',
+                              'docker volume prune --force']
 
-        try:
-            self.run_command('docker stop $(docker ps -a -q)')
-            self.run_command('docker rm $(docker ps -a -q)')
-            self.run_command('docker network prune --force')
-            self.run_command('docker volume prune --force')
-        except Exception as ex:
-            self.logger.warning(f'System not present')
+        for cmd in command_list:
+            try:
+                self.run_command(cmd)
+            except invoke.exceptions.UnexpectedExit:
+                pass
+            except Exception as ex:
+                self.logger.warning(f'System not present {ex}')
 
     def start_edge(self, nuvlaedge_uuid: NuvlaUUID) -> None:
         """
