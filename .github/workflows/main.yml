@@ -35,9 +35,13 @@ jobs:
       - name: Install dependencies
         run: pip install -r requirements.txt
 
+      - name: Install Validation Framework dependency
+        working-directory: ./dist/
+        run: pip install validation-0.0.1a1-py3-none-any.whl
+
       - name: Run Validation on board ${{ matrix.board-config }}
         working-directory: ./validation_framework
-        run: python __main__.py --target ${{ matrix.board-config }}
+        run: python -m validation_framework --target ${{ matrix.board-config }}
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
