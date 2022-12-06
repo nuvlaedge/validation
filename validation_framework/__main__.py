@@ -20,8 +20,10 @@ import xml.etree.ElementTree as ET
 
 import validation_framework.common.constants as cte
 from validation_framework.common.settings import ValidatorSettings
-from validation_framework.validators.tests.basic_tests import active_validators, get_validator
 from validation_framework.validators.validation_base import ParametrizedTests
+
+# Dynamically import validators
+
 
 # Entrypoint logging object
 logger: logging.Logger = logging.getLogger()
@@ -94,6 +96,7 @@ def save_results(results: list, location: Path) -> None:
 def parse_arguments() -> argparse.Namespace:
     arguments: argparse.ArgumentParser = argparse.ArgumentParser()
     arguments.add_argument("--target")
+    arguments.add_argument("--validator")
     arguments.add_argument("--microservice", default=None)
     return arguments.parse_args()
 
@@ -128,5 +131,23 @@ if __name__ == '__main__':
     logger_config.fileConfig(cte.LOGGING_CONFIG_FILE)
     args: argparse.Namespace = parse_arguments()
     logger.info(f'Parsed arguments: {args}')
+
+    validator_type = args.validator
+
+    if validator_type == 'basic_tests':
+        logger.info(f'Running basic tests')
+        from validation_framework.validators.tests.basic_tests import active_validators, get_validator
+    elif validator_type == 'features':
+        logger.info(f'Running features')
+        from validation_framework.validators.tests.features import active_validators, get_validator
+    elif validator_type == 'microservices':
+        logger.info(f'Running MS')
+        from validation_framework.validators.tests.microservices import active_validators, get_validator
+    elif validator_type == 'nuvla_operations':
+        logger.info(f'Running Nuvla Operations')
+        from validation_framework.validators.tests.nuvla_operations import active_validators, get_validator
+        print(active_validators)
+    else:
+        raise Exception('No validator selected, cannot tests...')
     main(args)
 

@@ -123,7 +123,7 @@ class ValidationBase(ParametrizedTests):
 
     def tearDown(self) -> None:
         super(ValidationBase, self).tearDown()
-
+        self.logger.info(f'Parent tear down {__name__}')
         self.engine_handler.stop_engine()
 
         self.remove_nuvlaedge_from_nuvla()

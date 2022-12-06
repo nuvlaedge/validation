@@ -6,7 +6,7 @@ import time
 import invoke
 
 from validation_framework.validators import ValidationBase
-from . import validator
+from validation_framework.validators.tests.basic_tests import validator
 
 
 @validator('DeviceRestart')
@@ -52,12 +52,12 @@ class TestDeviceRestart(ValidationBase):
 
         while time.time() - start_time < self.operational_time:
             last_status = self.get_nuvlaedge_status()[1]
-            self.logger.info(f'Current status {last_status}')
+
             if last_status == 'OPERATIONAL':
                 self.assertTrue(True, 'System returned to operational status')
                 break
             time.sleep(1)
         last_status: str = self.get_nuvlaedge_status()[1]
         self.logger.info(f'Last registered status {last_status}')
-        self.assertTrue(last_status == 'OPERATIONAL', 'Status should be opearationsl')
+        self.assertTrue(last_status == 'OPERATIONAL', 'Status should be operational')
 

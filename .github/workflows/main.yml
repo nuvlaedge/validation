@@ -19,6 +19,7 @@ jobs:
     strategy:
       matrix:
         board-config: ["1_rpi4.toml", "2_ubuntu_vm.toml"]
+        validation-type: ["basic_tests", "nuvla_operations"]
 
     steps:
       - name: Pull repo
@@ -41,7 +42,7 @@ jobs:
 
       - name: Run Validation on board ${{ matrix.board-config }}
         working-directory: ./validation_framework
-        run: python -m validation_framework --target ${{ matrix.board-config }}
+        run: python -m validation_framework --target ${{ matrix.board-config }} --validator ${{ matrix.validation-type }}
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2

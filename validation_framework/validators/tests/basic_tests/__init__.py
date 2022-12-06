@@ -68,6 +68,7 @@ class Validators:
                 cls.register_validator(_validator_name, validator_class)
 
             return validator_class
+
         return decorator
 
 
@@ -82,5 +83,4 @@ for m in modules:
         try:
             from . import *
         except ModuleNotFoundError as ex:
-
             file_logger.exception(f'Module {__all__[0]} not fount')

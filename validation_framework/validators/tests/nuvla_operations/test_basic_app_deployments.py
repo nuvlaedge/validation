@@ -2,7 +2,6 @@
 
 """
 from validation_framework.validators import ValidationBase
-from validators.tests.basic_tests import validator
 
 
 # @validator('BasicAppDeployment')

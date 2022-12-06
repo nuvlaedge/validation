@@ -23,13 +23,14 @@ For this test, the NuvlaEdge engine is started after asserting the initial state
 import time
 
 from validation_framework.validators import ValidationBase
-from . import validator
+from validation_framework.validators.tests.basic_tests import validator
 
 
 @validator('StandardEngineRun')
 class TestStandardEngineRun(ValidationBase):
     TEST_RUN_TIME: float = 60*5
     STATE_LIST: list[str] = ['NEW', 'ACTIVATED', 'COMMISSIONED', 'DECOMMISSIONED']
+    SINGLE_SETUP_FLAG: bool = True
 
     def setUp(self) -> None:
         super(TestStandardEngineRun, self).setUp()
@@ -40,7 +41,7 @@ class TestStandardEngineRun(ValidationBase):
         self.logger.debug(f'Current State {last_state}')
         self.assertTrue(self.STATE_LIST[0] == last_state, 'Initial state should be "New"')
 
-        # Starts the preconfigured engine
+        # Starts the preconfigured engine after checking the remote state of the nuvlaedge
         self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
 
         # Wait until the device is activated
