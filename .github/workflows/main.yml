@@ -49,3 +49,4 @@ jobs:
         if: always()
         with:
           junit_files: "temp_results/xml/*.xml"
+

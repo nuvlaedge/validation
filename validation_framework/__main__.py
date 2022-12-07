@@ -19,9 +19,9 @@ import xmltodict
 import xml.etree.ElementTree as ET
 
 import validation_framework.common.constants as cte
+from validation_framework.common.logging_config import config_logger
 from validation_framework.common.settings import ValidatorSettings
 from validation_framework.validators.validation_base import ParametrizedTests
-
 # Dynamically import validators
 
 
@@ -127,8 +127,9 @@ def main(arguments: argparse.Namespace):
 
 if __name__ == '__main__':
 
-    # Configure the logger by file. Should be adaptable via command line
-    logger_config.fileConfig(cte.LOGGING_CONFIG_FILE)
+    # Configure the logger by dict. Should be adaptable via command line
+    config_logger()
+
     args: argparse.Namespace = parse_arguments()
     logger.info(f'Parsed arguments: {args}')
 

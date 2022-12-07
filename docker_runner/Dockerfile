@@ -5,7 +5,8 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 RUN apt update -y && apt upgrade -y && useradd -m runner
 
-RUN apt install -y curl
+RUN apt install -y curl \
+                   wget
 
 RUN mkdir /home/runner/actions-runner
 

@@ -1,0 +1,33 @@
+name="Targets"
+count=2
+
+[targets.rpi4]
+index=1
+alias="rpi4"
+address = "192.168.40.70"
+port = 22
+hostname = ""
+
+# Naming data
+user = "pi"
+
+# Security data
+pub_key_path = "~/.ssh/id_rsa.pub"
+private_key_path = "~/.ssh/id_rsa"
+
+[targets.ubuntu_vm]
+index=2
+alias = "ubuntu_VM"
+
+# Network data
+address = "159.100.243.225"
+port = 22
+hostname = ""
+
+# Naming data
+user = "ubuntu"
+
+# Security data
+pub_key_path = "~/.ssh/id_rsa.pub"
+private_key_path = "~/.ssh/id_rsa"
+
