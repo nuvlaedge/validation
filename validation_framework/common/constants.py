@@ -10,7 +10,7 @@ RELEASE_DOWNLOAD_LINK: str = 'https://github.com/nuvlaedge/deployment/releases/'
                              'download/{version}/{file}'
 
 # File locations
-GENERAL_CONFIG_PATH: Path = Path('../conf').resolve()
+GENERAL_CONFIG_PATH: Path = Path('./conf/').resolve()
 DEVICE_CONFIG_PATH: Path = GENERAL_CONFIG_PATH / 'targets'
 ENGINE_CONFIG_PATH: Path = GENERAL_CONFIG_PATH / 'engines'
 TESTS_CONFIG_PATH: Path = GENERAL_CONFIG_PATH / 'tests'
