@@ -18,7 +18,7 @@ jobs:
     runs-on: validation-runner
     strategy:
       matrix:
-        board-config: ["1_rpi4.toml", "2_ubuntu_vm.toml"]
+        board-config: ["rpi4.toml", "ubuntu_vm.toml"]
         validation-type: ["basic_tests", "nuvla_operations"]
 
     steps:
