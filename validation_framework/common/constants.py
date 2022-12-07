@@ -14,7 +14,6 @@ GENERAL_CONFIG_PATH: Path = Path('../conf').resolve()
 DEVICE_CONFIG_PATH: Path = GENERAL_CONFIG_PATH / 'targets'
 ENGINE_CONFIG_PATH: Path = GENERAL_CONFIG_PATH / 'engines'
 TESTS_CONFIG_PATH: Path = GENERAL_CONFIG_PATH / 'tests'
-LOGGING_CONFIG_FILE: Path = GENERAL_CONFIG_PATH / 'validation_logging.ini'
 
 # Remote file locations
 ROOT_PATH: str = '~/.nuvlaedge_validation'
