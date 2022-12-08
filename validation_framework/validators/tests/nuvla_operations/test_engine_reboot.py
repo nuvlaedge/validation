@@ -15,10 +15,8 @@ class TestEngineReboot(ValidationBase):
 
     def execute_reboot_operation(self):
         nuvlabox: CimiResource = self.nuvla_client.get(self.uuid)
-
+        pp(nuvlabox.operations)
         resp: CimiResponse = self.nuvla_client.operation(nuvlabox, 'reboot')
-        pp(resp.data)
-        # self.nuvla_client._cimi_post(resource_id=self.uuid + '/reboot')
 
     def wait_for_commissioned(self):
         """

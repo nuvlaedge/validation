@@ -1,0 +1,62 @@
+name: "Validation"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+
+on:
+  push:
+    branches:
+      - random
+    pull_request:
+  workflow_dispatch:
+
+env:
+  NUVLA_API_KEY: ${{secrets.VALIDATION_API_KEY}}
+  NUVLA_API_SECRET: ${{secrets.VALIDATION_API_SECRET}}
+  TESTBED_SSH_PUBLIC: ${{secrets.TESTBED_SSH_PUBLIC}}
+  TESTBED_SSH_PRIVATE: ${{secrets.TESTBED_SSH_PRIVATE}}
+
+jobs:
+  update-validator:
+    strategy:
+      matrix:
+        board-config: ["rpi4", "ubuntu_vm"]
+        validation-type: ["basic_tests", "nuvla_operations"]
+    runs-on: ${{ matrix.board-config }}
+
+    steps:
+      - name: Pull repo
+        uses: actions/checkout@v3
+        with:
+          # Disabling shallow clone is recommended for improving relevancy of reporting for sonar
+          fetch-depth: 0
+
+      - name: Setup Python environment
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10.8'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Install Validation Framework dependency
+        working-directory: ./dist/
+        run: pip install validation-0.0.1-py3-none-any.whl  --force-reinstall
+
+      # FUTURE: Store results somewhere else?
+      - name: Clear previous results
+        run: |
+          rm -f temp_results/xml/*.xml || true
+
+      - name: Run Validation on board ${{ matrix.board-config }}
+        run: python -m validation_framework --target ${{ matrix.board-config }}.toml --validator ${{ matrix.validation-type }}
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always()
+        with:
+          junit_files: "temp_results/xml/*.xml"
+
+
