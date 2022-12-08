@@ -53,22 +53,10 @@ jobs:
       - name: Run Validation on board ${{ matrix.board-config }}
         run: python -m validation_framework --target ${{ matrix.board-config }}.toml --validator ${{ matrix.validation-type }}
 
-#      - name: Publish Unit Test Results
-#        uses: EnricoMi/publish-unit-test-result-action/composite@v2
-#        if: always()
-#        with:
-#          junit_files: "temp_results/xml/*.xml"
-      - name: Test Summary
-        uses: test-summary/action@v2
-        with:
-          paths: |
-            temp_results/xml/*.xml
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always()
+        with:
+          junit_files: "temp_results/xml/*.xml"
 
-      - name: Upload test summary
-        uses: actions/upload-artifact@v3
-        with:
-          name: test-summary
-          path: test-summary.md
-        if: always()
 
