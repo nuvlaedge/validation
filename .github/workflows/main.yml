@@ -1,4 +1,4 @@
-name: Validator updater
+name: "NuvlaEdgeValidation"
 
 on:
   push:
