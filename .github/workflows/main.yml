@@ -1,4 +1,4 @@
-name: "NuvlaEdgeValidation"
+name: "Validation"
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref_name }}
