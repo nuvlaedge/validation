@@ -15,11 +15,11 @@ env:
 
 jobs:
   update-validator:
-    runs-on: validation-runner
     strategy:
       matrix:
-        board-config: ["rpi4.toml", "ubuntu_vm.toml"]
+        board-config: ["rpi4", "ubuntu_vm"]
         validation-type: ["basic_tests", "nuvla_operations"]
+    runs-on: ${{ matrix.board-config }}
 
     steps:
       - name: Pull repo
@@ -41,7 +41,7 @@ jobs:
         run: pip install validation-0.0.1-py3-none-any.whl  --force-reinstall
 
       - name: Run Validation on board ${{ matrix.board-config }}
-        run: python -m validation_framework --target ${{ matrix.board-config }} --validator ${{ matrix.validation-type }}
+        run: python -m validation_framework --target ${{ matrix.board-config }}.toml --validator ${{ matrix.validation-type }}
 
       - name: Publish Unit Test Results
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
