@@ -62,7 +62,7 @@ jobs:
         uses: test-summary/action@v2
         with:
           paths: |
-            test-one/**/TEST-*.xml
+            temp_results/xml/*.xml
         if: always()
 
       - name: Upload test summary
