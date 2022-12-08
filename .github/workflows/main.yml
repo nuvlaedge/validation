@@ -45,12 +45,30 @@ jobs:
         working-directory: ./dist/
         run: pip install validation-0.0.1-py3-none-any.whl  --force-reinstall
 
+      # FUTURE: Store results somewhere else?
+      - name: Clear previous results
+        run: |
+          rm temp_results/xml/*.xml
+
       - name: Run Validation on board ${{ matrix.board-config }}
         run: python -m validation_framework --target ${{ matrix.board-config }}.toml --validator ${{ matrix.validation-type }}
 
-      - name: Publish Unit Test Results
-        uses: EnricoMi/publish-unit-test-result-action/composite@v2
-        if: always()
+#      - name: Publish Unit Test Results
+#        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+#        if: always()
+#        with:
+#          junit_files: "temp_results/xml/*.xml"
+      - name: Test Summary
+        uses: test-summary/action@v2
         with:
-          junit_files: "temp_results/xml/*.xml"
+          paths: |
+            test-one/**/TEST-*.xml
+        if: always()
+
+      - name: Upload test summary
+        uses: actions/upload-artifact@v3
+        with:
+          name: test-summary
+          path: test-summary.md
+        if: always()
 
