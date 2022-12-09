@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-    pull_request:
   workflow_dispatch:
 
 jobs:
@@ -26,4 +25,22 @@ jobs:
           poetry-version: "1.2.2"
 
       - name: Build package
-        run: poetry build
+        run: poetry build --format=wheel
+
+      - name: Create standard latest release
+        run: |
+          cp ./dist/validation* ./release-hist/
+          mv ./dist/validation* ./validation_framework.whl
+
+      - name: Commit changes
+        run: |
+          git config --local user.email "nuvlaedge-bot@sixsq.com"
+          git config --local user.name "nuvlaedge-bot"
+          git add -A
+          git commit -m "Validation Framework CI action"
+
+      - name: Push release back
+        uses: ad-m/github-push-action@master
+        env:
+          github_token: ${{ secrets.VALIDATION_GITHUB_TOKEN }}
+          branch: 'main'
