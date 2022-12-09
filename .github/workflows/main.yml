@@ -30,7 +30,7 @@ jobs:
       - name: Create standard latest release
         run: |
           cp ./dist/validation* ./release-history/
-          mv ./dist/validation* ./validation_framework.whl
+          mv ./dist/validation* ./validations-framework-latest-py3-none-any.whl
 
       - name: Commit changes
         run: |
