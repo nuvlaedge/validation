@@ -22,4 +22,4 @@ jobs:
       - name: Refactor current table
         working-directory: ./validation_framework/results_parser
         run: |
-          echo "Test dispatch payload \n Actions: ${{ github.event.action }} \n Repo: ${{ github.event.client_payload.repository }} \n Device: ${{ github.event.client_payload.device }}"
+          echo "Test dispatch payload \n Actions: ${{ github.event.action }} \n Device: ${{ github.event.client_payload.device }}"

@@ -3,7 +3,7 @@ name: "BUILD"
 on:
   push:
     branches:
-      - main
+      - tests
   workflow_dispatch:
 
 jobs:
