@@ -45,12 +45,14 @@ class SSHTarget(TargetDevice):
         yield new_connection
         new_connection.close()
 
-    def is_reachable(self) -> bool:
+    def is_reachable(self, silent=False) -> bool:
         try:
-            self.logger.info('Running connection')
+            if not silent:
+                self.logger.info('Running connection')
             it_result: fabric.Result = self.run_command('hostname')
-            self.hostname = it_result.stdout.strip()
-            self.logger.info(f'Host {self.hostname} reachable')
+            if not silent:
+                self.hostname = it_result.stdout.strip()
+                self.logger.info(f'Host {self.hostname} reachable')
             return not it_result.failed
         except TimeoutError:
             self.logger.error(f'Host address {self.address} not reachable')
