@@ -54,24 +54,70 @@ Then, trigger the validation tests the required container will have to contain a
 
 Sample template:
 ```yaml
+name: "<REPO_NAME>Validation"
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - "main"
+    pull_request:
+  workflow_dispatch:
+
+env:
+  VALIDATION_PACKAGE_NAME: "validation-latest-py3-none-any.whl"
+
 jobs:
-  update-validator:
-    runs-on: validation-runner  # This is the runner containing the updated validation service
+  validate-release:
     strategy:
       matrix:
-        board-config: ["device_conf_1.toml", "device_conf_2.toml", "device_conf_3.toml", ...]
+        board-config: [ "rpi4", "ubuntu_vm" ]
+        validation-type: [ "basic_tests", "nuvla_operations" ]
+    runs-on: ${{ matrix.board-config }}
 
     steps:
+      - name: CheckOut validation packages
+        run: |
+          curl -u "${{ secrets.VALIDATION_TOKEN_USERNAME }}:${{ secrets.VALIDATION_TOKEN_SECRET }}" \
+          -H 'Accept: application/vnd.github.v3.raw' \
+          -O --create-dirs --output-dir conf/targets/ \
+          -L "https://api.github.com/repos/nuvlaedge/validation/contents/conf/targets/${{ matrix.board-config }}.toml" \
+          
+
+      - name: Gather System configuration
+        run: |
+          curl -u "${{ secrets.VALIDATION_TOKEN_USERNAME }}:${{ secrets.VALIDATION_TOKEN_SECRET }}" \
+          -H 'Accept: application/vnd.github.v3.raw' \
+          -O -L "https://api.github.com/repos/nuvlaedge/validation/contents/${{ env.VALIDATION_PACKAGE_NAME }}"
+
       - name: Setup Python environment
         uses: actions/setup-python@v4
         with:
           python-version: '3.10.8'
 
-      - name: Install dependencies
-        working-directory: /path/to/validation_framework
-        run: pip install -r requirements.txt
+      - name: Install Validation Framework dependency
+        run: pip install ${{ env.VALIDATION_PACKAGE_NAME }}  --force-reinstall
+
+      - name: Setup results folder
+        run: |
+          mkdir -p temp_results/xml temp_results/json
+
+      # FUTURE: Store results somewhere else?
+      - name: Clear previous results
+        run: |
+          rm temp_results/xml/*.xml
 
       - name: Run Validation on board ${{ matrix.board-config }}
-        working-directory: /path/to/validation_framework
-        run: python __main__.py --repo <repo_name> --branch <branch_name>
+        run: |
+          python -m validation_framework --target ${{ matrix.board-config }}.toml \
+          --validator ${{ matrix.validation-type }} --microservice ${{ github.event.repository.name }}
+
+      - name: Publish Unit Test Results
+        uses: EnricoMi/publish-unit-test-result-action/composite@v2
+        if: always()
+        with:
+          junit_files: "results/xml/*.xml"
 ```

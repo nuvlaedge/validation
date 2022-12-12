@@ -38,17 +38,13 @@ jobs:
         with:
           python-version: '3.10.8'
 
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
       - name: Install Validation Framework dependency
-        working-directory: ./dist/
-        run: pip install validation-0.0.1-py3-none-any.whl  --force-reinstall
+        run: pip install validation-latest-py3-none-any.whl  --force-reinstall
 
       # FUTURE: Store results somewhere else?
       - name: Clear previous results
         run: |
-          rm -f temp_results/xml/*.xml || true
+          rm -f results/temp/xml/*.xml || true
 
       - name: Run Validation on board ${{ matrix.board-config }}
         run: python -m validation_framework --target ${{ matrix.board-config }}.toml --validator ${{ matrix.validation-type }}
@@ -57,6 +53,6 @@ jobs:
         uses: EnricoMi/publish-unit-test-result-action/composite@v2
         if: always()
         with:
-          junit_files: "temp_results/xml/*.xml"
+          junit_files: "results/temp/xml/*.xml"
 
 

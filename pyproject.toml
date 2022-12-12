@@ -19,6 +19,7 @@ invoke = "^1.7.3"
 xmltodict = "^0.13.0"
 unittest-xml-reporting = "^3.2.0"
 requests = "^2.27.1"
+pytablewriter = "^0.64.2"
 
 
 [build-system]

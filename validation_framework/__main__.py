@@ -73,9 +73,20 @@ def run_test_on_device(device_config_file: str) -> list[io.BytesIO]:
     return test_results
 
 
-def save_results(results: list, location: Path) -> None:
-    cte.JSON_RESULTS_PATH.mkdir(exist_ok=True, parents=True)
-    cte.XML_RESULTS_PATH.mkdir(exist_ok=True, parents=True)
+def save_results(results: list, target_device: str) -> None:
+    """
+
+    :param results:
+    :param target_device:
+    :return:
+    """
+
+    dev_json_results_path: Path = cte.JSON_RESULTS_PATH / target_device
+    dev_json_results_path.mkdir(exist_ok=True, parents=True)
+
+    def_xml_results_path: Path = cte.XML_RESULTS_PATH / target_device
+    def_xml_results_path.mkdir(exist_ok=True, parents=True)
+
     for res in results:
         xml_results = res[0]
         json_results = res[1]
@@ -83,6 +94,8 @@ def save_results(results: list, location: Path) -> None:
         logger.info(f'{json.dumps(res[1], indent=4)} ')
         json_location = cte.JSON_RESULTS_PATH / (
                 json_results.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.json')
+        json_results['target_device'] = target_device
+
         with json_location.open('w') as file:
             json.dump(json_results, file, indent=4)
 
@@ -118,7 +131,8 @@ def main(arguments: argparse.Namespace):
     test_report: list = run_test_on_device(arguments.target)
     results = parse_results(test_report)
 
-    save_results(results, cte.RESULTS_PATH)
+    save_results(results, arguments.target)
+
     validation_time = time.process_time() - validation_time
     elapsed_time = time.time() - elapsed_time
     logger.info(f'Successfully finishing validation in {validation_time}s with a total of '
