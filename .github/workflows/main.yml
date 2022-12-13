@@ -42,5 +42,5 @@ jobs:
       - name: Push release back
         uses: ad-m/github-push-action@master
         env:
-          github_token: ${{ secrets.VALIDATION_GITHUB_TOKEN }}
+          github_token: ${{ secrets.VALIDATION_TOKEN_SECRET }}
           branch: 'main'

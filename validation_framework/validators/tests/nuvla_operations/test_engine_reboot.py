@@ -22,7 +22,7 @@ class TestEngineReboot(ValidationBase):
         job: CimiResource = self.nuvla_client.get(resp.data.get('location'))
         self.logger.info(f'Waiting for restart to be executed')
         start_time: float = time.time()
-
+        pp(resp)
         while True:
             time.sleep(0.5)
             if job.data.get('state') == 'SUCCESS':
