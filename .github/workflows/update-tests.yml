@@ -10,7 +10,7 @@ on:
 
 jobs:
   update-results:
-    runs-on: ubuntu-latest
+    runs-on: ${{ github.event.client_payload.dev }}
 
     steps:
       - name: Pull validation repository
@@ -27,4 +27,4 @@ jobs:
       - name: Refactor current table
         working-directory: ./validation_framework/results_parser
         run: |
-          echo "Test dispatch payload \n Actions: ${{ github.event.action }} \n Device: ${{ github.event.client_payload.device }}"
+          echo "Test dispatch payload \n Actions: ${{ github.event.action }} \n Device: ${{ github.event.client_payload.dev }}"
