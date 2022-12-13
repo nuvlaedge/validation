@@ -1,7 +1,6 @@
 name: "Update results table"
 
-on:
-  repository_dispatch:
+on: [repository_dispatch]
 
 jobs:
   update-results:
