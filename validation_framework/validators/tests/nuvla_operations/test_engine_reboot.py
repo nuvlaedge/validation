@@ -13,7 +13,6 @@ from pprint import pprint as pp
 
 @validator('EngineReboot')
 class TestEngineReboot(ValidationBase):
-    STATE_LIST: list[str] = ['NEW', 'ACTIVATED', 'COMMISSIONED', 'DECOMMISSIONED']
     WAIT_TIME: float = 60.0
 
     def execute_reboot_operation(self):
@@ -34,34 +33,10 @@ class TestEngineReboot(ValidationBase):
 
             job = self.nuvla_client.get(resp.data.get('location'))
 
-    def wait_for_commissioned(self):
-        """
-
-        :return:
-        """
-        self.logger.info(f'Waiting until device is commissioned')
-        self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
-        last_state: str = self.get_nuvlaedge_status()[0]
-        while last_state != self.STATE_LIST[2]:
-            time.sleep(1)
-            last_state: str = self.get_nuvlaedge_status()[0]
-
-    def wait_for_operational(self):
-        """
-
-        :return:
-        """
-        self.logger.info(f'Waiting for status device: OPERATIONAL')
-        last_status: str = self.get_nuvlaedge_status()[1]
-        while last_status != "OPERATIONAL":
-            time.sleep(1)
-            last_status: str = self.get_nuvlaedge_status()[1]
-
     def test_engine_reboot(self):
         # Test standard deployments for 15 minutes
 
         self.wait_for_commissioned()
-        self.wait_for_operational()
 
         last_status: str = self.get_nuvlaedge_status()[1]
 
@@ -74,7 +49,7 @@ class TestEngineReboot(ValidationBase):
         try:
             while self.engine_handler.device.is_reachable(silent=True):
                 time.sleep(0.5)
-        except paramiko.ssh_exception.SSHException:
+        except (paramiko.ssh_exception.SSHException, ConnectionResetError):
             self.logger.info(f'Device rebooted')
 
         self.logger.info(f'Waiting for device to come back up')
@@ -87,3 +62,6 @@ class TestEngineReboot(ValidationBase):
             up_time = float(response.stdout)
             self.logger.info(f'Up time... {up_time}')
             self.assertTrue(int(up_time) < 60)
+
+        self.wait_for_operational()
+        self.assertEqual(self.get_nuvlaedge_status()[1], "OPERATIONAL")

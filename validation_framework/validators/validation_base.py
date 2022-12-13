@@ -48,6 +48,30 @@ class ValidationBase(ParametrizedTests):
     DESCRIPTION: str = 'Tests a simple deployment  Start -> Activation -> Commission -> Decommission -> Stop'
     uuid: NuvlaUUID = ''
     STATE_HIST: list[str] = []
+    STATE_LIST: list[str] = ['NEW', 'ACTIVATED', 'COMMISSIONED', 'DECOMMISSIONED']
+
+    def wait_for_commissioned(self):
+        """
+
+        :return:
+        """
+        self.logger.info(f'Waiting until device is commissioned')
+        self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
+        last_state: str = self.get_nuvlaedge_status()[0]
+        while last_state != self.STATE_LIST[2]:
+            time.sleep(1)
+            last_state: str = self.get_nuvlaedge_status()[0]
+
+    def wait_for_operational(self):
+        """
+
+        :return:
+        """
+        self.logger.info(f'Waiting for status device: OPERATIONAL')
+        last_status: str = self.get_nuvlaedge_status()[1]
+        while last_status != "OPERATIONAL":
+            time.sleep(1)
+            last_status: str = self.get_nuvlaedge_status()[1]
 
     def get_nuvlaedge_status(self) -> tuple[str, str]:
         """

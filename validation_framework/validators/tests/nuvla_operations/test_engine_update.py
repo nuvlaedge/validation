@@ -38,38 +38,14 @@ sample_dict: dict = {
 
 # @validator('EngineUpdate')
 class EngineUpdateUp(ValidationBase):
-    STATE_LIST: list[str] = ['NEW', 'ACTIVATED', 'COMMISSIONED', 'DECOMMISSIONED']
 
     def trigger_update(self):
         nuvlabox: CimiResource = self.nuvla_client.get(self.uuid)
-        # pp(nuvlabox.operations)
-        resp: CimiResponse = self.nuvla_client.operation(nuvlabox, 'update-nuvlabox', data=sample_dict)
-
-        pp("Print data")
-        pp(resp.data)
-
-    def wait_for_commissioned(self):
-        """
-
-        :return:
-        """
-        self.logger.info(f'Waiting until device is commissioned')
-        self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
-        last_state: str = self.get_nuvlaedge_status()[0]
-        while last_state != self.STATE_LIST[2]:
-            time.sleep(1)
-            last_state: str = self.get_nuvlaedge_status()[0]
-
-    def wait_for_operational(self):
-        """
-
-        :return:
-        """
-        self.logger.info(f'Waiting for status device: OPERATIONAL')
-        last_status: str = self.get_nuvlaedge_status()[1]
-        while last_status != "OPERATIONAL":
-            time.sleep(1)
-            last_status: str = self.get_nuvlaedge_status()[1]
+        pp(nuvlabox.data)
+        pp('\n\n\n')
+        status: CimiResource = self.nuvla_client.get(nuvlabox.data.get('nuvlabox-status'))
+        pp(status.data)
+        # resp: CimiResponse = self.nuvla_client.operation(nuvlabox, 'update-nuvlabox', data=sample_dict)
 
     def test_update(self):
         self.wait_for_commissioned()
