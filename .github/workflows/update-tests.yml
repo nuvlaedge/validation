@@ -1,5 +1,9 @@
 name: "Update results table"
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref_name }}
+  cancel-in-progress: false
+
 on:
   workflow_dispatch:
   repository_dispatch:
