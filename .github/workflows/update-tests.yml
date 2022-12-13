@@ -1,6 +1,7 @@
 name: "Update results table"
 
 on:
+  workflow_dispatch:
   repository_dispatch:
 
 jobs:
