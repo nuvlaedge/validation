@@ -1,6 +1,7 @@
 """
 General purpose class for NuvlaEdge validation
 """
+
 import logging
 import time
 import unittest

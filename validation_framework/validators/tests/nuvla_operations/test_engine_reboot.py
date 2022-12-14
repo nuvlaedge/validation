@@ -11,18 +11,18 @@ from fabric import Result
 from pprint import pprint as pp
 
 
-@validator('EngineReboot')
+# @validator('EngineReboot')
 class TestEngineReboot(ValidationBase):
     WAIT_TIME: float = 60.0
 
     def execute_reboot_operation(self):
         nuvlabox: CimiResource = self.nuvla_client.get(self.uuid)
         resp: CimiResponse = self.nuvla_client.operation(nuvlabox, 'reboot')
-        pp(resp.data)
+
         job: CimiResource = self.nuvla_client.get(resp.data.get('location'))
         self.logger.info(f'Waiting for restart to be executed')
         start_time: float = time.time()
-        pp(resp)
+
         while True:
             time.sleep(0.5)
             if job.data.get('state') == 'SUCCESS':
