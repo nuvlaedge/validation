@@ -45,7 +45,7 @@ def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
     # Convert bytes into xml string
     parsed_data: list[tuple] = []
     for res in results:
-        logger.info(f'Resultados {res}')
+        logger.info(f'Results {res}')
         xml_result: bytes = transform(res.getvalue())
         # Return dict form the XML
         parsed_data.append((xml_result, xmltodict.parse(xml_result)))
@@ -73,9 +73,10 @@ def run_test_on_device(device_config_file: str) -> list[io.BytesIO]:
     return test_results
 
 
-def save_results(results: list, target_device: str) -> None:
+def save_results(results: list, target_device: str, test_type: str) -> None:
     """
 
+    :param test_type:
     :param results:
     :param target_device:
     :return:
@@ -95,6 +96,7 @@ def save_results(results: list, target_device: str) -> None:
         json_location = cte.JSON_RESULTS_PATH / (
                 json_results.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.json')
         json_results['target_device'] = target_device
+        json_results['test_type'] = test_type
 
         with json_location.open('w') as file:
             json.dump(json_results, file, indent=4)
@@ -131,7 +133,7 @@ def main(arguments: argparse.Namespace):
     test_report: list = run_test_on_device(arguments.target)
     results = parse_results(test_report)
 
-    save_results(results, arguments.target)
+    save_results(results, arguments.target, arguments.validator)
 
     validation_time = time.process_time() - validation_time
     elapsed_time = time.time() - elapsed_time
