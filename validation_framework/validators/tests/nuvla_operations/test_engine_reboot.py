@@ -11,7 +11,7 @@ from fabric import Result
 from pprint import pprint as pp
 
 
-# @validator('EngineReboot')
+@validator('EngineReboot')
 class TestEngineReboot(ValidationBase):
     WAIT_TIME: float = 60.0
 

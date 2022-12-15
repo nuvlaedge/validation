@@ -12,6 +12,8 @@ from validation_framework.validators import ValidationBase
 
 @validator('EngineUpdate')
 class EngineUpdateUp(ValidationBase):
+    # Max 5 mins of time to update the engine
+    UPDATE_MAX_TIME: int = 60.0*5
 
     def trigger_update(self) -> str:
         nuvlabox: CimiResource = self.nuvla_client.get(self.uuid)
@@ -51,9 +53,15 @@ class EngineUpdateUp(ValidationBase):
         target_release = self.trigger_update()
         current_release = self.nuvla_client.get(self.uuid).data.get('nuvlabox-engine-version')
         self.logger.info(f'Waiting for the update to finish')
+        start_time: float = time.time()
         while target_release != current_release:
             time.sleep(0.5)
             current_release = self.nuvla_client.get(self.uuid).data.get('nuvlabox-engine-version')
+            if time.time() - start_time > self.UPDATE_MAX_TIME:
+                self.logger.warning(f'Update process timeout')
 
-        self.assertTrue(target_release == current_release, 'Update should be performed in 120 seconds')
+                break
+
+        self.assertEqual(target_release, current_release, f'Update from {current_release} to {target_release}'
+                                                          f' failed')
         self.logger.info(f'Current release')
