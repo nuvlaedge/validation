@@ -6,10 +6,6 @@ concurrency:
 
 
 on:
-  push:
-    branches:
-      - random
-    pull_request:
   workflow_dispatch:
 
 env:
