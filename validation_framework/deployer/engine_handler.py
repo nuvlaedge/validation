@@ -117,7 +117,8 @@ class EngineHandler:
                                                    project_name=cte.PROJECT_NAME,
                                                    files=files)
         print(start_command)
-        envs_configuration: dict = {'NUVLABOX_UUID': nuvlaedge_uuid}
+        envs_configuration: dict = {'NUVLABOX_UUID': nuvlaedge_uuid,
+                                    'NUVLAEDGE_UUID': nuvlaedge_uuid}
         # self.release_handler.build_envs_configuration()
         self.logger.info(f'Starting engine with Edge uuid: {nuvlaedge_uuid}')
 

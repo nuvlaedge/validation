@@ -139,7 +139,8 @@ class SSHTarget(TargetDevice):
         start_command: str = f'nohup docker-compose -p {"nuvlaedge"} -f {"docker-compose.yml"} up -d'
         self.run_command_within_folder(start_command,
                                        'some_folder_where the file is',
-                                       envs={'NUVLABOX_UUID': nuvlaedge_uuid})
+                                       envs={'NUVLABOX_UUID': nuvlaedge_uuid,
+                                             'NUVLAEDGE_UUID': nuvlaedge_uuid})
 
     def stop_edge(self):
         """
