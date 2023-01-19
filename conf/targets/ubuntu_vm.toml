@@ -1,7 +1,7 @@
 alias = "ubuntu_VM"
 
 # Network data
-address = "159.100.243.225"
+address = "194.182.163.45"
 port = 22
 hostname = ""
 
