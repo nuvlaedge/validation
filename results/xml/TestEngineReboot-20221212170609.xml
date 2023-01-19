@@ -1,0 +1,21 @@
+<testsuites>
+	<testsuite name="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot-20221212170609" tests="1" file="validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py" time="114.781" timestamp="2022-12-12T17:08:04" failures="1" errors="0" skipped="0">
+		<testcase classname="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot" name="test_engine_reboot" time="114.781">
+			<failure type="AssertionError" message="False is not true">Traceback (most recent call last):
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py", line 62, in test_engine_reboot
+    self.assertTrue(int(up_time) &lt; 60)
+AssertionError: False is not true
+</failure>
+			<system-out>~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml
+nohup docker-compose -p NuvlaEdge_Validator -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml up -d
+{'location': 'job/cd79f1fc-f49c-499a-abb7-83f794508c8c',
+ 'message': 'sending reboot request to NuvlaBox '
+            'nuvlabox/2da474ef-af9e-45c9-bb42-9594603f7a56 with async '
+            'job/cd79f1fc-f49c-499a-abb7-83f794508c8c',
+ 'resource-id': 'nuvlabox/2da474ef-af9e-45c9-bb42-9594603f7a56',
+ 'status': 202}
+'Uptime 6635.76\n'
+</system-out>
+		</testcase>
+	</testsuite>
+</testsuites>

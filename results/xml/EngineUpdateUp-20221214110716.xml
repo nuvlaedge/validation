@@ -1,0 +1,31 @@
+<testsuites>
+	<testsuite name="validation_framework.validators.tests.nuvla_operations.test_engine_update.EngineUpdateUp-20221214110716" tests="1" file="validation_framework/validators/tests/nuvla_operations/test_engine_update.py" time="124.405" timestamp="2022-12-14T11:09:20" failures="0" errors="1" skipped="0">
+		<testcase classname="validation_framework.validators.tests.nuvla_operations.test_engine_update.EngineUpdateUp" name="test_update" time="124.405">
+			<error type="NuvlaError" message="2.4.6 not found">Traceback (most recent call last):
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/nuvla/api/api.py", line 433, in _cimi_request
+    response.raise_for_status()
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/requests/models.py", line 960, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 404 Client Error: Not Found for url: https://nuvla.io/api/nuvlabox/1f2b98f3-1bf2-425a-9f4f-ec14fee8d54f/update-nuvlabox
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/tests/nuvla_operations/test_engine_update.py", line 80, in test_update
+    self.trigger_update()
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/tests/nuvla_operations/test_engine_update.py", line 65, in trigger_update
+    resp: CimiResponse = self.nuvla_client.operation(nuvlabox, 'update-nuvlabox', data=release_data)
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/nuvla/api/api.py", line 623, in operation
+    resp_json = self._cimi_post(operation_href, json=data)
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/nuvla/api/api.py", line 456, in _cimi_post
+    return self._cimi_request('POST', uri, params=params, json=json, data=data)
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/nuvla/api/api.py", line 446, in _cimi_request
+    raise NuvlaError(message, response)
+nuvla.api.api.NuvlaError: 2.4.6 not found
+</error>
+			<system-out>~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml
+nohup docker-compose -p NuvlaEdge_Validator -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml up -d
+</system-out>
+		</testcase>
+	</testsuite>
+</testsuites>

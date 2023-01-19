@@ -1,0 +1,25 @@
+{
+    "testsuites": {
+        "testsuite": {
+            "@name": "validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot-20221212172220",
+            "@tests": "1",
+            "@file": "validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py",
+            "@time": "22.395",
+            "@timestamp": "2022-12-12T17:22:42",
+            "@failures": "0",
+            "@errors": "1",
+            "@skipped": "0",
+            "testcase": {
+                "@classname": "validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot",
+                "@name": "test_engine_reboot",
+                "@time": "22.395",
+                "error": {
+                    "@type": "UnexpectedExit",
+                    "@message": "Encountered a bad command exit code!  Command: 'wget https://github.com/nuvlaedge/deployment/releases/download/2.4.3/docker-compose.yml -t 3 -T 5 -O ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml'  Exit code: 4  Stdout:    Stderr:  --2022-12-12 17:22:38--  https://github.com/nuvlaedge/deployment/releases/download/2.4.3/docker-compose.yml Resolving github.com (github.com)... failed: Connection timed out. wget: unable to resolve host address \u2018github.com\u2019  ",
+                    "#text": "Traceback (most recent call last):\n  File \"/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py\", line 60, in test_engine_reboot\n    self.wait_for_commissioned()\n  File \"/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py\", line 40, in wait_for_commissioned\n    self.engine_handler.start_engine(self.uuid, remove_old_installation=True)\n  File \"/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/engine_handler.py\", line 94, in start_engine\n    self.prepare_compose_files()\n  File \"/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/engine_handler.py\", line 80, in prepare_compose_files\n    self.device.download_file(link=link,\n  File \"/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/target_device/ssh_target.py\", line 96, in download_file\n    download_result: fabric.Result = self.run_command(f'wget {link} -t 3 -T 5 -O {directory}/{file_name}')\n  File \"/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/target_device/ssh_target.py\", line 86, in run_command\n    return connection.run(command, env=envs, hide=True)\n  File \"<decorator-gen-3>\", line 2, in run\n  File \"/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/fabric/connection.py\", line 30, in opens\n    return method(self, *args, **kwargs)\n  File \"/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/fabric/connection.py\", line 725, in run\n    return self._run(self._remote_runner(), command, **kwargs)\n  File \"/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/invoke/context.py\", line 102, in _run\n    return runner.run(command, **kwargs)\n  File \"/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/fabric/runners.py\", line 72, in run\n    return super(Remote, self).run(command, **kwargs)\n  File \"/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/invoke/runners.py\", line 380, in run\n    return self._run_body(command, **kwargs)\n  File \"/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/invoke/runners.py\", line 442, in _run_body\n    return self.make_promise() if self._asynchronous else self._finish()\n  File \"/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/invoke/runners.py\", line 509, in _finish\n    raise UnexpectedExit(result)\ninvoke.exceptions.UnexpectedExit: Encountered a bad command exit code!\n\nCommand: 'wget https://github.com/nuvlaedge/deployment/releases/download/2.4.3/docker-compose.yml -t 3 -T 5 -O ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml'\n\nExit code: 4\n\nStdout:\n\n\n\nStderr:\n\n--2022-12-12 17:22:38--  https://github.com/nuvlaedge/deployment/releases/download/2.4.3/docker-compose.yml\nResolving github.com (github.com)... failed: Connection timed out.\nwget: unable to resolve host address \u2018github.com\u2019"
+                }
+            }
+        }
+    },
+    "target_device": "rpi4.toml"
+}

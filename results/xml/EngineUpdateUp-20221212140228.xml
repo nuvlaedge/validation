@@ -1,0 +1,31 @@
+<testsuites>
+	<testsuite name="validation_framework.validators.tests.nuvla_operations.test_engine_update.EngineUpdateUp-20221212140228" tests="1" file="validation_framework/validators/tests/nuvla_operations/test_engine_update.py" time="201.643" timestamp="2022-12-12T14:05:49" failures="0" errors="1" skipped="0">
+		<testcase classname="validation_framework.validators.tests.nuvla_operations.test_engine_update.EngineUpdateUp" name="test_update" time="201.643">
+			<error type="NuvlaError" message="credentials required">Traceback (most recent call last):
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/nuvla/api/api.py", line 433, in _cimi_request
+    response.raise_for_status()
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/requests/models.py", line 960, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 403 Client Error: Forbidden for url: https://nuvla.io/api/nuvlabox/bee9dbc6-7b36-46e7-87ab-571d1a98674e/update-nuvlabox
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/tests/nuvla_operations/test_engine_update.py", line 84, in test_update
+    self.trigger_update()
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/tests/nuvla_operations/test_engine_update.py", line 46, in trigger_update
+    resp: CimiResponse = self.nuvla_client.operation(nuvlabox, 'update-nuvlabox', data=sample_dict)
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/nuvla/api/api.py", line 623, in operation
+    resp_json = self._cimi_post(operation_href, json=data)
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/nuvla/api/api.py", line 456, in _cimi_post
+    return self._cimi_request('POST', uri, params=params, json=json, data=data)
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/nuvla/api/api.py", line 446, in _cimi_request
+    raise NuvlaError(message, response)
+nuvla.api.api.NuvlaError: credentials required
+</error>
+			<system-out>~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml
+nohup docker-compose -p NuvlaEdge_Validator -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml up -d
+</system-out>
+		</testcase>
+	</testsuite>
+</testsuites>

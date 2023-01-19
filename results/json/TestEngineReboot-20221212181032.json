@@ -1,0 +1,25 @@
+{
+    "testsuites": {
+        "testsuite": {
+            "@name": "validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot-20221212181032",
+            "@tests": "1",
+            "@file": "validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py",
+            "@time": "3.016",
+            "@timestamp": "2022-12-12T18:10:35",
+            "@failures": "0",
+            "@errors": "1",
+            "@skipped": "0",
+            "testcase": {
+                "@classname": "validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot",
+                "@name": "test_engine_reboot",
+                "@time": "3.016",
+                "error": {
+                    "@type": "ConnectionError",
+                    "@message": "Device rpi4 not reachable in 192.168.0.45 ",
+                    "#text": "Traceback (most recent call last):\n  File \"/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/validation_base.py\", line 118, in setUp\n    self.engine_handler: EngineHandler = EngineHandler(cte.DEVICE_CONFIG_PATH / self.target_config_file,\n  File \"/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/engine_handler.py\", line 45, in __init__\n    self.device: SSHTarget = SSHTarget(self.device_config)\n  File \"/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/target_device/ssh_target.py\", line 31, in __init__\n    raise ConnectionError(f'Device {self.target_config.alias} not reachable in {self.target_config.address} ')\nConnectionError: Device rpi4 not reachable in 192.168.0.45"
+                }
+            }
+        }
+    },
+    "target_device": "rpi4.toml"
+}

@@ -1,0 +1,13 @@
+<testsuites>
+	<testsuite name="validation_framework.validators.tests.nuvla_operations.test_engine_update.EngineUpdateUp-20230119104335" tests="1" file="validation_framework/validators/tests/nuvla_operations/test_engine_update.py" time="0.006" timestamp="2023-01-19T10:43:35" failures="0" errors="1" skipped="0">
+		<testcase classname="validation_framework.validators.tests.nuvla_operations.test_engine_update.EngineUpdateUp" name="test_update" time="0.006">
+			<error type="FileNotFoundError" message="Provided file /Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/conf/targets/ubuntu_vm.toml does not exists">Traceback (most recent call last):
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/validation_base.py", line 156, in setUp
+    self.engine_handler: EngineHandler = EngineHandler(cte.DEVICE_CONFIG_PATH / self.target_config_file,
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/engine_handler.py", line 45, in __init__
+    raise FileNotFoundError(f'Provided file {self.device_config_file} does not exists')
+FileNotFoundError: Provided file /Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/conf/targets/ubuntu_vm.toml does not exists
+</error>
+		</testcase>
+	</testsuite>
+</testsuites>

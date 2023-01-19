@@ -1,0 +1,66 @@
+<testsuites>
+	<testsuite name="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot-20221212180238" tests="2" file="validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py" time="453.006" timestamp="2022-12-12T18:10:11" failures="0" errors="2" skipped="0">
+		<testcase classname="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot" name="test_engine_reboot" time="0.000">
+			<error type="TimeoutError" message="timed out">Traceback (most recent call last):
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py", line 72, in test_engine_reboot
+    response: Result = self.engine_handler.device.run_command("awk '{print $1}' /proc/uptime")
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/target_device/ssh_target.py", line 86, in run_command
+    return connection.run(command, env=envs, hide=True)
+  File "&lt;decorator-gen-3&gt;", line 2, in run
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/fabric/connection.py", line 29, in opens
+    self.open()
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/fabric/connection.py", line 636, in open
+    self.client.connect(**kwargs)
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/paramiko/client.py", line 358, in connect
+    retry_on_signal(lambda: sock.connect(addr))
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/paramiko/util.py", line 279, in retry_on_signal
+    return function()
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/paramiko/client.py", line 358, in &lt;lambda&gt;
+    retry_on_signal(lambda: sock.connect(addr))
+TimeoutError: timed out
+</error>
+			<system-out>~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml
+nohup docker-compose -p NuvlaEdge_Validator -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml up -d
+{'location': 'job/a0dce27e-ac36-4c95-aa81-86357d09a475',
+ 'message': 'sending reboot request to NuvlaBox '
+            'nuvlabox/3a8f2283-8033-4a3c-8b07-ae3168d67ae6 with async '
+            'job/a0dce27e-ac36-4c95-aa81-86357d09a475',
+ 'resource-id': 'nuvlabox/3a8f2283-8033-4a3c-8b07-ae3168d67ae6',
+ 'status': 202}
+</system-out>
+		</testcase>
+		<testcase classname="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot" name="test_engine_reboot" time="453.006">
+			<error type="TimeoutError" message="timed out">Traceback (most recent call last):
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/validation_base.py", line 127, in tearDown
+    self.engine_handler.stop_engine()
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/engine_handler.py", line 115, in stop_engine
+    if not self.engine_running():
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/engine_handler.py", line 128, in engine_running
+    self.device.run_command('docker ps')
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/deployer/target_device/ssh_target.py", line 86, in run_command
+    return connection.run(command, env=envs, hide=True)
+  File "&lt;decorator-gen-3&gt;", line 2, in run
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/fabric/connection.py", line 29, in opens
+    self.open()
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/fabric/connection.py", line 636, in open
+    self.client.connect(**kwargs)
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/paramiko/client.py", line 358, in connect
+    retry_on_signal(lambda: sock.connect(addr))
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/paramiko/util.py", line 279, in retry_on_signal
+    return function()
+  File "/Users/nacho/Library/Caches/pypoetry/virtualenvs/validation-3EvBwfil-py3.10/lib/python3.10/site-packages/paramiko/client.py", line 358, in &lt;lambda&gt;
+    retry_on_signal(lambda: sock.connect(addr))
+TimeoutError: timed out
+</error>
+			<system-out>~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml
+nohup docker-compose -p NuvlaEdge_Validator -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml up -d
+{'location': 'job/a0dce27e-ac36-4c95-aa81-86357d09a475',
+ 'message': 'sending reboot request to NuvlaBox '
+            'nuvlabox/3a8f2283-8033-4a3c-8b07-ae3168d67ae6 with async '
+            'job/a0dce27e-ac36-4c95-aa81-86357d09a475',
+ 'resource-id': 'nuvlabox/3a8f2283-8033-4a3c-8b07-ae3168d67ae6',
+ 'status': 202}
+</system-out>
+		</testcase>
+	</testsuite>
+</testsuites>

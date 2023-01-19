@@ -1,0 +1,16 @@
+<testsuites>
+	<testsuite name="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot-20221213091444" tests="1" file="validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py" time="196.307" timestamp="2022-12-13T09:18:00" failures="0" errors="0" skipped="0">
+		<testcase classname="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot" name="test_engine_reboot" time="196.307">
+			<system-out>~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml
+nohup docker-compose -p NuvlaEdge_Validator -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml up -d
+{'location': 'job/1ca10910-d277-4e80-baea-607c7fc487c6',
+ 'message': 'sending reboot request to NuvlaBox '
+            'nuvlabox/50b4a194-120c-4187-a135-489abf898f93 with async '
+            'job/1ca10910-d277-4e80-baea-607c7fc487c6',
+ 'resource-id': 'nuvlabox/50b4a194-120c-4187-a135-489abf898f93',
+ 'status': 202}
+'Uptime 28.23\n'
+</system-out>
+		</testcase>
+	</testsuite>
+</testsuites>

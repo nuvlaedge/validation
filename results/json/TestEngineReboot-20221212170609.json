@@ -1,0 +1,26 @@
+{
+    "testsuites": {
+        "testsuite": {
+            "@name": "validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot-20221212170609",
+            "@tests": "1",
+            "@file": "validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py",
+            "@time": "114.781",
+            "@timestamp": "2022-12-12T17:08:04",
+            "@failures": "1",
+            "@errors": "0",
+            "@skipped": "0",
+            "testcase": {
+                "@classname": "validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot",
+                "@name": "test_engine_reboot",
+                "@time": "114.781",
+                "failure": {
+                    "@type": "AssertionError",
+                    "@message": "False is not true",
+                    "#text": "Traceback (most recent call last):\n  File \"/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py\", line 62, in test_engine_reboot\n    self.assertTrue(int(up_time) < 60)\nAssertionError: False is not true"
+                },
+                "system-out": "~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml\nnohup docker-compose -p NuvlaEdge_Validator -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml up -d\n{'location': 'job/cd79f1fc-f49c-499a-abb7-83f794508c8c',\n 'message': 'sending reboot request to NuvlaBox '\n            'nuvlabox/2da474ef-af9e-45c9-bb42-9594603f7a56 with async '\n            'job/cd79f1fc-f49c-499a-abb7-83f794508c8c',\n 'resource-id': 'nuvlabox/2da474ef-af9e-45c9-bb42-9594603f7a56',\n 'status': 202}\n'Uptime 6635.76\\n'"
+            }
+        }
+    },
+    "target_device": "rpi4.toml"
+}

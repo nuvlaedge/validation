@@ -1,0 +1,35 @@
+<testsuites>
+	<testsuite name="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot-20221212140945" tests="1" file="validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py" time="203.303" timestamp="2022-12-12T14:13:08" failures="0" errors="0" skipped="0">
+		<testcase classname="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot" name="test_engine_reboot" time="203.303">
+			<system-out>~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml
+nohup docker-compose -p NuvlaEdge_Validator -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml up -d
+{'add-ssh-key': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/add-ssh-key',
+                 'rel': 'add-ssh-key'},
+ 'assemble-playbooks': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/assemble-playbooks',
+                        'rel': 'assemble-playbooks'},
+ 'cluster-nuvlabox': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/cluster-nuvlabox',
+                      'rel': 'cluster-nuvlabox'},
+ 'commission': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/commission',
+                'rel': 'commission'},
+ 'create-log': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/create-log',
+                'rel': 'create-log'},
+ 'decommission': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/decommission',
+                  'rel': 'decommission'},
+ 'edit': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a',
+          'rel': 'edit'},
+ 'enable-emergency-playbooks': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/enable-emergency-playbooks',
+                                'rel': 'enable-emergency-playbooks'},
+ 'enable-host-level-management': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/enable-host-level-management',
+                                  'rel': 'enable-host-level-management'},
+ 'generate-new-api-key': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/generate-new-api-key',
+                          'rel': 'generate-new-api-key'},
+ 'reboot': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/reboot',
+            'rel': 'reboot'},
+ 'revoke-ssh-key': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/revoke-ssh-key',
+                    'rel': 'revoke-ssh-key'},
+ 'update-nuvlabox': {'href': 'nuvlabox/5cacc7e6-f7e8-49f4-9281-4eab562c0b4a/update-nuvlabox',
+                     'rel': 'update-nuvlabox'}}
+</system-out>
+		</testcase>
+	</testsuite>
+</testsuites>

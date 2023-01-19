@@ -1,0 +1,57 @@
+<testsuites>
+	<testsuite name="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot-20221212170849" tests="1" file="validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py" time="115.404" timestamp="2022-12-12T17:10:45" failures="1" errors="0" skipped="0">
+		<testcase classname="validation_framework.validators.tests.nuvla_operations.test_engine_reboot.TestEngineReboot" name="test_engine_reboot" time="115.404">
+			<failure type="AssertionError" message="False is not true">Traceback (most recent call last):
+  File "/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/validation_framework/validators/tests/nuvla_operations/test_engine_reboot.py", line 64, in test_engine_reboot
+    self.assertTrue(int(up_time) &lt; 60)
+AssertionError: False is not true
+</failure>
+			<system-out>~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml
+nohup docker-compose -p NuvlaEdge_Validator -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.bluetooth.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.gpu.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.modbus.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.network.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.security.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.usb.yml -f ~/.nuvlaedge_validation/engines/2.4.3/docker-compose.yml up -d
+{'location': 'job/5eb78aeb-b3dc-46b5-bc19-d6f26ea5ca7b',
+ 'message': 'sending reboot request to NuvlaBox '
+            'nuvlabox/9cf90eeb-5cc3-4442-b52c-9b2e59d01c15 with async '
+            'job/5eb78aeb-b3dc-46b5-bc19-d6f26ea5ca7b',
+ 'resource-id': 'nuvlabox/9cf90eeb-5cc3-4442-b52c-9b2e59d01c15',
+ 'status': 202}
+{'acl': {'delete': ['user/85a8e4be-0373-4470-81a5-a7f0df81582a'],
+         'edit-acl': ['user/85a8e4be-0373-4470-81a5-a7f0df81582a'],
+         'edit-data': ['nuvlabox/9cf90eeb-5cc3-4442-b52c-9b2e59d01c15',
+                       'user/85a8e4be-0373-4470-81a5-a7f0df81582a'],
+         'edit-meta': ['nuvlabox/9cf90eeb-5cc3-4442-b52c-9b2e59d01c15',
+                       'user/85a8e4be-0373-4470-81a5-a7f0df81582a'],
+         'manage': ['nuvlabox/9cf90eeb-5cc3-4442-b52c-9b2e59d01c15',
+                    'user/85a8e4be-0373-4470-81a5-a7f0df81582a'],
+         'owners': ['group/nuvla-admin'],
+         'view-acl': ['infrastructure-service/eb8e09c2-8387-4f6d-86a4-ff5ddf3d07d7',
+                      'user/85a8e4be-0373-4470-81a5-a7f0df81582a'],
+         'view-data': ['infrastructure-service/eb8e09c2-8387-4f6d-86a4-ff5ddf3d07d7',
+                       'nuvlabox/9cf90eeb-5cc3-4442-b52c-9b2e59d01c15',
+                       'user/85a8e4be-0373-4470-81a5-a7f0df81582a'],
+         'view-meta': ['infrastructure-service/eb8e09c2-8387-4f6d-86a4-ff5ddf3d07d7',
+                       'nuvlabox/9cf90eeb-5cc3-4442-b52c-9b2e59d01c15',
+                       'user/85a8e4be-0373-4470-81a5-a7f0df81582a']},
+ 'action': 'reboot_nuvlabox',
+ 'affected-resources': [{'href': 'nuvlabox/9cf90eeb-5cc3-4442-b52c-9b2e59d01c15'}],
+ 'created': '2022-12-12T16:10:25.766Z',
+ 'created-by': 'internal',
+ 'execution-mode': 'pull',
+ 'id': 'job/5eb78aeb-b3dc-46b5-bc19-d6f26ea5ca7b',
+ 'operations': [{'href': 'job/5eb78aeb-b3dc-46b5-bc19-d6f26ea5ca7b',
+                 'rel': 'edit'},
+                {'href': 'job/5eb78aeb-b3dc-46b5-bc19-d6f26ea5ca7b',
+                 'rel': 'delete'},
+                {'href': 'job/5eb78aeb-b3dc-46b5-bc19-d6f26ea5ca7b/stop',
+                 'rel': 'stop'}],
+ 'priority': 50,
+ 'progress': 0,
+ 'resource-type': 'job',
+ 'state': 'QUEUED',
+ 'target-resource': {'href': 'nuvlabox/9cf90eeb-5cc3-4442-b52c-9b2e59d01c15'},
+ 'updated': '2022-12-12T16:10:25.766Z',
+ 'version': 2}
+'Uptime 6797.98\n'
+</system-out>
+		</testcase>
+	</testsuite>
+</testsuites>
