@@ -120,7 +120,7 @@ class EngineHandler:
         envs_configuration: dict = {'NUVLABOX_UUID': nuvlaedge_uuid,
                                     'NUVLAEDGE_UUID': nuvlaedge_uuid}
         # self.release_handler.build_envs_configuration()
-        self.logger.info(f'Starting engine with Edge uuid: {nuvlaedge_uuid}')
+        self.logger.info(f'Starting engine with Edge uuid: {nuvlaedge_uuid} and envs {envs_configuration}')
 
         self.device.run_command(start_command, envs=envs_configuration)
         self.logger.info('Device started')

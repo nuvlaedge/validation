@@ -36,7 +36,8 @@ class TestDeviceRestart(ValidationBase):
         :return:
         """
         self.assertTrue(self.get_nuvlaedge_status()[0] == self.STATE_LIST[0], 'Initial Status must by NEW')
-        print(self.engine_handler.device.run_command('echo $NUVLABOX_UUID', envs={'NUVLABOX_UUID': self.uuid}))
+        print(self.engine_handler.device.run_command('echo $NUVLABOX_UUID', envs={'NUVLABOX_UUID': self.uuid,
+                                                                                  'NUVLAEDGE_UUID': self.uuid}))
         time.sleep(5)
         self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
 
