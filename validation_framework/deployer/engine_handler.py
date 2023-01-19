@@ -74,7 +74,7 @@ class EngineHandler:
         """
         self.target_dir: str = cte.ROOT_PATH + cte.ENGINE_PATH + self.release_handler.release_tag
         self.logger.error(f'Downloading files for release {self.release_handler.release_tag} into {self.target_dir}/')
-        self.device.run_command(f'mkdir -p {cte.ROOT_PATH + cte.ENGINE_PATH}/{self.release_handler.release_tag}')
+        self.device.run_command(f'mkdir -p {self.target_dir}')
         for link in self.release_handler.get_download_cmd():
             self.device.download_file(link=link,
                                       file_name=link.split('/')[-1],
@@ -83,11 +83,11 @@ class EngineHandler:
         self.logger.error(f'Just before {self.release_config.branch}:{self.release_config.repository}')
         if self.release_config.branch and self.release_config.repository:
             self.logger.info(f'Working on pull request, editing microservice {self.release_config.branch} '
-                             f'to match nuvladev repository')
+                             f'to match nuvladev repository on tag {self.release_handler.requested_release.tag}')
             if os.path.exists('docker-compose.yml'):
                 os.remove('docker-compose.yml')
-            wget.download(cte.RELEASE_DOWNLOAD_LINK.format(version=self.release_handler.requested_release.tag,
-                                                           file="docker-compose.yml"),
+
+            wget.download('https://raw.githubusercontent.com/nuvlaedge/deployment/main/docker-compose.yml',
                           out='docker-compose.yml')
             self.release_handler.prepare_custom_release(os.getcwd())
             self.device.send_file(os.getcwd() + '/docker-compose.yml', '/tmp/')

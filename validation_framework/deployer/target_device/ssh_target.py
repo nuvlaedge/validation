@@ -76,7 +76,8 @@ class SSHTarget(TargetDevice):
         """
         self.logger.info(f'Transfering {local_file} to {remote_path}')
         with self.connection() as connection:
-            self.logger.info(f'Some random data {connection.put(local_file, remote=remote_path)}')
+            result: fabric.Result = connection.put(local_file, remote=remote_path)
+            self.logger.info(f'Some random data failed: {result} {dir(result)}')
 
     def get_logs(self) -> None:
         pass
