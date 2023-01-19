@@ -154,7 +154,7 @@ class ValidationBase(ParametrizedTests):
 
         self.nuvla_client: NuvlaClient = NuvlaClient()
         self.engine_handler: EngineHandler = EngineHandler(cte.DEVICE_CONFIG_PATH / self.target_config_file,
-                                                           Release('2.4.3'),
+                                                           Release('2.4.6'),
                                                            repo=self.target_repository,
                                                            branch=self.target_branch)
         self.uuid: NuvlaUUID = self.create_nuvlaedge_in_nuvla()
