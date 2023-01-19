@@ -12,6 +12,10 @@ from pprint import pprint as pp
 logger: logging.Logger = logging.getLogger()
 
 results_path: Path = Path('../../results/temp/json/').resolve()
+TARGET_FOLDER: Path = Path('/home/runner/actions-runner/_work/')
+
+DEVEL_TARGET: Path = Path('/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/results/')
+
 
 if not results_path.exists():
     exit(1)
@@ -50,7 +54,7 @@ def get_test_name(class_name: str) -> str:
 
 def parse_file(file_path: Path) -> dict:
     """
-
+    Reads the json test files and parses the results into a the known class
     :param file_path:
     :return:
     """
@@ -65,13 +69,13 @@ def parse_file(file_path: Path) -> dict:
 def main(arguments: argparse.Namespace):
     """
 
-    :param arguments:
+    :param arguments: Entrypoint arguments. Mainly providing device to be plotted in results
     :return:
     """
     logger.info(f'Updating results from validation of: {arguments.origin}')
-    paths = find_files(arguments.test_files)
-    for p in paths:
-        parse_file(p)
+
+    # for p in paths:
+    #     parse_file(p)
 
     writer = MarkdownTableWriter(
         table_name="Basic Tests",
@@ -84,7 +88,7 @@ def main(arguments: argparse.Namespace):
         ],
         margin=1
     )
-    with open('sampel.md', 'w') as f:
+    with open('sampel.md', 'a') as f:
         writer.stream = f
         writer.write_table()
 

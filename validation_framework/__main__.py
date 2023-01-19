@@ -32,10 +32,6 @@ logger: logging.Logger = logging.getLogger()
 validator_settings: ValidatorSettings = ValidatorSettings()
 
 
-class AvailableTests(Enum):
-    STANDARD_DEPLOYMENT = auto()
-
-
 def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
     """
     Converts a bytes stream xml formatted into a dict
@@ -53,9 +49,19 @@ def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
     return parsed_data
 
 
-def run_test_on_device(device_config_file: str) -> list[io.BytesIO]:
+def run_test_on_device(arguments: argparse.Namespace) -> list[io.BytesIO]:
 
+    # Results holder
     test_results: list[io.BytesIO] = []
+
+    # Target version
+    device_config_file: str = arguments.target
+    repo: str = arguments.repository
+    branch: str = arguments.branch
+    logger.error(f'Running on repository {repo}/{branch}')
+    if repo == 'deployment':
+        if branch == 'main':
+            logger.info(f'Running base release tests on {repo}:{branch}')
 
     for name, v in active_validators.items():
         logger.info(f'Validator: {get_validator(name)}')
@@ -66,7 +72,9 @@ def run_test_on_device(device_config_file: str) -> list[io.BytesIO]:
         suite = unittest.TestSuite()
         suite.addTest(ParametrizedTests.parametrize(get_validator(name),
                                                     target_device_config=device_config_file,
-                                                    target_engine_version='2.4.3'))
+                                                    target_engine_version=arguments.release,
+                                                    repository=repo,
+                                                    branch=branch))
         result = runner.run(suite)
         test_results.append(test_report)
 
@@ -112,7 +120,10 @@ def parse_arguments() -> argparse.Namespace:
     arguments: argparse.ArgumentParser = argparse.ArgumentParser()
     arguments.add_argument("--target")
     arguments.add_argument("--validator")
-    arguments.add_argument("--microservice", default=None)
+    arguments.add_argument("--release", default=None)
+    arguments.add_argument("--repository", default=None)
+    arguments.add_argument("--branch", default=None)
+
     return arguments.parse_args()
 
 
@@ -130,7 +141,7 @@ def main(arguments: argparse.Namespace):
     logger.info(f'Validators size {len(active_validators)} : {active_validators.items()}')
     time.sleep(2)
     logger.info(f'Starting validation process in {arguments.target}')
-    test_report: list = run_test_on_device(arguments.target)
+    test_report: list = run_test_on_device(arguments)
     results = parse_results(test_report)
 
     save_results(results, arguments.target, arguments.validator)

@@ -2,7 +2,10 @@
 Higher class that wraps together the device and the release handler
 """
 import logging
+import os
 from pathlib import Path
+
+import wget
 
 from validation_framework.common import (Release, utils)
 from validation_framework.common.nuvla_uuid import NuvlaUUID
@@ -21,7 +24,7 @@ class EngineHandler:
     target_dir: str = ''
     nuvlaedge_uuid: NuvlaUUID = ''
 
-    def __init__(self, target_device: int | Path, target_release: str):
+    def __init__(self, target_device: int | Path, target_release: str, repo: str = '', branch: str = ''):
         """
         Engine handler constructor. It is in charge of assessing if the targets are passed as index or path to file.
         If an index is passed has to find the corresponding file in the default folder, if it's a path, directly
@@ -45,15 +48,11 @@ class EngineHandler:
         self.device: SSHTarget = SSHTarget(self.device_config)
 
         # Asses release configuration
-        try:
-            self.release_config: TargetReleaseConfig = TargetReleaseConfig(tag=Release(target_release))
-            self.release_handler: ReleaseHandler = ReleaseHandler(self.release_config, std_release=True)
-            self.logger.error(f'Gather information from release {self.release_config}')
-        except ValueError:
-            self.logger.error('Gather information from path')
-            self.release_config: TargetReleaseConfig = utils.get_model_from_toml(TargetReleaseConfig,
-                                                                                 Path(target_release))
-            self.release_handler: ReleaseHandler = ReleaseHandler(self.release_config, std_release=False)
+        self.release_config: TargetReleaseConfig = TargetReleaseConfig(tag=Release(target_release),
+                                                                       repository=repo,
+                                                                       branch=branch)
+        self.release_handler: ReleaseHandler = ReleaseHandler(self.release_config)
+        self.logger.error(f'Gather information from release {self.release_config}')
 
     @staticmethod
     def get_device_config_by_index(device_index: int) -> Path:
@@ -80,6 +79,24 @@ class EngineHandler:
             self.device.download_file(link=link,
                                       file_name=link.split('/')[-1],
                                       directory=self.target_dir)
+
+        self.logger.error(f'Just before {self.release_config.branch}:{self.release_config.repository}')
+        if self.release_config.branch and self.release_config.repository:
+            self.logger.info(f'Working on pull request, editing microservice {self.release_config.branch} '
+                             f'to match nuvladev repository')
+            if os.path.exists('docker-compose.yml'):
+                os.remove('docker-compose.yml')
+            wget.download(cte.RELEASE_DOWNLOAD_LINK.format(version=self.release_handler.requested_release.tag,
+                                                           file="docker-compose.yml"),
+                          out='docker-compose.yml')
+            self.release_handler.prepare_custom_release(os.getcwd())
+            self.device.send_file(os.getcwd() + '/docker-compose.yml', '/tmp/')
+
+            target_path: str = cte.ROOT_PATH + cte.ENGINE_PATH + '/' + self.release_handler.release_tag + '/' \
+                               + 'docker-compose.yml'
+
+            self.device.run_command(f'rm {target_path}')
+            self.device.run_command(f'mv /tmp/docker-compose.yml {target_path}')
 
     def start_engine(self, nuvlaedge_uuid: NuvlaUUID, remove_old_installation: bool = False):
         """

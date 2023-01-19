@@ -16,19 +16,32 @@ from validation_framework.deployer.engine_handler import EngineHandler
 
 class ParametrizedTests(unittest.TestCase):
 
-    def __init__(self, test_name: str, target_device_config: str, target_engine_version: str):
+    def __init__(self,
+                 test_name: str,
+                 target_device_config: str,
+                 target_engine_version: str = '',
+                 repository: str = '',
+                 branch: str = ''):
 
         super().__init__(test_name)
 
         self.test_name: str = test_name
         self.target_config_file: str = target_device_config
         self.target_engine_version: str = target_engine_version
+        self.target_repository: str = repository
+        self.target_branch: str = branch
 
     @staticmethod
-    def parametrize(testcase_class, target_device_config: str, target_engine_version: str):
+    def parametrize(testcase_class,
+                    target_device_config: str,
+                    target_engine_version: str = '',
+                    repository: str = '',
+                    branch: str = ''):
         """
         Create a suite containing all tests taken from the given
         subclass, passing them the parameters.
+        :param branch:
+        :param repository:
         :param testcase_class: Class to type to be parametrized
         :param target_device_config: Parameter to be added to the class
         :param target_engine_version: Version to be tested
@@ -40,7 +53,7 @@ class ParametrizedTests(unittest.TestCase):
         suite = unittest.TestSuite()
 
         for name in test_names:
-            suite.addTest(testcase_class(name, target_device_config, target_engine_version))
+            suite.addTest(testcase_class(name, target_device_config, target_engine_version, repository, branch))
         return suite
 
 
@@ -141,7 +154,9 @@ class ValidationBase(ParametrizedTests):
 
         self.nuvla_client: NuvlaClient = NuvlaClient()
         self.engine_handler: EngineHandler = EngineHandler(cte.DEVICE_CONFIG_PATH / self.target_config_file,
-                                                           Release('2.4.3'))
+                                                           Release('2.4.3'),
+                                                           repo=self.target_repository,
+                                                           branch=self.target_branch)
         self.uuid: NuvlaUUID = self.create_nuvlaedge_in_nuvla()
 
         self.logger.info(f'Target device: {self.engine_handler.device_config.hostname}')

@@ -57,7 +57,6 @@ class TestEngineReboot(ValidationBase):
             time.sleep(0.5)
 
         response: Result = self.engine_handler.device.run_command("awk '{print $1}' /proc/uptime")
-        pp(f'Uptime {response.stdout}')
         if response.stdout:
             up_time = float(response.stdout)
             self.logger.info(f'Up time... {up_time}')

@@ -13,7 +13,8 @@ class TargetReleaseConfig(BaseModel):
     tag: Release | None = None
     std_release: bool = True
     # If none, all available files will be targeted
-    target_files: list[str] | None = None
+    repository: str | None = None
+    branch: str | None = None
 
     # If release is custom this section must be completely filled
     # TODO: Future implementations of custom engine validation

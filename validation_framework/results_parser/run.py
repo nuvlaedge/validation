@@ -20,7 +20,13 @@ logger: logging.Logger = logging.getLogger()
 DATA_PATH: Path = Path('/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/results/') / 'printed/data/'
 TESTS_PATH: Path = Path('/Users/nacho/PycharmProjects/nuvlaedge/devel/validation/results/temp/json/')
 
-
+# [NuvlaBox Engine update to 2.4.6] ERROR: Update failed! Unable to
+# retrieve files docker-compose.usb.yml,docker-compose.security.yml,docker-compose.gpu.yml,
+# docker-compose.yml,docker-compose.modbus.yml,docker-compose.bluetooth.yml,docker-compose.network.yml:
+# Critical error in /opt/nuvlabox/commands/nuvlabox-engine-download-configs:
+# ('Connection aborted.', ConnectionResetError(104, 'Connection reset by peer'))
+# WARNING: NuvlaBox Engine update failed. Rollback to previous version
+# NuvlaBox Engine was rolled back successfully after a failed update
 def parse_arguments() -> argparse.Namespace:
     """
     Defines and parses the expected arguments for the result plotter

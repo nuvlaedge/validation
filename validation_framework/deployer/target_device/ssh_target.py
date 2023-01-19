@@ -67,6 +67,17 @@ class SSHTarget(TargetDevice):
             connection.run(f'mkdir -p {ROOT_PATH + DEPLOYER_PATH}')
             connection.run(f'mkdir -p {ROOT_PATH + ENGINE_PATH}')
 
+    def send_file(self, local_file: str, remote_path: str):
+        """
+
+        :param remote_path:
+        :param local_file:
+        :return: None
+        """
+        self.logger.info(f'Transfering {local_file} to {remote_path}')
+        with self.connection() as connection:
+            self.logger.info(f'Some random data {connection.put(local_file, remote=remote_path)}')
+
     def get_logs(self) -> None:
         pass
 
