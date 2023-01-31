@@ -80,7 +80,6 @@ class EngineHandler:
                                       file_name=link.split('/')[-1],
                                       directory=self.target_dir)
 
-        self.logger.error(f'Just before {self.release_config.branch}:{self.release_config.repository}')
         if self.release_config.branch and self.release_config.repository:
             self.logger.info(f'Working on pull request, editing microservice {self.release_config.branch} '
                              f'to match nuvladev repository on tag {self.release_handler.requested_release.tag}')
