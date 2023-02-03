@@ -93,11 +93,11 @@ class SSHTarget(TargetDevice):
         with self.connection() as connection:
             return connection.run(command, env=envs, hide=True, watchers=[self.SUDO_PASS])
 
-    def run_command(self, command: str, envs: dict | None = None) -> fabric.Result:
+    def run_command(self, command: str, envs: dict | None = None, hide: bool = True) -> fabric.Result:
 
         self.logger.debug(f'Running {command} in {self.target_config.address}')
         with self.connection() as connection:
-            return connection.run(command, env=envs, hide=True)
+            return connection.run(command, env=envs, hide=hide)
 
     def run_command_within_folder(self, command: str, folder: str, envs: dict | None = None) -> fabric.Result:
 

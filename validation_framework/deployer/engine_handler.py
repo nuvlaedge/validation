@@ -86,7 +86,7 @@ class EngineHandler:
             if os.path.exists('docker-compose.yml'):
                 os.remove('docker-compose.yml')
 
-            wget.download('https://raw.githubusercontent.com/nuvlaedge/deployment/main/docker-compose.yml',
+            wget.download('https://raw.githubusercontent.com/nuvlaedge/deployment/preprod-validation/docker-compose.yml',
                           out='docker-compose.yml')
             self.release_handler.prepare_custom_release(os.getcwd())
             self.device.send_file(os.getcwd() + '/docker-compose.yml', '/tmp/')
@@ -97,7 +97,7 @@ class EngineHandler:
             self.device.run_command(f'rm {target_path}')
             self.device.run_command(f'mv /tmp/docker-compose.yml {target_path}')
 
-    def start_engine(self, nuvlaedge_uuid: NuvlaUUID, remove_old_installation: bool = False):
+    def start_engine(self, nuvlaedge_uuid: NuvlaUUID, remove_old_installation: bool = False, extra_envs: dict = None):
         """
 
         :return:
@@ -110,19 +110,26 @@ class EngineHandler:
         self.prepare_compose_files()
 
         # 3. - Start engine with target release (Future custom as well)
-        files: str = f' -f '.join([self.target_dir+'/'+i for i in self.release_handler.requested_release.components])
+        files: str = f' -f '.join([self.target_dir + '/' + i for i in self.release_handler.requested_release.components])
         print(files)
         start_command: str = cte.COMPOSE_UP.format(prepend='nohup',
                                                    project_name=cte.PROJECT_NAME,
                                                    files=files)
-        print(start_command)
-        envs_configuration: dict = {'NUVLABOX_UUID': nuvlaedge_uuid,
-                                    'NUVLAEDGE_UUID': nuvlaedge_uuid}
-        # self.release_handler.build_envs_configuration()
-        self.logger.info(f'Starting engine with Edge uuid: {nuvlaedge_uuid} and envs {envs_configuration}')
 
+        self.logger.debug(f'Starting engine with command: \n\n{start_command}\n')
+        envs_configuration: dict = {'NUVLABOX_UUID': nuvlaedge_uuid,
+                                    'NUVLAEDGE_UUID': nuvlaedge_uuid,
+                                    'COMPOSE_PROJECT_NAME': cte.PROJECT_NAME}
+
+        if extra_envs:
+            envs_configuration.update(extra_envs)
+
+        self.logger.info('Pull the images and update them')
+        self.device.run_command(f'docker-compose -f {self.target_dir + "/" + "docker-compose.yml"} pull')
+
+        self.logger.info(f'Starting engine with Edge uuid: {nuvlaedge_uuid} and envs {envs_configuration}')
         self.device.run_command(start_command, envs=envs_configuration)
-        self.logger.info('Device started')
+        self.logger.info('Device start command executed')
 
     def stop_engine(self) -> bool:
         """

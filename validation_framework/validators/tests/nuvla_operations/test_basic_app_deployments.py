@@ -1,7 +1,6 @@
 """
 
 """
-from pprint import pp
 import time
 
 from nuvla.api.resources import Deployment
@@ -36,8 +35,8 @@ class TestBasicAppDeployment(ValidationBase):
             state = self.nuvla_client.get(deployment_id).data.get('state')
 
             if time.time() > start_time + 60:
-                self.logger.error(f'Deployment {deployment_id} did not stop in time')
-                self.assertTrue(False, f'Deployment {deployment_id} did not stop in time')
+                self.logger.error(f'Deployment {deployment_id} did not start in time')
+                self.assertTrue(False, f'Deployment {deployment_id} did not start in time')
 
         self.logger.info('Deployment Started')
 
@@ -117,7 +116,6 @@ class TestBasicAppDeployment(ValidationBase):
         self.stop_deployment(deployment_id)
 
     def test_app_deployment_push(self):
-        self.logger.info(f'Starting pull application deployment validation tests')
         self.logger.info(f'Starting push application deployment validation tests')
         self.wait_for_commissioned()
         self.wait_for_operational()

@@ -20,16 +20,12 @@ import xml.etree.ElementTree as ET
 
 import validation_framework.common.constants as cte
 from validation_framework.common.logging_config import config_logger
-from validation_framework.common.settings import ValidatorSettings
 from validation_framework.validators.validation_base import ParametrizedTests
 # Dynamically import validators
 
 
 # Entrypoint logging object
 logger: logging.Logger = logging.getLogger()
-
-# Load validators settings
-validator_settings: ValidatorSettings = ValidatorSettings()
 
 
 def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
