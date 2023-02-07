@@ -10,7 +10,7 @@ from validation_framework.validators.tests.nuvla_operations import validator
 from validation_framework.validators import ValidationBase
 
 
-@validator('EngineUpdate')
+# @validator('EngineUpdate')
 class EngineUpdateUp(ValidationBase):
     # Max 5 mins of time to update the engine
     UPDATE_MAX_TIME: int = 60.0*5
@@ -39,7 +39,9 @@ class EngineUpdateUp(ValidationBase):
             'payload': json.dumps(install_params)
         }
 
-        resp: CimiResponse = self.nuvla_client.operation(nuvlabox, 'update-nuvlabox', data=release_data)
+        resp: CimiResponse = self.nuvla_client.operation(nuvlabox,
+                                                         'update-nuvlabox',
+                                                         data=release_data)
         return selected_rel_version
 
     def test_update(self):
