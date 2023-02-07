@@ -141,8 +141,6 @@ class EngineHandler:
             return True
 
         self.device.clean_target()
-        if self.engine_running():
-            return False
 
     def engine_running(self) -> bool:
         """
