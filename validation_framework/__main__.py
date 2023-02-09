@@ -114,6 +114,8 @@ def save_results(results: list, target_device: str, test_type: str) -> list:
             tree = ET.ElementTree(ET.fromstring(xml_results))
             tree.write(file, encoding='utf-8')
 
+    return sum_json_results
+
 
 def parse_arguments() -> argparse.Namespace:
     arguments: argparse.ArgumentParser = argparse.ArgumentParser()
