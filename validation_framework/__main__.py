@@ -155,12 +155,10 @@ def main(arguments: argparse.Namespace):
 
     # Assess exit code by reading the json results. If any failed, return 1.
     for r in json_results:
-        logger.info(f'Test results {json.dumps(r, indent=4)}')
         for k, v in r.get("testsuites", {}).items():
-            logger.info(f'Found test suites {k}: {json.dumps(v, indent=4)}')
-            tests = v.get("testsuite")
-            if tests.get("@failures") != "0" or tests.get("@errors") != "0":
+            if v.get("@failures") != "0" or v.get("@errors") != "0":
                 exit_code = 1
+                break
 
 
 if __name__ == '__main__':
