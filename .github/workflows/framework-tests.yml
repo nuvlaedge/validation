@@ -8,6 +8,7 @@ concurrency:
 on:
   workflow_dispatch:
 
+
 env:
   NUVLA_API_KEY: ${{secrets.VALIDATION_API_KEY}}
   NUVLA_API_SECRET: ${{secrets.VALIDATION_API_SECRET}}

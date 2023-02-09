@@ -27,6 +27,8 @@ from validation_framework.validators.validation_base import ParametrizedTests
 # Entrypoint logging object
 logger: logging.Logger = logging.getLogger()
 
+exit_code: int = 0
+
 
 def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
     """
@@ -77,7 +79,7 @@ def run_test_on_device(arguments: argparse.Namespace) -> list[io.BytesIO]:
     return test_results
 
 
-def save_results(results: list, target_device: str, test_type: str) -> None:
+def save_results(results: list, target_device: str, test_type: str) -> list:
     """
 
     :param test_type:
@@ -91,7 +93,7 @@ def save_results(results: list, target_device: str, test_type: str) -> None:
 
     def_xml_results_path: Path = cte.XML_RESULTS_PATH / target_device
     def_xml_results_path.mkdir(exist_ok=True, parents=True)
-
+    sum_json_results: list = []
     for res in results:
         xml_results = res[0]
         json_results = res[1]
@@ -101,6 +103,7 @@ def save_results(results: list, target_device: str, test_type: str) -> None:
                 json_results.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.json')
         json_results['target_device'] = target_device
         json_results['test_type'] = test_type
+        sum_json_results.append(json_results)
 
         with json_location.open('w') as file:
             json.dump(json_results, file, indent=4)
@@ -128,6 +131,7 @@ def main(arguments: argparse.Namespace):
     Main script for test running. Its main functionality is selecting the test parsed as parameter
     :return:
     """
+    global exit_code
     logger.info(f'Starting Validator framework at {datetime.now()}')
     logging.getLogger("paramiko").setLevel(logging.WARNING)
     validation_time: float = time.process_time()
@@ -140,12 +144,19 @@ def main(arguments: argparse.Namespace):
     test_report: list = run_test_on_device(arguments)
     results = parse_results(test_report)
 
-    save_results(results, arguments.target, arguments.validator)
+    json_results: list = save_results(results, arguments.target, arguments.validator)
 
     validation_time = time.process_time() - validation_time
     elapsed_time = time.time() - elapsed_time
     logger.info(f'Successfully finishing validation in {validation_time}s with a total of '
                 f'{elapsed_time}s elapsed')
+
+    # Assess exit code by reading the json results. If any failed, return 1.
+    for r in json_results:
+        for k, v in r.get("testsuites", {}).items():
+            tests = v.get("testsuite")
+            if tests.get("@failures") != "0" or tests.get("@errors") != "0":
+                exit_code = 1
 
 
 if __name__ == '__main__':
@@ -174,4 +185,5 @@ if __name__ == '__main__':
     else:
         raise Exception('No validator selected, cannot tests...')
     main(args)
+    exit(exit_code)
 
