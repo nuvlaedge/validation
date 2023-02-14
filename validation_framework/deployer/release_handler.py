@@ -18,7 +18,7 @@ class ReleaseHandler:
 
     requested_release: ReleaseSchema | None = None
 
-    def __init__(self, release: Release | TargetReleaseConfig):
+    def __init__(self, release: TargetReleaseConfig):
         """
         If provided Release type provided, means we are aiming to a tagged release in GH,
         :param release: It can either be a standard release number or a Release configuration which allows for
@@ -40,9 +40,15 @@ class ReleaseHandler:
             for release in available_releases.json():
                 it_tag: str = release.get('tag_name')
                 if it_tag == self.release_tag:
+                    it_comp: list = []
+                    for i in release.get('assets'):
+                        if 'docker-compose.yml' in i.get('name'):
+                            it_comp.append(i.get('name'))
+
                     self.requested_release = ReleaseSchema(
                         tag=Release(it_tag),
-                        components=[i.get('name') for i in release.get('assets') if i.get('name').endswith('.yml')],
+                        # components=[i.get('name') for i in release.get('assets') if i.get('name').endswith('.yml')],
+                        components=it_comp,
                         prerelease=release.get('prerelease')
                     )
                     return True

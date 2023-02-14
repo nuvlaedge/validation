@@ -24,7 +24,13 @@ class EngineHandler:
     target_dir: str = ''
     nuvlaedge_uuid: NuvlaUUID = ''
 
-    def __init__(self, target_device: int | Path, target_release: str, repo: str = '', branch: str = ''):
+    def __init__(self,
+                 target_device: int | Path,
+                 target_release: str,
+                 repo: str = '',
+                 branch: str = '',
+                 include_peripherals: bool = False,
+                 peripherals: list[str] = None):
         """
         Engine handler constructor. It is in charge of assessing if the targets are passed as index or path to file.
         If an index is passed has to find the corresponding file in the default folder, if it's a path, directly
@@ -36,10 +42,10 @@ class EngineHandler:
 
         # Assess device configuration
         if isinstance(target_device, int):
-            self.logger.error('Gather information from index')
+            self.logger.debug('Gather information from index')
             self.device_config_file: Path = Path(self.get_device_config_by_index(target_device))
         else:
-            self.logger.error('Gather information from path')
+            self.logger.debug('Gather information from path')
             self.device_config_file: Path = target_device
         if not self.device_config_file.is_file():
             raise FileNotFoundError(f'Provided file {self.device_config_file} does not exists')
@@ -50,7 +56,9 @@ class EngineHandler:
         # Asses release configuration
         self.release_config: TargetReleaseConfig = TargetReleaseConfig(tag=Release(target_release),
                                                                        repository=repo,
-                                                                       branch=branch)
+                                                                       branch=branch,
+                                                                       include_peripherals=include_peripherals,
+                                                                       peripherals=peripherals)
         self.release_handler: ReleaseHandler = ReleaseHandler(self.release_config)
         self.logger.error(f'Gather information from release {self.release_config}')
 
@@ -67,7 +75,9 @@ class EngineHandler:
 
         raise IndexError(f'Device with index {device_index} not found in {cte.DEVICE_CONFIG_PATH}')
 
-    def prepare_compose_files(self):
+    def prepare_compose_files(self,
+                              include_peripherals: bool = False,
+                              peripherals: list[str] = None):
         """
 
         :return: the path location of the files.
@@ -97,7 +107,9 @@ class EngineHandler:
             self.device.run_command(f'rm {target_path}')
             self.device.run_command(f'mv /tmp/docker-compose.yml {target_path}')
 
-    def start_engine(self, nuvlaedge_uuid: NuvlaUUID, remove_old_installation: bool = False, extra_envs: dict = None):
+    def start_engine(self, nuvlaedge_uuid: NuvlaUUID,
+                     remove_old_installation: bool = False,
+                     extra_envs: dict = None):
         """
 
         :return:
@@ -111,7 +123,6 @@ class EngineHandler:
 
         # 3. - Start engine with target release (Future custom as well)
         files: str = f' -f '.join([self.target_dir + '/' + i for i in self.release_handler.requested_release.components])
-        print(files)
         start_command: str = cte.COMPOSE_UP.format(prepend='nohup',
                                                    project_name=cte.PROJECT_NAME,
                                                    files=files)
@@ -125,7 +136,7 @@ class EngineHandler:
             envs_configuration.update(extra_envs)
 
         self.logger.info('Pull the images and update them')
-        self.device.run_command(f'docker-compose -f {self.target_dir + "/" + "docker-compose.yml"} pull')
+        self.device.run_command(f'docker compose -f {self.target_dir + "/" + "docker-compose.yml"} pull')
 
         self.logger.info(f'Starting engine with Edge uuid: {nuvlaedge_uuid} and envs {envs_configuration}')
         self.device.run_command(start_command, envs=envs_configuration)

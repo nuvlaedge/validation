@@ -1,6 +1,7 @@
 """
 Target Device SSH implementation
 """
+import json
 import os
 import logging
 from contextlib import contextmanager
@@ -25,7 +26,8 @@ class SSHTarget(TargetDevice):
         :param target_config: Target device configuration stored in the parent class
         """
         super().__init__(target_config, logging.getLogger(__name__))
-
+        self.logger.info(f'Starting SSH target with configuration '
+                         f'{json.dumps(target_config.dict(), indent=4)}')
         if not self.is_reachable():
             self.logger.debug(f'Device {self.target_config.alias} not reachable in {self.target_config.address} ')
             raise ConnectionError(f'Device {self.target_config.alias} not reachable in {self.target_config.address} ')
@@ -35,13 +37,15 @@ class SSHTarget(TargetDevice):
 
     @contextmanager
     def connection(self) -> Connection:
-
-        new_connection: Connection = Connection(host=self.address,
-                                                user=self.user,
-                                                connect_timeout=3,
-                                                connect_kwargs={
-                                                    "key_filename": os.path.expanduser(
-                                                                        self.target_config.private_key_path)})
+        new_connection: Connection = Connection(
+            host=self.address,
+            user=self.user,
+            connect_timeout=30,
+            connect_kwargs={
+                "key_filename":
+                    os.path.expanduser(self.target_config.private_key_path)
+            }
+        )
         yield new_connection
         new_connection.close()
 
@@ -54,8 +58,8 @@ class SSHTarget(TargetDevice):
                 self.hostname = it_result.stdout.strip()
                 self.logger.info(f'Host {self.hostname} reachable')
             return not it_result.failed
-        except TimeoutError:
-            self.logger.error(f'Host address {self.address} not reachable')
+        except Exception as ex:
+            self.logger.error(f'Host address {self.address} not reachable {ex}')
             return False
 
     def build_directory_tree(self) -> None:
@@ -74,7 +78,7 @@ class SSHTarget(TargetDevice):
         :param local_file:
         :return: None
         """
-        self.logger.info(f'Transfering {local_file} to {remote_path}')
+        self.logger.info(f'Transferring {local_file} to {remote_path}')
         with self.connection() as connection:
             result: fabric.Result = connection.put(local_file, remote=remote_path)
             self.logger.info(f'Some random data failed: {result} {dir(result)}')
@@ -120,7 +124,7 @@ class SSHTarget(TargetDevice):
                               'docker stop $(docker ps -a -q)',
                               'docker rm $(docker ps -a -q)',
                               'docker network prune --force',
-                              'docker volume prune --force']
+                              'docker volume rm $(docker volume ls -q)']
 
         for cmd in command_list:
             try:
@@ -137,7 +141,7 @@ class SSHTarget(TargetDevice):
         :param nuvlaedge_uuid: NuvlaEdge engine to start the engine wiht
         :return:  None
         """
-        start_command: str = f'nohup docker-compose -p {"nuvlaedge"} -f {"docker-compose.yml"} up -d'
+        start_command: str = f'nohup docker compose -p {"nuvlaedge"} -f {"docker-compose.yml"} up -d'
         self.run_command_within_folder(start_command,
                                        'some_folder_where the file is',
                                        envs={'NUVLABOX_UUID': nuvlaedge_uuid,

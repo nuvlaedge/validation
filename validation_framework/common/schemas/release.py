@@ -16,6 +16,9 @@ class TargetReleaseConfig(BaseModel):
     repository: str | None = None
     branch: str | None = None
 
+    # Peripheral handling
+    include_peripherals: bool = False
+    peripherals: list[str] = None
     # If release is custom this section must be completely filled
     # TODO: Future implementations of custom engine validation
 

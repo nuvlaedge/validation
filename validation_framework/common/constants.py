@@ -22,11 +22,11 @@ DEPLOYER_PATH: str = '/deployer/'
 DEPLOYER_CONFIG_FILE: Path = GENERAL_CONFIG_PATH / '.deployer_config'
 
 # STD Commands
-COMPOSE_UP: str = '{prepend} docker-compose -p {project_name} -f {files} up -d'
-COMPOSE_DOWN: str = 'docker-compose -p {project_name} -f {files} down -d'
+COMPOSE_UP: str = '{prepend} docker compose -p {project_name} -f {files} up -d'
+COMPOSE_DOWN: str = 'docker compose -p {project_name} -f {files} down -d'
 
 # NuvlaEdge engine configuration constants
-PROJECT_NAME: str = 'NuvlaEdge_Validator'
+PROJECT_NAME: str = 'nuvlaedge_validator'
 NUVLAEDGE_NAME: str = '[{device}] Validation'
 
 # Report paths
