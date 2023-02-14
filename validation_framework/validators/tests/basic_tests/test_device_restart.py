@@ -4,6 +4,7 @@ Tests the robustness the system to automatically reboot
 import time
 
 import invoke
+from fabric import Result
 
 from validation_framework.validators import ValidationBase
 from validation_framework.validators.tests.basic_tests import validator
@@ -23,9 +24,10 @@ class TestDeviceRestart(ValidationBase):
         :return:
         """
         try:
-            self.engine_handler.device.run_sudo_command('sudo shutdown -r now')
-        except invoke.exceptions.UnexpectedExit:
-            self.logger.info(f'Successfully rebooted')
+            result: Result = self.engine_handler.device.run_sudo_command('sudo shutdown -r now')
+
+        except invoke.exceptions.UnexpectedExit as ex:
+            self.logger.info(f'Successfully rebooted {ex}')
 
     def test_restart_after_commissioning(self):
         """
@@ -33,14 +35,15 @@ class TestDeviceRestart(ValidationBase):
         :return:
         """
         self.assertTrue(self.get_nuvlaedge_status()[0] == self.STATE_LIST[0], 'Initial Status must by NEW')
-        print(self.engine_handler.device.run_command('echo $NUVLABOX_UUID', envs={'NUVLABOX_UUID': self.uuid,
-                                                                                  'NUVLAEDGE_UUID': self.uuid}))
+
         time.sleep(5)
         self.wait_for_commissioned()
         self.wait_for_operational()
 
         initial_up_time: float = self.get_system_up_time()
+        self.logger.info(f"Initial up time {initial_up_time}")
         self.trigger_restart()
+
 
         self.logger.info(f'Waiting for device to come back up')
 
