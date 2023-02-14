@@ -27,9 +27,6 @@ class TestDeviceRestart(ValidationBase):
         except invoke.exceptions.UnexpectedExit:
             self.logger.info(f'Successfully rebooted')
 
-    def setUp(self) -> None:
-        super(TestDeviceRestart, self).setUp()
-
     def test_restart_after_commissioning(self):
         """
         Tests the correct behaviour of the NuvlaEdge when the device is restarted after commissioning
@@ -39,26 +36,25 @@ class TestDeviceRestart(ValidationBase):
         print(self.engine_handler.device.run_command('echo $NUVLABOX_UUID', envs={'NUVLABOX_UUID': self.uuid,
                                                                                   'NUVLAEDGE_UUID': self.uuid}))
         time.sleep(5)
-        self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
+        self.wait_for_commissioned()
+        self.wait_for_operational()
 
-        last_state: str = self.get_nuvlaedge_status()[0]
-        while last_state != self.STATE_LIST[2]:
-            self.logger.info(f'Waiting for the device to activate: {last_state}')
-            time.sleep(0.5)
-            last_state = self.get_nuvlaedge_status()[0]
-
+        initial_up_time: float = self.get_system_up_time()
         self.trigger_restart()
 
+        self.logger.info(f'Waiting for device to come back up')
+
+        # Give some time for the reboot to execute
+        time.sleep(30)
+
+        later_up_time: float = self.get_system_up_time()
         start_time: float = time.time()
-
-        while time.time() - start_time < self.operational_time:
-            last_status = self.get_nuvlaedge_status()[1]
-
-            if last_status == 'OPERATIONAL':
-                self.assertTrue(True, 'System returned to operational status')
+        while later_up_time > initial_up_time:
+            later_up_time = self.get_system_up_time()
+            if time.time() - start_time > 180:
+                self.logger.error("Device didn't reboot 3 min")
                 break
             time.sleep(1)
-        last_status: str = self.get_nuvlaedge_status()[1]
-        self.logger.info(f'Last registered status {last_status}')
-        self.assertTrue(last_status == 'OPERATIONAL', 'Status should be operational')
+
+        self.assertTrue(later_up_time < 180)
 

@@ -6,6 +6,7 @@ import logging
 import time
 import unittest
 
+from fabric import Result
 from nuvla.api import Api as NuvlaClient
 from nuvla.api.models import CimiResponse, CimiCollection
 
@@ -86,6 +87,13 @@ class ValidationBase(ParametrizedTests):
         while last_status != "OPERATIONAL":
             time.sleep(1)
             last_status: str = self.get_nuvlaedge_status()[1]
+
+    def get_system_up_time(self) -> float:
+        response: Result = \
+            self.engine_handler.device.run_command("awk '{print $1}' /proc/uptime")
+        if response.stdout:
+            up_time = float(response.stdout)
+            return up_time
 
     def get_nuvlaedge_status(self) -> tuple[str, str]:
         """

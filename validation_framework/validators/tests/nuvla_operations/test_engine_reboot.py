@@ -35,13 +35,6 @@ class TestEngineReboot(ValidationBase):
 
             job = self.nuvla_client.get(resp.data.get('location'))
 
-    def  get_system_up_time(self) -> float:
-        response: Result = \
-            self.engine_handler.device.run_command("awk '{print $1}' /proc/uptime")
-        if response.stdout:
-            up_time = float(response.stdout)
-            return up_time
-
     def test_engine_reboot(self):
         # Test standard deployments for 15 minutes
         self.logger.info("Starting Engine Reboot validation tests")
