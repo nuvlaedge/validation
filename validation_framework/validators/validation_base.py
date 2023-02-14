@@ -69,9 +69,9 @@ class ValidationBase(ParametrizedTests):
 
         :return:
         """
-        self.logger.info(f'Waiting until device is commissioned')
         self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
         last_state: str = self.get_nuvlaedge_status()[0]
+        self.logger.info(f'Waiting until device is commissioned')
         while last_state != self.STATE_LIST[2]:
             time.sleep(1)
             last_state: str = self.get_nuvlaedge_status()[0]

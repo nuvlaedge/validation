@@ -140,7 +140,6 @@ def main(arguments: argparse.Namespace):
     elapsed_time: float = time.time()
 
     # Run validation
-    logger.info(f'Validators size {len(active_validators)} : {active_validators.items()}')
     time.sleep(2)
     logger.info(f'Starting validation process in {arguments.target}')
     test_report: list = run_test_on_device(arguments)

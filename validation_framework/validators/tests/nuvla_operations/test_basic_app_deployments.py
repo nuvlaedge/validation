@@ -94,9 +94,8 @@ class TestBasicAppDeployment(ValidationBase):
 
         return deploy_data.get('id')
 
-
     def test_app_deployment_pull(self):
-        self.logger.info(f'Starting push application deployment validation tests')
+        self.logger.info(f'Starting pull application deployment validation tests')
         self.wait_for_commissioned()
         self.wait_for_operational()
 
@@ -111,6 +110,7 @@ class TestBasicAppDeployment(ValidationBase):
         self.assertEqual(self.nuvla_client.get(deployment_id).data.get('state'),
                          self.STATE_STARTED,
                          f'Deployment successfully started in PULL mode')
+        self.logger.info(f'Running deployment for 100 seconds')
         time.sleep(100)
         self.logger.info(f'Stopping deployment')
         self.stop_deployment(deployment_id)
@@ -131,6 +131,7 @@ class TestBasicAppDeployment(ValidationBase):
         self.assertEqual(self.nuvla_client.get(deployment_id).data.get('state'),
                          self.STATE_STARTED,
                          f'Deployment successfully started in PUSH mode')
+        self.logger.info(f'Running deployment for 100 seconds')
         time.sleep(100)
         self.logger.info(f'Stopping deployment')
         self.stop_deployment(deployment_id)
