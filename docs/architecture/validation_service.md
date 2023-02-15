@@ -8,7 +8,7 @@ The framework consists in two main components:
 - Validation tests
 - GitHub action runners
 
-![Validation workflow](../graffle/Validation_Workflow.jpg)
+![Validation workflow](../graffle/Architecture_Overview.jpg)
 
 ## 1. Base Framework
 The first extends Python UnitTests providing a parent class which can easily be extended. This service comes with a 
