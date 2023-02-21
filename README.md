@@ -1,4 +1,4 @@
-# NuvlaEdge engine validation
+# NuvlaEdge validation
 
 This repository contains the source code for the NuvlaEdge validation service.
 The goal of the service is to execute a suite of tests over a given NuvlaEdge
