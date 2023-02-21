@@ -2,6 +2,9 @@
 
 For the list of the tests see
 
+* [Basic Tests](01%20Basic%20Tests.md)
+* [Nuvla Operations](02%20Nuvla%20Operations.md)
+
 ## NuvlaEdge functional tests
 
 | Index |                  Name | Description                                                                                                               |
