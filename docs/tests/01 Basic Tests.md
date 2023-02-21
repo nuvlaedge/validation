@@ -1,23 +1,26 @@
 # 1. Standard deployment
-Validation process of the normal deployment of the NuvlaEdge. Checks basic deployment and exit of the NuvlaEdge
 
-Includes fulfilling the minimum requirements and following the standard procedure of the NuvlaEdge.
+Validation process of the normal deployment of the NuvlaEdge. Checks basic
+deployment and exit of the NuvlaEdge.
 
+Includes fulfilling the minimum requirements and following the standard
+procedure of the NuvlaEdge.
 
+### Assertion
 
-### Assertion 
 - Start NuvlaEdge
 - Run for 5 min
 - Containers running without restarts
-  - If restart occurs, either prompt warning or fail
+    - If restart occurs, either prompt warning or fail
 - Activation + Commissioning successfully done
 - No telemetry loses
 
-
 # 2. System restart
+
 Validates the recovery capacities of the NuvlaEdge given a sudden restart
 
 ### Assertion
+
 - Start NuvlaEdge
 - When commissioned and operational trigger hard reboot
 - Wait until device comes back up
