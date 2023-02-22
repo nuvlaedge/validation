@@ -67,6 +67,22 @@ preconfigured devices that runs one battery of tests at a time in all the
 available devices. Available devices are those which configuration is stored in
 the default folder and online (will be checked automatically)
 
+## 4. The validation framework package
+
+```shell
+validation_framework --help
+
+usage: __main__.py [-h] [--target TARGET] [--validator VALIDATOR] [--release RELEASE] [--repository REPOSITORY] [--branch BRANCH]
+
+options:
+  -h, --help                show this help message and exit
+  --target TARGET           target device configuration file (e.g. rpi4.toml)
+  --validator VALIDATOR     target validation set (e.g. basic_tests)
+  --release RELEASE         target base release (e.g '2.4.6') to use as base
+  --repository REPOSITORY   target repository to validate when writting code in a NuvlaEdge component
+  --branch BRANCH           target branch to validate when writting code in a NuvlaEdge component
+
+```
 # Testbed
 
 TODO.

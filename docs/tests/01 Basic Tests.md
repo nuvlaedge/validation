@@ -6,20 +6,21 @@ deployment and exit of the NuvlaEdge.
 Includes fulfilling the minimum requirements and following the standard
 procedure of the NuvlaEdge.
 
-### Assertion
+### Steps
 
 - Start NuvlaEdge
+- Wait for commissioned and operational
+- Assert Activation + Commissioning successfully done
 - Run for 5 min
-- Containers running without restarts
+- Assert containers running without restarts
     - If restart occurs, either prompt warning or fail
-- Activation + Commissioning successfully done
-- No telemetry loses
+- Assert No telemetry loses
 
 # 2. System restart
 
 Validates the recovery capacities of the NuvlaEdge given a sudden restart
 
-### Assertion
+### Steps
 
 - Start NuvlaEdge
 - When commissioned and operational trigger hard reboot

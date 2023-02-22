@@ -13,6 +13,16 @@ The system is automatized via GitHub actions integrated in all NuvlaEdge repos,
 including [deployment](https://github.com/nuvlaedge/deployment) which is the
 release controller.
 
+NuvlaEdge validation system is configured to trigger under three conditions:
+1. push to 'main' branch
+2. when a PR is converted from draft. Action name: `ready_for_review`
+3. when manually triggered from any branch
+
+Options 1 and 2 are in place as part of NuvlaEdge CI/CD system facilitating the validation of new developments.
+
+Option three allows for developers to run validations manually during development process.
+
+
 ## Validation integration with GitHub CI actions
 
 This service is developed in order to be used within an organization scope. The
@@ -27,8 +37,6 @@ job inside its GitHub workflow.
 # Tests
 
 For the list of the tests see
-
-## Developing and integrating tests
 
 The process of the development and integration of the tests is
 described [here](tests/README.md).

@@ -173,16 +173,12 @@ if __name__ == '__main__':
     if validator_type == 'basic_tests':
         logger.info(f'Running basic tests')
         from validation_framework.validators.tests.basic_tests import active_validators, get_validator
-    elif validator_type == 'features':
-        logger.info(f'Running features')
-        from validation_framework.validators.tests.features import active_validators, get_validator
-    elif validator_type == 'microservices':
-        logger.info(f'Running MS')
-        from validation_framework.validators.tests.microservices import active_validators, get_validator
+    elif validator_type == 'peripherals':
+        logger.info(f'Running Peripherals validation tests')
+        from validation_framework.validators.tests.peripherals import active_validators, get_validator
     elif validator_type == 'nuvla_operations':
         logger.info(f'Running Nuvla Operations')
         from validation_framework.validators.tests.nuvla_operations import active_validators, get_validator
-        print(active_validators)
     else:
         raise Exception('No validator selected, cannot tests...')
     main(args)

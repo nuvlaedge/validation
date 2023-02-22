@@ -7,26 +7,24 @@ For the list of the tests see
 
 ## NuvlaEdge functional tests
 
-| Index |                  Name | Description                                                                                                               |
-|:---:|----------------------:|---------------------------------------------------------------------------------------------------------------------------|
-|1   |   Standard Engine Run | Tests that the standard execution of the NuvlaEdge is performed as expected.                                              |
-|2   |        Device restart | Tests the resilience of the NuvlaEdge after an unexpected restart of the device                                           |  
-|3   |     Connectivity Loss | Tests the resilience of the NuvlaEdge after losing connectivity for 5 minutes                                             | 
-|4   | Container Reliability | Tests that the containers are not restarted during normal initialization. They shouldn't                                  |
+| Index |                  Name | Description                                                                              |
+|:-----:|----------------------:|------------------------------------------------------------------------------------------|
+|   1   |   Standard Engine Run | Tests that the standard execution of the NuvlaEdge is performed as expected.             |
+|   2   |        Device restart | Tests the resilience of the NuvlaEdge after an unexpected restart of the device          |
 
 
 ## Nuvla operations tests
 
-| Index | Name            | Description                                                                                                                     |
-|:---:|-----------------|---------------------------------------------------------------------------------------------------------------------------------|
-| 1   | Reboot          | Tests the correct performance of the NuvlaEdge under the Nuvla command reboot and its proper recovery afterwards                |
-| 2   | App deployment  | Using a sample application, it tests that the system is capable of working in push and pull mode when deploying and App         |
-| 3   | Update          | Follows the update action and the correct result of it                                                                          |
-| 4   | SSH Management  | Nuvla provides the possibility of adding and removing SSH keys in the device. This test, performs the validation on that action |
+| Index | Name           | Description                                                                                                                     |
+|:-----:|----------------|---------------------------------------------------------------------------------------------------------------------------------|
+|   1   | Reboot         | Tests the correct performance of the NuvlaEdge under the Nuvla command reboot and its proper recovery afterwards                |
+|   2   | App deployment | Using a sample application, it tests that the system is capable of working in push and pull mode when deploying and App         |
+|   3   | Update         | Follows the update action and the correct result of it                                                                          |
+|   4   | SSH Management | Nuvla provides the possibility of adding and removing SSH keys in the device. This test, performs the validation on that action |
 
-# Manual for NuvlaEdge validation testing
 
-## Adding tests
+
+## Developing and integrating tests
 
 To add tests to this framework there are some considerations to take into account:
 
@@ -39,6 +37,7 @@ To add tests to this framework there are some considerations to take into accoun
 4. Every TestCase must contain one single test_* method as they are intended to
    test a single specific functionally. However, if the testing target requires
    it, multiple operations can be performed.
+
 
 ## Integrating with CI
 
@@ -147,4 +146,7 @@ jobs:
 
 Where the first step, sets up the local python environment, the second installs
 the required libraries (if not present) and the last triggers the execution of
-the unittests. 
+the unittests.
+
+## Tests integration example
+An example of real development of a new test can be found here.

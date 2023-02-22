@@ -1,7 +1,7 @@
 alias = "rpi4"
 
 # Network data
-address = "192.168.40.56"
+address = "192.168.0.45"
 port = 22
 hostname = ""
 
@@ -11,4 +11,3 @@ user = "pi"
 # Security data
 pub_key_path = "~/.ssh/id_rsa.pub"
 private_key_path = "~/.ssh/id_rsa"
-

@@ -57,6 +57,7 @@ class Validators:
         Returns: Monitor class
 
         """
+
         def decorator(validator_class):
             _validator_name: str = validator_name
             if not validator_name:
