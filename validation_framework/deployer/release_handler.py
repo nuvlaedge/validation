@@ -45,6 +45,10 @@ class ReleaseHandler:
                         if 'docker-compose.yml' in i.get('name'):
                             it_comp.append(i.get('name'))
 
+                        # Add selected peripherals if any to the compose target lists
+                        if any([j in i.get('name') for j in self.config.peripherals]):
+                            it_comp.append(i.get('name'))
+
                     self.requested_release = ReleaseSchema(
                         tag=Release(it_tag),
                         # components=[i.get('name') for i in release.get('assets') if i.get('name').endswith('.yml')],

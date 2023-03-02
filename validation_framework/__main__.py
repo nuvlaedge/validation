@@ -7,11 +7,9 @@ import io
 import json
 import unittest
 from datetime import datetime
-from enum import Enum, auto
 import logging
 import time
 from pathlib import Path
-from logging import config as logger_config
 
 import xmlrunner
 from xmlrunner.extra.xunit_plugin import transform
@@ -21,6 +19,7 @@ import xml.etree.ElementTree as ET
 import validation_framework.common.constants as cte
 from validation_framework.common.logging_config import config_logger
 from validation_framework.validators.validation_base import ParametrizedTests
+
 # Dynamically import validators
 
 
@@ -47,8 +46,7 @@ def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
     return parsed_data
 
 
-def run_test_on_device(arguments: argparse.Namespace) -> list[io.BytesIO]:
-
+def run_test_on_device(arguments: argparse.Namespace, validator: callable) -> list[io.BytesIO]:
     # Results holder
     test_results: list[io.BytesIO] = []
 
@@ -62,13 +60,13 @@ def run_test_on_device(arguments: argparse.Namespace) -> list[io.BytesIO]:
             logger.info(f'Running base release tests on {repo}:{branch}')
 
     for name, v in active_validators.items():
-        logger.info(f'Validator: {get_validator(name)}')
+        logger.info(f'Validator: {validator(name)}')
 
         test_report: io.BytesIO = io.BytesIO()
         runner = xmlrunner.XMLTestRunner(output=test_report, verbosity=1)
 
         suite = unittest.TestSuite()
-        suite.addTest(ParametrizedTests.parametrize(get_validator(name),
+        suite.addTest(ParametrizedTests.parametrize(validator(name),
                                                     target_device_config=device_config_file,
                                                     target_engine_version=arguments.release,
                                                     repository=repo,
@@ -100,7 +98,8 @@ def save_results(results: list, target_device: str, test_type: str) -> list:
 
         logger.info(f'{json.dumps(res[1], indent=4)} ')
         json_location = cte.JSON_RESULTS_PATH / (
-                json_results.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.json')
+                json_results.get('testsuites').get('testsuite').get(
+                    '@name').split('.')[-1] + '.json')
         json_results['target_device'] = target_device
         json_results['test_type'] = test_type
         sum_json_results.append(json_results)
@@ -109,7 +108,8 @@ def save_results(results: list, target_device: str, test_type: str) -> list:
             json.dump(json_results, file, indent=4)
 
         xml_location = cte.XML_RESULTS_PATH / (
-                    json_results.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.xml')
+                json_results.get('testsuites').get('testsuite').get(
+                    '@name').split('.')[-1] + '.xml')
         with xml_location.open('wb') as file:
             tree = ET.ElementTree(ET.fromstring(xml_results))
             tree.write(file, encoding='utf-8')
@@ -128,7 +128,7 @@ def parse_arguments() -> argparse.Namespace:
     return arguments.parse_args()
 
 
-def main(arguments: argparse.Namespace):
+def main(arguments: argparse.Namespace, validator: callable):
     """
     Main script for test running. Its main functionality is selecting the test parsed as parameter
     :return:
@@ -142,15 +142,17 @@ def main(arguments: argparse.Namespace):
     # Run validation
     time.sleep(2)
     logger.info(f'Starting validation process in {arguments.target}')
-    test_report: list = run_test_on_device(arguments)
+    test_report: list = run_test_on_device(arguments, validator)
     results = parse_results(test_report)
 
-    json_results: list = save_results(results, arguments.target, arguments.validator)
+    json_results: list = save_results(results, arguments.target,
+                                      arguments.validator)
 
     validation_time = time.process_time() - validation_time
     elapsed_time = time.time() - elapsed_time
-    logger.info(f'Successfully finishing validation in {validation_time}s with a total of '
-                f'{elapsed_time}s elapsed')
+    logger.info(
+        f'Successfully finishing validation in {validation_time}s with a total of '
+        f'{elapsed_time}s elapsed')
 
     # Assess exit code by reading the json results. If any failed, return 1.
     for r in json_results:
@@ -158,6 +160,28 @@ def main(arguments: argparse.Namespace):
             if v.get("@failures") != "0" or v.get("@errors") != "0":
                 exit_code = 1
                 break
+
+
+def get_validator_type(validator_name: str) -> tuple[callable, dict]:
+    """
+    Factory method to select and import validation test set
+    """
+
+    if validator_name == 'basic_tests':
+        logger.info(f'Running basic tests')
+        from validation_framework.validators.tests.basic_tests import \
+            active_validators, get_validator
+    elif validator_name == 'peripherals':
+        logger.info(f'Running Peripherals validation tests')
+        from validation_framework.validators.tests.peripherals import \
+            active_validators, get_validator
+    elif validator_name == 'nuvla_operations':
+        logger.info(f'Running Nuvla Operations')
+        from validation_framework.validators.tests.nuvla_operations import \
+            active_validators, get_validator
+    else:
+        raise ValueError('No validator selected, cannot tests...')
+    return get_validator, active_validators
 
 
 if __name__ == '__main__':
@@ -170,21 +194,6 @@ if __name__ == '__main__':
 
     validator_type = args.validator
 
-    if validator_type == 'basic_tests':
-        logger.info(f'Running basic tests')
-        from validation_framework.validators.tests.basic_tests import active_validators, get_validator
-    elif validator_type == 'features':
-        logger.info(f'Running features')
-        from validation_framework.validators.tests.features import active_validators, get_validator
-    elif validator_type == 'microservices':
-        logger.info(f'Running MS')
-        from validation_framework.validators.tests.microservices import active_validators, get_validator
-    elif validator_type == 'nuvla_operations':
-        logger.info(f'Running Nuvla Operations')
-        from validation_framework.validators.tests.nuvla_operations import active_validators, get_validator
-        print(active_validators)
-    else:
-        raise Exception('No validator selected, cannot tests...')
-    main(args)
+    get_validator, active_validators = get_validator_type(validator_type)
+    main(args, get_validator)
     exit(exit_code)
-

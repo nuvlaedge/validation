@@ -3,6 +3,7 @@ Device abstract class to allow the implementation of different ways of
 connecting. E.g: Allow for experimental local deployments, remote with ssh or
 remote with other techniques
 """
+import json
 import logging
 from abc import ABC, abstractmethod
 
@@ -37,11 +38,12 @@ class TargetDevice(ABC):
         pass
 
     @abstractmethod
-    def run_command(self, command: str, envs: dict | None = None) -> fabric.Result:
+    def run_command(self, command: str, envs: dict | None = None, hide: bool = True) -> fabric.Result:
         """
         Executes a shell command and returns the standard output
         :param command: Command to be executed
         :param envs: Environmental variables to run within the command shell context
+        :param hide: Print command execution (default: true)
         :return: stdout if success, stderr if failed
         """
         pass
@@ -75,6 +77,24 @@ class TargetDevice(ABC):
         :return: None
         """
         ...
+
+    def get_remote_containers(self, containers_filter: dict = None) -> list:
+        json_format: dict = containers_filter if containers_filter is not None else {"{{ .ID }}":
+                                                                                         {"Image": "{{ .Image }}",
+                                                                                          "Names": "{{ .Names }}"}}
+        self.logger.debug(f'Gathering container information {list(json_format.keys())}')
+        command: str = f"docker ps --format '{json.dumps(json_format)}'"
+        result: fabric.Result = self.run_command(command)
+        if result.failed:
+            raise Exception("Error while gathering running container data")
+        raw_data: str = result.stdout.strip('\n')
+        raw_data = ','.join(raw_data.splitlines())
+        raw_data = f'[{raw_data}]'
+
+        containers: list = json.loads(raw_data)
+
+        return containers
+
     # @abstractmethod
     # def start_engine(self, engine_config: EngineConfig, project_name: str) -> bool:
     #     """
