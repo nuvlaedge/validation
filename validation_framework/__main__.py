@@ -7,11 +7,9 @@ import io
 import json
 import unittest
 from datetime import datetime
-from enum import Enum, auto
 import logging
 import time
 from pathlib import Path
-from logging import config as logger_config
 
 import xmlrunner
 from xmlrunner.extra.xunit_plugin import transform
@@ -21,6 +19,7 @@ import xml.etree.ElementTree as ET
 import validation_framework.common.constants as cte
 from validation_framework.common.logging_config import config_logger
 from validation_framework.validators.validation_base import ParametrizedTests
+
 # Dynamically import validators
 
 
@@ -48,7 +47,6 @@ def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
 
 
 def run_test_on_device(arguments: argparse.Namespace) -> list[io.BytesIO]:
-
     # Results holder
     test_results: list[io.BytesIO] = []
 
@@ -100,7 +98,8 @@ def save_results(results: list, target_device: str, test_type: str) -> list:
 
         logger.info(f'{json.dumps(res[1], indent=4)} ')
         json_location = cte.JSON_RESULTS_PATH / (
-                json_results.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.json')
+                json_results.get('testsuites').get('testsuite').get(
+                    '@name').split('.')[-1] + '.json')
         json_results['target_device'] = target_device
         json_results['test_type'] = test_type
         sum_json_results.append(json_results)
@@ -109,7 +108,8 @@ def save_results(results: list, target_device: str, test_type: str) -> list:
             json.dump(json_results, file, indent=4)
 
         xml_location = cte.XML_RESULTS_PATH / (
-                    json_results.get('testsuites').get('testsuite').get('@name').split('.')[-1] + '.xml')
+                json_results.get('testsuites').get('testsuite').get(
+                    '@name').split('.')[-1] + '.xml')
         with xml_location.open('wb') as file:
             tree = ET.ElementTree(ET.fromstring(xml_results))
             tree.write(file, encoding='utf-8')
@@ -145,12 +145,14 @@ def main(arguments: argparse.Namespace):
     test_report: list = run_test_on_device(arguments)
     results = parse_results(test_report)
 
-    json_results: list = save_results(results, arguments.target, arguments.validator)
+    json_results: list = save_results(results, arguments.target,
+                                      arguments.validator)
 
     validation_time = time.process_time() - validation_time
     elapsed_time = time.time() - elapsed_time
-    logger.info(f'Successfully finishing validation in {validation_time}s with a total of '
-                f'{elapsed_time}s elapsed')
+    logger.info(
+        f'Successfully finishing validation in {validation_time}s with a total of '
+        f'{elapsed_time}s elapsed')
 
     # Assess exit code by reading the json results. If any failed, return 1.
     for r in json_results:
@@ -172,15 +174,17 @@ if __name__ == '__main__':
 
     if validator_type == 'basic_tests':
         logger.info(f'Running basic tests')
-        from validation_framework.validators.tests.basic_tests import active_validators, get_validator
+        from validation_framework.validators.tests.basic_tests import \
+            active_validators, get_validator
     elif validator_type == 'peripherals':
         logger.info(f'Running Peripherals validation tests')
-        from validation_framework.validators.tests.peripherals import active_validators, get_validator
+        from validation_framework.validators.tests.peripherals import \
+            active_validators, get_validator
     elif validator_type == 'nuvla_operations':
         logger.info(f'Running Nuvla Operations')
-        from validation_framework.validators.tests.nuvla_operations import active_validators, get_validator
+        from validation_framework.validators.tests.nuvla_operations import \
+            active_validators, get_validator
     else:
         raise Exception('No validator selected, cannot tests...')
     main(args)
     exit(exit_code)
-

@@ -4,6 +4,7 @@ For the list of the tests see
 
 * [Basic Tests](01%20Basic%20Tests.md)
 * [Nuvla Operations](02%20Nuvla%20Operations.md)
+* [Peripherals](03%20Peripherals.md)
 
 ## NuvlaEdge functional tests
 
@@ -28,7 +29,7 @@ For the list of the tests see
 
 To add tests to this framework there are some considerations to take into account:
 
-1. Tests are based on Python unitTest standard library and TestCase class.
+1. Tests are based on Python `unittest` standard library and `TestCase` class.
 2. Tests are executed per module (e.g. basic, features, nuvla_operations, etc)
 3. New validation tests must be places in a new file, named with test_* as
    prefix. The test class must extend the class ValidatorBase and be decorated
@@ -148,5 +149,7 @@ Where the first step, sets up the local python environment, the second installs
 the required libraries (if not present) and the last triggers the execution of
 the unittests.
 
-## Tests integration example
-An example of real development of a new test can be found here.
+## Test development and integration example
+
+An example of development and integration of a new test can be
+found [here](EXAMPLE.md).

@@ -1,5 +1,6 @@
 # 1. Network peripheral
-Test the network peripheral component of the NuvlaEdge
+
+Test the network peripheral component of the NuvlaEdge.
 
 ### Steps
 
