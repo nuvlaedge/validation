@@ -21,7 +21,7 @@ class TestPeripheralNetwork(ValidationBase):
 
         self.engine_handler: EngineHandler = EngineHandler(
             cte.DEVICE_CONFIG_PATH / self.target_config_file,
-            Release('2.4.6'),
+            self.target_engine_version,
             repo=self.target_repository,
             branch=self.target_branch,
             include_peripherals=True,

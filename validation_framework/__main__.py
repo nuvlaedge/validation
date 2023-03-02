@@ -46,7 +46,7 @@ def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
     return parsed_data
 
 
-def run_test_on_device(arguments: argparse.Namespace) -> list[io.BytesIO]:
+def run_test_on_device(arguments: argparse.Namespace, validator: callable) -> list[io.BytesIO]:
     # Results holder
     test_results: list[io.BytesIO] = []
 
@@ -60,13 +60,13 @@ def run_test_on_device(arguments: argparse.Namespace) -> list[io.BytesIO]:
             logger.info(f'Running base release tests on {repo}:{branch}')
 
     for name, v in active_validators.items():
-        logger.info(f'Validator: {get_validator(name)}')
+        logger.info(f'Validator: {validator(name)}')
 
         test_report: io.BytesIO = io.BytesIO()
         runner = xmlrunner.XMLTestRunner(output=test_report, verbosity=1)
 
         suite = unittest.TestSuite()
-        suite.addTest(ParametrizedTests.parametrize(get_validator(name),
+        suite.addTest(ParametrizedTests.parametrize(validator(name),
                                                     target_device_config=device_config_file,
                                                     target_engine_version=arguments.release,
                                                     repository=repo,
@@ -128,7 +128,7 @@ def parse_arguments() -> argparse.Namespace:
     return arguments.parse_args()
 
 
-def main(arguments: argparse.Namespace):
+def main(arguments: argparse.Namespace, validator: callable):
     """
     Main script for test running. Its main functionality is selecting the test parsed as parameter
     :return:
@@ -142,7 +142,7 @@ def main(arguments: argparse.Namespace):
     # Run validation
     time.sleep(2)
     logger.info(f'Starting validation process in {arguments.target}')
-    test_report: list = run_test_on_device(arguments)
+    test_report: list = run_test_on_device(arguments, validator)
     results = parse_results(test_report)
 
     json_results: list = save_results(results, arguments.target,
@@ -162,6 +162,28 @@ def main(arguments: argparse.Namespace):
                 break
 
 
+def get_validator_type(validator_name: str) -> tuple[callable, dict]:
+    """
+    Factory method to select and import validation test set
+    """
+
+    if validator_name == 'basic_tests':
+        logger.info(f'Running basic tests')
+        from validation_framework.validators.tests.basic_tests import \
+            active_validators, get_validator
+    elif validator_name == 'peripherals':
+        logger.info(f'Running Peripherals validation tests')
+        from validation_framework.validators.tests.peripherals import \
+            active_validators, get_validator
+    elif validator_name == 'nuvla_operations':
+        logger.info(f'Running Nuvla Operations')
+        from validation_framework.validators.tests.nuvla_operations import \
+            active_validators, get_validator
+    else:
+        raise ValueError('No validator selected, cannot tests...')
+    return get_validator, active_validators
+
+
 if __name__ == '__main__':
 
     # Configure the logger by dict. Should be adaptable via command line
@@ -172,19 +194,6 @@ if __name__ == '__main__':
 
     validator_type = args.validator
 
-    if validator_type == 'basic_tests':
-        logger.info(f'Running basic tests')
-        from validation_framework.validators.tests.basic_tests import \
-            active_validators, get_validator
-    elif validator_type == 'peripherals':
-        logger.info(f'Running Peripherals validation tests')
-        from validation_framework.validators.tests.peripherals import \
-            active_validators, get_validator
-    elif validator_type == 'nuvla_operations':
-        logger.info(f'Running Nuvla Operations')
-        from validation_framework.validators.tests.nuvla_operations import \
-            active_validators, get_validator
-    else:
-        raise Exception('No validator selected, cannot tests...')
-    main(args)
+    get_validator, active_validators = get_validator_type(validator_type)
+    main(args, get_validator)
     exit(exit_code)
