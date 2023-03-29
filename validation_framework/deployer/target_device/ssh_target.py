@@ -81,7 +81,6 @@ class SSHTarget(TargetDevice):
         self.logger.debug(f'Transferring {local_file} to {remote_path}')
         with self.connection() as connection:
             result: fabric.Result = connection.put(local_file, remote=remote_path)
-            self.logger.info(f'File {local_file} transfer result: {not result.failed}')
 
     def get_logs(self) -> None:
         pass
