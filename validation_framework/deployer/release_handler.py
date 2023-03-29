@@ -46,8 +46,9 @@ class ReleaseHandler:
                             it_comp.append(i.get('name'))
 
                         # Add selected peripherals if any to the compose target lists
-                        if any([j in i.get('name') for j in self.config.peripherals]):
-                            it_comp.append(i.get('name'))
+                        if self.config.peripherals:
+                            if any([j in i.get('name') for j in self.config.peripherals]):
+                                it_comp.append(i.get('name'))
 
                     self.requested_release = ReleaseSchema(
                         tag=Release(it_tag),

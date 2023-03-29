@@ -78,10 +78,10 @@ class SSHTarget(TargetDevice):
         :param local_file:
         :return: None
         """
-        self.logger.info(f'Transferring {local_file} to {remote_path}')
+        self.logger.debug(f'Transferring {local_file} to {remote_path}')
         with self.connection() as connection:
             result: fabric.Result = connection.put(local_file, remote=remote_path)
-            self.logger.info(f'Some random data failed: {result} {dir(result)}')
+            self.logger.info(f'File {local_file} transfer result: {not result.failed}')
 
     def get_logs(self) -> None:
         pass
