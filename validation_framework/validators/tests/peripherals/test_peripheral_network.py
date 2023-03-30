@@ -12,7 +12,7 @@ from validation_framework.common import constants as cte, Release
 
 @validator('PeripheralNetwork')
 class TestPeripheralNetwork(ValidationBase):
-    TIMEOUT: int = 300  # Maximum of 5  minutes for the peripherals to show up
+    TIMEOUT: int = 60  # Maximum of 5  minutes for the peripherals to show up
 
     def setUp(self) -> None:
         self.logger: logging.Logger = logging.getLogger(__name__)
@@ -60,10 +60,9 @@ class TestPeripheralNetwork(ValidationBase):
             'count', 0)
         start_time: float = time.time()
 
-        while count == 0 or time.time() - start_time > self.TIMEOUT:
+        while count == 0 and time.time() - start_time < self.TIMEOUT:
             count = self.nuvla_client.search('nuvlabox-peripheral',
-                                             filter=search_filter).data.get(
-                'count', 0)
+                                             filter=search_filter).data.get('count', 0)
 
         self.assertTrue(count > 0,
                         'After 5 minutes the peripheral manager should have '

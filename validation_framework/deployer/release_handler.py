@@ -28,6 +28,12 @@ class ReleaseHandler:
         self.config: TargetReleaseConfig = release
         self.release_tag = self.config.tag
 
+    @staticmethod
+    def get_latest_release() -> Release:
+        available_releases: list = requests.get(cte.RELEASES_LINK).json()
+        if available_releases:
+            return Release(available_releases[0].get('tag_name'))
+
     def gather_standard_release(self) -> bool:
         """
         Checks the remote GH repository for the releases and gathers the information according
