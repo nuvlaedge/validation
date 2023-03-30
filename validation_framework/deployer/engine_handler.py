@@ -54,7 +54,13 @@ class EngineHandler:
         self.device: SSHTarget = SSHTarget(self.device_config)
 
         # Asses release configuration
-        self.release_config: TargetReleaseConfig = TargetReleaseConfig(tag=Release(target_release),
+        if target_release:
+            target_release = Release(target_release)
+
+        else:
+            target_release = ReleaseHandler.get_latest_release()
+
+        self.release_config: TargetReleaseConfig = TargetReleaseConfig(tag=target_release,
                                                                        repository=repo,
                                                                        branch=branch,
                                                                        include_peripherals=include_peripherals,
@@ -96,7 +102,7 @@ class EngineHandler:
             if os.path.exists('docker-compose.yml'):
                 os.remove('docker-compose.yml')
 
-            wget.download('https://raw.githubusercontent.com/nuvlaedge/deployment/preprod-validation/docker-compose.yml',
+            wget.download('https://raw.githubusercontent.com/nuvlaedge/deployment/main/docker-compose.yml',
                           out='docker-compose.yml')
             self.release_handler.prepare_custom_release(os.getcwd())
             self.device.send_file(os.getcwd() + '/docker-compose.yml', '/tmp/')

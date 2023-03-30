@@ -19,6 +19,7 @@ class TestBasicAppDeployment(ValidationBase):
     STATE_STARTED: str = 'STARTED'
     STATE_STOPPING: str = 'STOPPING'
     STATE_STOPPED: str = 'STOPPED'
+    STATE_ERROR: str = 'ERROR'
 
     def get_app_data(self):
         """
@@ -34,7 +35,7 @@ class TestBasicAppDeployment(ValidationBase):
             time.sleep(1)
             state = self.nuvla_client.get(deployment_id).data.get('state')
 
-            if time.time() > start_time + 60:
+            if time.time() > start_time + 60 or state == self.STATE_ERROR:
                 self.logger.error(f'Deployment {deployment_id} did not start in time')
                 self.assertTrue(False, f'Deployment {deployment_id} did not start in time')
 
