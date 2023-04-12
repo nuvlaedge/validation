@@ -7,6 +7,7 @@ from nuvla.api.resources import Deployment
 
 from validation_framework.validators import ValidationBase
 from validation_framework.validators.tests.nuvla_operations import validator
+from validation_framework.common.constants import DEFAULT_JOBS_TIMEOUT
 from nuvla.api.models import CimiResponse, CimiResource, CimiCollection
 
 
@@ -14,6 +15,7 @@ from nuvla.api.models import CimiResponse, CimiResource, CimiCollection
 class TestBasicAppDeployment(ValidationBase):
     APP_NAME: str = 'nginx'
     MODULE_ID: str = 'module/96f09292-6aa4-49e1-a5d6-e0fb90fbf787'
+    APP_START_TIMEOUT: int = DEFAULT_JOBS_TIMEOUT
 
     STATE_PENDING: str = 'PENDING'
     STATE_STARTED: str = 'STARTED'
@@ -35,7 +37,7 @@ class TestBasicAppDeployment(ValidationBase):
             time.sleep(1)
             state = self.nuvla_client.get(deployment_id).data.get('state')
 
-            if time.time() > start_time + 60 or state == self.STATE_ERROR:
+            if time.time() > start_time + self.APP_START_TIMEOUT or state == self.STATE_ERROR:
                 self.logger.error(f'Deployment {deployment_id} did not start in time')
                 self.assertTrue(False, f'Deployment {deployment_id} did not start in time')
 
@@ -53,7 +55,7 @@ class TestBasicAppDeployment(ValidationBase):
             time.sleep(1)
             state = self.nuvla_client.get(deployment_id).data.get('state')
 
-            if time.time() > start_time + 60:
+            if time.time() > start_time + self.APP_START_TIMEOUT:
                 self.logger.error(f'Deployment {deployment_id} did not stop in time. Cannot remove remaining ')
                 return
 

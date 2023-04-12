@@ -6,6 +6,7 @@ from pprint import pprint as pp
 from nuvla.api.models import CimiResource, CimiResponse, CimiCollection
 
 from validation_framework.validators.tests.nuvla_operations import validator
+from validation_framework.common.constants import DEFAULT_JOBS_TIMEOUT
 from validation_framework.validators import ValidationBase
 
 
@@ -36,10 +37,10 @@ class TestSSHKeyManagement(ValidationBase):
         job_id: str = res.data.get('location')
         job_resource: CimiResource = self.nuvla_client.get(job_id)
         start_time: float = time.time()
-        self.logger.info(f'Waiting 70 job {job_id} to reach SUCCESS state')
+        self.logger.info(f'Waiting {DEFAULT_JOBS_TIMEOUT} seconds for job {job_id} to reach SUCCESS state')
         while job_resource.data.get('state') != "SUCCESS":
             time.sleep(3)
-            if time.time() - start_time > 70:
+            if time.time() - start_time > DEFAULT_JOBS_TIMEOUT:
                 self.logger.error("Job not completed in time")
                 return False
 

@@ -33,3 +33,6 @@ NUVLAEDGE_NAME: str = '[{device}] Validation'
 RESULTS_PATH: Path = Path('./results/temp/').resolve()
 JSON_RESULTS_PATH: Path = RESULTS_PATH / 'json'
 XML_RESULTS_PATH: Path = RESULTS_PATH / 'xml'
+
+# Timeouts
+DEFAULT_JOBS_TIMEOUT: int = 3*60

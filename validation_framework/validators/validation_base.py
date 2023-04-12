@@ -87,6 +87,7 @@ class ValidationBase(ParametrizedTests):
         while last_status != "OPERATIONAL":
             time.sleep(1)
             last_status: str = self.get_nuvlaedge_status()[1]
+        self.wait_for_capabilities(['NUVLA_JOB_PULL'])
 
     def get_system_up_time(self) -> float:
         response: Result = \
@@ -94,6 +95,35 @@ class ValidationBase(ParametrizedTests):
         if response.stdout:
             up_time = float(response.stdout)
             return up_time
+
+    def wait_for_capabilities(self, capabilities: list):
+        """
+        :param capabilities: Capabilities to match against the NuvlaBox resource
+        """
+        self.logger.info(f'Waiting for capabilities {capabilities} in NuvlaEdge {self.uuid}')
+        nuvlabox: CimiResponse = self.nuvla_client.get(self.uuid)
+        t_time = time.time()
+
+        if not capabilities:
+            return
+
+        while time.time() < t_time + cte.DEFAULT_JOBS_TIMEOUT:
+            time.sleep(5)
+            res_capabilities = nuvlabox.data.get('capabilities')
+            if not res_capabilities:
+                self.logger.debug(f'No capabilities in NuvlaBox {self.uuid}')
+                continue
+            cap_flag = True
+            for i in capabilities:
+                if i not in res_capabilities:
+                    self.logger.debug(f'Capability {i} not in NuvlaBox {self.uuid}')
+                    cap_flag = False
+
+            if cap_flag:
+                self.logger.info(f'NuvlaEdge {self.uuid} ready with capabilities: {capabilities}')
+                return
+        self.logger.info(f'NuvlaEdge {self.uuid} does not have {capabilities} capabilities')
+        self.assertTrue(False, f'NuvlaEdge {self.uuid} does not have {capabilities} capabilities')
 
     def get_nuvlaedge_status(self) -> tuple[str, str]:
         """
