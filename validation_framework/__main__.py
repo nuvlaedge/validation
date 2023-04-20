@@ -68,6 +68,8 @@ def run_test_on_device(arguments: argparse.Namespace, validator: callable) -> li
         suite = unittest.TestSuite()
         suite.addTest(ParametrizedTests.parametrize(validator(name),
                                                     target_device_config=device_config_file,
+                                                    nuvla_api_key=arguments.key,
+                                                    nuvla_api_secret=arguments.secret,
                                                     target_engine_version=arguments.release,
                                                     repository=repo,
                                                     branch=branch))
@@ -124,6 +126,8 @@ def parse_arguments() -> argparse.Namespace:
     arguments.add_argument("--release", default=None)
     arguments.add_argument("--repository", default=None)
     arguments.add_argument("--branch", default=None)
+    arguments.add_argument("--key")
+    arguments.add_argument("--secret")
 
     return arguments.parse_args()
 

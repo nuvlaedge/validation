@@ -3,6 +3,7 @@ General purpose class for NuvlaEdge validation
 """
 
 import logging
+import os
 import time
 import unittest
 
@@ -20,6 +21,8 @@ class ParametrizedTests(unittest.TestCase):
     def __init__(self,
                  test_name: str,
                  target_device_config: str,
+                 nuvla_api_key: str,
+                 nuvla_api_secret: str,
                  target_engine_version: str = '',
                  repository: str = '',
                  branch: str = ''):
@@ -28,6 +31,8 @@ class ParametrizedTests(unittest.TestCase):
 
         self.test_name: str = test_name
         self.target_config_file: str = target_device_config
+        self.nuvla_api_key: str = nuvla_api_key
+        self.nuvla_api_secret: str = nuvla_api_secret
         self.target_engine_version: str = target_engine_version
         self.target_repository: str = repository
         self.target_branch: str = branch
@@ -35,6 +40,8 @@ class ParametrizedTests(unittest.TestCase):
     @staticmethod
     def parametrize(testcase_class,
                     target_device_config: str,
+                    nuvla_api_key: str,
+                    nuvla_api_secret: str,
                     target_engine_version: str = '',
                     repository: str = '',
                     branch: str = ''):
@@ -46,6 +53,8 @@ class ParametrizedTests(unittest.TestCase):
         :param testcase_class: Class to type to be parametrized
         :param target_device_config: Parameter to be added to the class
         :param target_engine_version: Version to be tested
+        :param nuvla_api_secret:
+        :param nuvla_api_key:
         :return: A test suite
         """
         test_loader = unittest.TestLoader()
@@ -54,7 +63,13 @@ class ParametrizedTests(unittest.TestCase):
         suite = unittest.TestSuite()
 
         for name in test_names:
-            suite.addTest(testcase_class(name, target_device_config, target_engine_version, repository, branch))
+            suite.addTest(testcase_class(name,
+                                         target_device_config,
+                                         nuvla_api_key,
+                                         nuvla_api_secret,
+                                         target_engine_version,
+                                         repository,
+                                         branch))
         return suite
 
 
@@ -153,8 +168,7 @@ class ValidationBase(ParametrizedTests):
         """
         if self.uuid:
             return self.uuid
-        self.nuvla_client.login_apikey('credential/724bc2b6-4a2f-4f15-9239-bf375ba8174e',
-                                       'pvWZNa.bXZ8AS.Les692.dYyU3F.4LtD9W')
+        self.nuvla_client.login_apikey(self.nuvla_api_key, self.nuvla_api_secret)
         if self.engine_handler.release_handler.release_tag:
             it_release: int = self.engine_handler.release_handler.release_tag.major
         else:
@@ -190,7 +204,7 @@ class ValidationBase(ParametrizedTests):
         super(ValidationBase, self).setUp()
         self.logger: logging.Logger = logging.getLogger(__name__)
 
-        self.nuvla_client: NuvlaClient = NuvlaClient()
+        self.nuvla_client: NuvlaClient = NuvlaClient(reauthenticate=True)
         self.engine_handler: EngineHandler = EngineHandler(cte.DEVICE_CONFIG_PATH / self.target_config_file,
                                                            Release('2.4.6'),
                                                            repo=self.target_repository,
@@ -203,7 +217,6 @@ class ValidationBase(ParametrizedTests):
         super(ValidationBase, self).tearDown()
         self.logger.info(f'Parent tear down {__name__}')
         self.engine_handler.stop_engine()
-
         self.remove_nuvlaedge_from_nuvla()
 
 
