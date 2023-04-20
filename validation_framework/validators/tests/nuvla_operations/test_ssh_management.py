@@ -21,7 +21,7 @@ class TestSSHKeyManagement(ValidationBase):
         returns: true if successfully added (From Nuvla Job perspective). False otherwise
         """
         nuvlabox: CimiResource = self.nuvla_client.get(self.uuid)
-        self.logger.debug(f"Deploy ssh into {nuvlabox.data.get('name')}")
+        self.logger.debug(f"Running {operation} operation into {nuvlabox.data.get('name')}")
 
         payload = {
             "credential": self.VALIDATION_SSH_ID
