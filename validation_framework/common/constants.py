@@ -13,7 +13,7 @@ RELEASE_DOWNLOAD_LINK: str = 'https://github.com/nuvlaedge/deployment/releases/'
 DEPLOYMENT_FILES_LINK: str = 'https://raw.githubusercontent.com/nuvlaedge/deployment/merge-nuvlaedge/{file}'
 
 # File locations
-GENERAL_CONFIG_PATH: Path = Path('../conf/').resolve()
+GENERAL_CONFIG_PATH: Path = Path('./conf/').resolve()
 DEVICE_CONFIG_PATH: Path = GENERAL_CONFIG_PATH / 'targets'
 ENGINE_CONFIG_PATH: Path = GENERAL_CONFIG_PATH / 'engines'
 TESTS_CONFIG_PATH: Path = GENERAL_CONFIG_PATH / 'tests'
@@ -33,7 +33,7 @@ PROJECT_NAME: str = 'nuvlaedge_validator'
 NUVLAEDGE_NAME: str = '[{device}] Validation'
 
 # Report paths
-RESULTS_PATH: Path = Path('../results/temp/').resolve()
+RESULTS_PATH: Path = Path('./results/temp/').resolve()
 JSON_RESULTS_PATH: Path = RESULTS_PATH / 'json'
 XML_RESULTS_PATH: Path = RESULTS_PATH / 'xml'
 
