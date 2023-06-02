@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "validation"
-version = "0.0.2"
+version = "1.0.0"
 description = ""
 authors = ["Nacho <nacho@sixsq.com>"]
 packages = [{include = "validation_framework"}]
@@ -19,7 +19,7 @@ toml = "^0.10.2"
 invoke = "^2.0.0"
 xmltodict = "^0.13.0"
 unittest-xml-reporting = "^3.2.0"
-requests = "^2.27.1"
+requests = "2.27.1"
 pytablewriter = "^0.64.2"
 wget = "^3.2"
 pip = "^22.3.1"

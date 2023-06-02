@@ -27,12 +27,16 @@ class ReleaseHandler:
         self.logger: logging.Logger = logging.getLogger(__name__)
         self.config: TargetReleaseConfig = release
         self.release_tag = self.config.tag
+        self.logger.info(f'Release handler release tag {self.release_tag.major}')
+        self.nuvlaedge_tag = self.config.nuvlaedge_tag
 
     @staticmethod
-    def get_latest_release() -> Release:
-        available_releases: list = requests.get(cte.RELEASES_LINK).json()
+    def get_latest_release(release_link: str) -> Release:
+        available_releases: list = requests.get(release_link).json()
         if available_releases:
             return Release(available_releases[0].get('tag_name'))
+        else:
+            raise NotImplemented
 
     def gather_standard_release(self) -> bool:
         """
@@ -58,7 +62,6 @@ class ReleaseHandler:
 
                     self.requested_release = ReleaseSchema(
                         tag=Release(it_tag),
-                        # components=[i.get('name') for i in release.get('assets') if i.get('name').endswith('.yml')],
                         components=it_comp,
                         prerelease=release.get('prerelease')
                     )
@@ -76,41 +79,21 @@ class ReleaseHandler:
 
         return False
 
-    def prepare_custom_release(self, directory: str) -> None:
-        """
-        Locally prepares the release for branch pull requests, then pushes it to the target.
-        :return: None
-        """
-        # Not a standard release, means the test is being triggered by a Pull Request. Then, after downloading the
-        # corresponding files, we need to edit the given image
-        engine_file: Path = Path(directory) / 'docker-compose.yml'
-        engine_file = engine_file.expanduser()
-        if not engine_file.exists():
-            raise FileNotFoundError(f'Target file {engine_file} does not exist')
-
-        yaml = ruamel.yaml.YAML()
-        yaml.preserve_quotes = True
-        yaml.indent(sequence=3, offset=1)
-
-        with engine_file.open('r') as file:
-            compose_config = yaml.load(file)
-            compose_config['services'][self.config.repository]['image'] = \
-                f"nuvladev/{self.config.repository}:{self.config.branch}"
-
-        with engine_file.open('w') as file:
-            yaml.dump(compose_config, file)
-
     def get_download_cmd(self) -> list[str]:
         """
         Builds the corresponding download link of every requested component. Default: All
         :return: List of links to download the requested components and one with the fil names
         """
-        self.gather_standard_release()
+        # self.gather_standard_release()
+        self.requested_release = ReleaseSchema(
+            tag=Release(self.release_tag),
+            components=['docker-compose.yml'],
+            prerelease=False
+        )
 
         gh_links: list[str] = []
         for c in self.requested_release.components:
-            comp_link: str = cte.RELEASE_DOWNLOAD_LINK.format(version=self.requested_release.tag,
-                                                              file=c)
+            comp_link: str = cte.DEPLOYMENT_FILES_LINK.format(file=c)
             gh_links.append(comp_link)
 
         return gh_links

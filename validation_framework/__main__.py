@@ -52,12 +52,7 @@ def run_test_on_device(arguments: argparse.Namespace, validator: callable) -> li
 
     # Target version
     device_config_file: str = arguments.target
-    repo: str = arguments.repository
     branch: str = arguments.branch
-    logger.error(f'Running on repository {repo}/{branch}')
-    if repo == 'deployment':
-        if branch == 'main':
-            logger.info(f'Running base release tests on {repo}:{branch}')
 
     for name, v in active_validators.items():
         logger.info(f'Validator: {validator(name)}')
@@ -70,8 +65,7 @@ def run_test_on_device(arguments: argparse.Namespace, validator: callable) -> li
                                                     target_device_config=device_config_file,
                                                     nuvla_api_key=arguments.key,
                                                     nuvla_api_secret=arguments.secret,
-                                                    target_engine_version=arguments.release,
-                                                    repository=repo,
+                                                    target_deployment_version=arguments.deployment_release,
                                                     branch=branch))
         result = runner.run(suite)
         test_results.append(test_report)
@@ -123,9 +117,13 @@ def parse_arguments() -> argparse.Namespace:
     arguments: argparse.ArgumentParser = argparse.ArgumentParser()
     arguments.add_argument("--target")
     arguments.add_argument("--validator")
-    arguments.add_argument("--release", default=None)
-    arguments.add_argument("--repository", default=None)
+    # Until deployment and nuvlaedge are aligned we need both inputs
+    arguments.add_argument("--nuvlaedge_release", default=None)
+    arguments.add_argument("--deployment_release", default=None)
+    # Branch for devel
     arguments.add_argument("--branch", default=None)
+
+    # Credentials
     arguments.add_argument("--key")
     arguments.add_argument("--secret")
 

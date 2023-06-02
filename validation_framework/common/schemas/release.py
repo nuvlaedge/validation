@@ -11,6 +11,8 @@ class TargetReleaseConfig(BaseModel):
     Release configuration for custom NuvlaEdge
     """
     tag: Release | None = None
+    nuvlaedge_tag: Release | None = None
+
     std_release: bool = True
     # If none, all available files will be targeted
     repository: str | None = None
