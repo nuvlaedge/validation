@@ -39,20 +39,9 @@ class TestStandardEngineRun(ValidationBase):
         # Test standard deployments for 15 minutes
         last_state: str = self.get_nuvlaedge_status()[0]
         self.logger.debug(f'Current State {last_state}')
-        self.assertTrue(self.STATE_LIST[0] == last_state, 'Initial state should be "New"')
 
-        # Starts the preconfigured engine after checking the remote state of the nuvlaedge
-        self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
-
-        # Wait until the device is activated
-        last_state = self.get_nuvlaedge_status()[0]
-        self.logger.debug(f'Current State {last_state}')
-        while last_state != self.STATE_LIST[1]:
-            self.logger.info(f'Waiting state {last_state} to be {self.STATE_LIST[1]}')
-            time.sleep(2)
-            last_state = self.get_nuvlaedge_status()[0]
-
-        self.assertTrue(self.STATE_LIST[1] == last_state, 'Next Stated must be "Activated"')
+        self.wait_for_commissioned()
+        self.wait_for_operational()
 
         start_time: float = time.time()
         self.logger.info(f'Starting longer run of  {self.TEST_RUN_TIME}s')
