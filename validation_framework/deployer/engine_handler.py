@@ -121,11 +121,12 @@ class EngineHandler:
                                                    files=files)
 
         self.logger.debug(f'Starting engine with command: \n\n\t{start_command}\n')
-        ne_version = self.release_config.branch if self.release_config.branch else self.release_config.nuvlaedge_tag
+        ne_version = self.release_config.branch \
+            if self.release_config.branch else 'v' + self.release_config.nuvlaedge_tag
         docker_repo = 'nuvlaedge' if not self.release_config.branch else 'nuvladev'
         envs_configuration: dict = {'NUVLABOX_UUID': nuvlaedge_uuid,
                                     'NUVLAEDGE_UUID': nuvlaedge_uuid,
-                                    'NUVLAEDGE_VERSION': 'v' + ne_version,
+                                    'NUVLAEDGE_VERSION': ne_version,
                                     'DOCKER_ORG': docker_repo,
                                     'COMPOSE_PROJECT_NAME': cte.PROJECT_NAME}
 
