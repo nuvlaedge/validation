@@ -100,7 +100,8 @@ class TestBasicAppDeployment(ValidationBase):
         self.logger.info(f'Starting pull application deployment validation tests')
         self.wait_for_commissioned()
         self.wait_for_operational()
-
+        self.logger.info('Wait a long time to let everything set up')
+        time.sleep(120)
         self.logger.info(f'Device up and ready. Launching ')
         deployment_id = self.configure_deployment(pull=True)
 
@@ -121,7 +122,8 @@ class TestBasicAppDeployment(ValidationBase):
         self.logger.info(f'Starting push application deployment validation tests')
         self.wait_for_commissioned()
         self.wait_for_operational()
-
+        self.logger.info('Wait a long time to let everything set up')
+        time.sleep(120)
         self.logger.info(f'Device up and ready. Launching ')
         deployment_id = self.configure_deployment()
 
