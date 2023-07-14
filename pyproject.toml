@@ -1,31 +1,31 @@
 [tool.poetry]
 name = "validation"
-version = "1.0.0"
+version = "0.0.2"
 description = ""
 authors = ["Nacho <nacho@sixsq.com>"]
 packages = [{include = "validation_framework"}]
 readme = "README.md"
 
 [tool.poetry.scripts]
-validation = "validation_framework.__main__:main"
+validation = "validation_framework:entrypoint"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-pydantic = "^1.10.2"
+pydantic = "2.0.2"
 nuvla-api = "^3.0.8"
-paramiko = "3.0.0"
-fabric = "^3.0.0"
-toml = "^0.10.2"
-invoke = "^2.0.0"
-xmltodict = "^0.13.0"
-unittest-xml-reporting = "^3.2.0"
+paramiko = "3.2.0"
+fabric = "3.1.0"
+toml = "0.10.2"
+invoke = "2.1.3"
+xmltodict = "0.13.0"
+unittest-xml-reporting = "3.2.0"
 requests = "2.27.1"
-pytablewriter = "^0.64.2"
-wget = "^3.2"
-pip = "^22.3.1"
-install = "^1.3.5"
-ruamel-yaml = "^0.17.21"
-decorator = "^5.1.1"
+pytablewriter = "1.0.0"
+wget = "3.2"
+pip = "23.1.2"
+install = "1.3.5"
+ruamel-yaml = "0.17.32"
+decorator = "5.1.1"
 
 
 [build-system]

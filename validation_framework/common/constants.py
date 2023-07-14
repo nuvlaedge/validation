@@ -5,12 +5,15 @@ Constants common module for the NuvlaEdge validation system
 from pathlib import Path
 
 # Release handling
-RELEASES_LINK: str = 'https://api.github.com/repos/nuvlaedge/deployment/releases'
+DEPLOYMENT_RELEASES_LINK: str = 'https://api.github.com/repos/nuvlaedge/deployment/releases'
 NUVLAEDGE_RELEASES_LINK: str = 'https://api.github.com/repos/nuvlaedge/nuvlaedge/releases'
 
 RELEASE_DOWNLOAD_LINK: str = 'https://github.com/nuvlaedge/deployment/releases/' \
                              'download/{version}/{file}'
-DEPLOYMENT_FILES_LINK: str = 'https://raw.githubusercontent.com/nuvlaedge/deployment/merge-nuvlaedge/{file}'
+DEPLOYMENT_FILES_LINK: str = 'https://raw.githubusercontent.com/nuvlaedge/deployment/{branch_name}/{file}'
+
+ENGINE_BASE_FILE_NAME: str = 'docker-compose.yml'
+PERIPHERAL_BASE_FILE_NAME: str = 'docker-compose.{peripheral}.yml'
 
 # File locations
 GENERAL_CONFIG_PATH: Path = Path('./conf/').resolve()
@@ -31,6 +34,7 @@ COMPOSE_DOWN: str = 'docker compose -p {project_name} -f {files} down -d'
 # NuvlaEdge engine configuration constants
 PROJECT_NAME: str = 'nuvlaedge_validator'
 NUVLAEDGE_NAME: str = '[{device}] Validation'
+DOCKER_REPOSITORY_NAME: str = 'nuvlaedge'
 
 # Report paths
 RESULTS_PATH: Path = Path('./results/temp/').resolve()

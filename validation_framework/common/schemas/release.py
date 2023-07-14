@@ -1,7 +1,7 @@
 """
 
 """
-from pydantic import BaseModel
+from pydantic import BaseModel, ConfigDict
 
 from validation_framework.common.release import Release
 
@@ -10,25 +10,21 @@ class TargetReleaseConfig(BaseModel):
     """
     Release configuration for custom NuvlaEdge
     """
-    tag: Release | None = None
-    nuvlaedge_tag: Release | None = None
+    # Model configuration
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
-    std_release: bool = True
-    # If none, all available files will be targeted
-    repository: str | None = None
-    branch: str | None = None
+    nuvlaedge_version: str
 
-    # Peripheral handling
-    include_peripherals: bool = False
-    peripherals: list[str] = None
-    # If release is custom this section must be completely filled
-    # TODO: Future implementations of custom engine validation
+    nuvlaedge_branch: str
+    deployment_branch: str
 
 
 class ReleaseSchema(BaseModel):
     """
     Forms a schema for standardize releases from remote GH repo
     """
+    model_config = ConfigDict(arbitrary_types_allowed=True)
+
     # NuvlaEdge deployment release tag
     tag: Release
     # Available files to download (Based on .yml deployment files)

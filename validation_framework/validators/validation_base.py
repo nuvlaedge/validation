@@ -22,9 +22,9 @@ class ParametrizedTests(unittest.TestCase):
                  target_device_config: str,
                  nuvla_api_key: str,
                  nuvla_api_secret: str,
-                 target_deployment_version: str = '',
-                 target_nuvlaedge_version: str = '',
-                 branch: str = ''):
+                 nuvlaedge_version: str = '',
+                 deployment_branch: str = '',
+                 nuvlaedge_branch: str = ''):
 
         super().__init__(test_name)
 
@@ -32,26 +32,26 @@ class ParametrizedTests(unittest.TestCase):
         self.target_config_file: str = target_device_config
         self.nuvla_api_key: str = nuvla_api_key
         self.nuvla_api_secret: str = nuvla_api_secret
-        self.target_deployment_version: str = target_deployment_version
-        self.target_nuvlaedge_version: str = target_nuvlaedge_version
-        self.target_branch: str = branch
+        self.nuvlaedge_version: str = nuvlaedge_version
+        self.target_nuvlaedge_branch: str = nuvlaedge_branch
+        self.target_deployment_branch: str = deployment_branch
 
     @staticmethod
     def parametrize(testcase_class,
                     target_device_config: str,
                     nuvla_api_key: str,
                     nuvla_api_secret: str,
-                    target_deployment_version: str = '',
-                    target_nuvlaedge_version: str = '',
-                    branch: str = ''):
+                    nuvlaedge_version: str = '',
+                    deployment_branch: str = '',
+                    nuvlaedge_branch: str = ''):
         """
         Create a suite containing all tests taken from the given
         subclass, passing them the parameters.
-        :param branch:
+        :param deployment_branch:
+        :param nuvlaedge_branch:
         :param testcase_class: Class to type to be parametrized
         :param target_device_config: Parameter to be added to the class
-        :param target_deployment_version: Version to be tested
-        :param target_nuvlaedge_version: NuvlaEdge version
+        :param nuvlaedge_version: NuvlaEdge version
         :param nuvla_api_secret:
         :param nuvla_api_key:
         :return: A test suite
@@ -66,15 +66,13 @@ class ParametrizedTests(unittest.TestCase):
                                          target_device_config,
                                          nuvla_api_key,
                                          nuvla_api_secret,
-                                         target_deployment_version,
-                                         target_nuvlaedge_version,
-                                         branch))
+                                         nuvlaedge_version,
+                                         deployment_branch,
+                                         nuvlaedge_branch))
         return suite
 
 
 class ValidationBase(ParametrizedTests):
-    INDEX: int = 1
-    DESCRIPTION: str = 'Tests a simple deployment  Start -> Activation -> Commission -> Decommission -> Stop'
     uuid: NuvlaUUID = ''
     STATE_HIST: list[str] = []
     STATE_LIST: list[str] = ['NEW', 'ACTIVATED', 'COMMISSIONED', 'DECOMMISSIONED']
@@ -206,12 +204,12 @@ class ValidationBase(ParametrizedTests):
         self.logger: logging.Logger = logging.getLogger(__name__)
 
         self.nuvla_client: NuvlaClient = NuvlaClient(reauthenticate=True)
-        self.logger.info(f'Creating engine handler on deployment version: '
-                         f'{self.target_deployment_version}-{self.target_nuvlaedge_version}')
+
+        self.logger.info(f'Creating engine handler on deployment version: {self.nuvlaedge_version}')
         self.engine_handler: EngineHandler = EngineHandler(cte.DEVICE_CONFIG_PATH / self.target_config_file,
-                                                           deployment_release=self.target_deployment_version,
-                                                           nuvlaedge_release=self.target_nuvlaedge_version,
-                                                           branch=self.target_branch)
+                                                           nuvlaedge_version=self.nuvlaedge_version,
+                                                           nuvlaedge_branch=self.target_nuvlaedge_branch,
+                                                           deployment_branch=self.target_deployment_branch)
         self.uuid: NuvlaUUID = self.create_nuvlaedge_in_nuvla()
 
         self.logger.info(f'Target device: {self.engine_handler.device_config.hostname}')
