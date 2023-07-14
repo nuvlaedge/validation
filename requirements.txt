@@ -1,8 +1,0 @@
-pydantic~=1.10.2
-requests~=2.27.1
-toml~=0.10.2
-unittest-xml-reporting~=3.2.0
-xmltodict~=0.13.0
-fabric==3.0.0
-nuvla-api
-paramiko==3.0.0

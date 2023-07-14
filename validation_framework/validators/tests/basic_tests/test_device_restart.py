@@ -44,7 +44,6 @@ class TestDeviceRestart(ValidationBase):
         self.logger.info(f"Initial up time {initial_up_time}")
         self.trigger_restart()
 
-
         self.logger.info(f'Waiting for device to come back up')
 
         # Give some time for the reboot to execute

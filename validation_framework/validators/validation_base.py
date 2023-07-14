@@ -3,7 +3,6 @@ General purpose class for NuvlaEdge validation
 """
 
 import logging
-import os
 import time
 import unittest
 
@@ -11,7 +10,7 @@ from fabric import Result
 from nuvla.api import Api as NuvlaClient
 from nuvla.api.models import CimiResponse, CimiCollection
 
-from validation_framework.common import constants as cte, Release
+from validation_framework.common import constants as cte
 from validation_framework.common.nuvla_uuid import NuvlaUUID
 from validation_framework.deployer.engine_handler import EngineHandler
 
@@ -23,9 +22,9 @@ class ParametrizedTests(unittest.TestCase):
                  target_device_config: str,
                  nuvla_api_key: str,
                  nuvla_api_secret: str,
-                 target_engine_version: str = '',
-                 repository: str = '',
-                 branch: str = ''):
+                 nuvlaedge_version: str = '',
+                 deployment_branch: str = '',
+                 nuvlaedge_branch: str = ''):
 
         super().__init__(test_name)
 
@@ -33,26 +32,26 @@ class ParametrizedTests(unittest.TestCase):
         self.target_config_file: str = target_device_config
         self.nuvla_api_key: str = nuvla_api_key
         self.nuvla_api_secret: str = nuvla_api_secret
-        self.target_engine_version: str = target_engine_version
-        self.target_repository: str = repository
-        self.target_branch: str = branch
+        self.nuvlaedge_version: str = nuvlaedge_version
+        self.target_nuvlaedge_branch: str = nuvlaedge_branch
+        self.target_deployment_branch: str = deployment_branch
 
     @staticmethod
     def parametrize(testcase_class,
                     target_device_config: str,
                     nuvla_api_key: str,
                     nuvla_api_secret: str,
-                    target_engine_version: str = '',
-                    repository: str = '',
-                    branch: str = ''):
+                    nuvlaedge_version: str = '',
+                    deployment_branch: str = '',
+                    nuvlaedge_branch: str = ''):
         """
         Create a suite containing all tests taken from the given
         subclass, passing them the parameters.
-        :param branch:
-        :param repository:
+        :param deployment_branch:
+        :param nuvlaedge_branch:
         :param testcase_class: Class to type to be parametrized
         :param target_device_config: Parameter to be added to the class
-        :param target_engine_version: Version to be tested
+        :param nuvlaedge_version: NuvlaEdge version
         :param nuvla_api_secret:
         :param nuvla_api_key:
         :return: A test suite
@@ -67,15 +66,13 @@ class ParametrizedTests(unittest.TestCase):
                                          target_device_config,
                                          nuvla_api_key,
                                          nuvla_api_secret,
-                                         target_engine_version,
-                                         repository,
-                                         branch))
+                                         nuvlaedge_version,
+                                         deployment_branch,
+                                         nuvlaedge_branch))
         return suite
 
 
 class ValidationBase(ParametrizedTests):
-    INDEX: int = 1
-    DESCRIPTION: str = 'Tests a simple deployment  Start -> Activation -> Commission -> Decommission -> Stop'
     uuid: NuvlaUUID = ''
     STATE_HIST: list[str] = []
     STATE_LIST: list[str] = ['NEW', 'ACTIVATED', 'COMMISSIONED', 'DECOMMISSIONED']
@@ -86,7 +83,11 @@ class ValidationBase(ParametrizedTests):
         :return:
         """
         self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
-        last_state: str = self.get_nuvlaedge_status()[0]
+        try:
+            last_state: str = self.get_nuvlaedge_status()[0]
+        except IndexError:
+            last_state: str = 'UNKNOWN'
+
         self.logger.info(f'Waiting until device is commissioned')
         while last_state != self.STATE_LIST[2]:
             time.sleep(1)
@@ -169,10 +170,8 @@ class ValidationBase(ParametrizedTests):
         if self.uuid:
             return self.uuid
         self.nuvla_client.login_apikey(self.nuvla_api_key, self.nuvla_api_secret)
-        if self.engine_handler.release_handler.release_tag:
-            it_release: int = self.engine_handler.release_handler.release_tag.major
-        else:
-            it_release: int = 2
+
+        it_release: int = 2
 
         response: CimiResponse = self.nuvla_client.add(
             'nuvlabox',
@@ -205,10 +204,12 @@ class ValidationBase(ParametrizedTests):
         self.logger: logging.Logger = logging.getLogger(__name__)
 
         self.nuvla_client: NuvlaClient = NuvlaClient(reauthenticate=True)
+
+        self.logger.info(f'Creating engine handler on deployment version: {self.nuvlaedge_version}')
         self.engine_handler: EngineHandler = EngineHandler(cte.DEVICE_CONFIG_PATH / self.target_config_file,
-                                                           Release('2.4.6'),
-                                                           repo=self.target_repository,
-                                                           branch=self.target_branch)
+                                                           nuvlaedge_version=self.nuvlaedge_version,
+                                                           nuvlaedge_branch=self.target_nuvlaedge_branch,
+                                                           deployment_branch=self.target_deployment_branch)
         self.uuid: NuvlaUUID = self.create_nuvlaedge_in_nuvla()
 
         self.logger.info(f'Target device: {self.engine_handler.device_config.hostname}')

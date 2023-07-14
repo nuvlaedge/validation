@@ -95,23 +95,6 @@ class TargetDevice(ABC):
 
         return containers
 
-    # @abstractmethod
-    # def start_engine(self, engine_config: EngineConfig, project_name: str) -> bool:
-    #     """
-    #     Starts the engine depending on what device in being used
-    #     :return: True if successfully started, false otherwise
-    #     """
-    #     pass
-    #
-    # @abstractmethod
-    # def stop_engine(self, project_name: str) -> bool:
-    #     """
-    #     Stops the NuvlaEdge engine with the provided project name
-    #     :param project_name: Project name to stop
-    #     :return: True if successfully stopped
-    #     """
-    #     pass
-
     @abstractmethod
     def build_directory_tree(self) -> None:
         """

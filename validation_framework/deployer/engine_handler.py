@@ -1,15 +1,14 @@
 """
 Higher class that wraps together the device and the release handler
 """
+import json
 import logging
-import os
 from pathlib import Path
-
-import wget
 
 from validation_framework.common import (Release, utils)
 from validation_framework.common.nuvla_uuid import NuvlaUUID
 from validation_framework.common.schemas.release import TargetReleaseConfig
+from validation_framework.common.schemas.engine import EngineEnvsConfiguration
 from validation_framework.common.schemas.target_device import TargetDeviceConfig
 from validation_framework.common import constants as cte
 from validation_framework.deployer import SSHTarget
@@ -21,14 +20,13 @@ class EngineHandler:
     (NuvlaEdge)
     """
     # TODO: Move this variable to proper place
-    target_dir: str = ''
     nuvlaedge_uuid: NuvlaUUID = ''
 
     def __init__(self,
-                 target_device: int | Path,
-                 target_release: str,
-                 repo: str = '',
-                 branch: str = '',
+                 target_device: Path,
+                 nuvlaedge_version: str = '',
+                 nuvlaedge_branch: str = '',
+                 deployment_branch: str = '',
                  include_peripherals: bool = False,
                  peripherals: list[str] = None):
         """
@@ -36,37 +34,25 @@ class EngineHandler:
         If an index is passed has to find the corresponding file in the default folder, if it's a path, directly
         loads the configuration.
         :param target_device: Index or path to target device file
-        :param target_release: Index or Release tag or path to target release file
+        :param nuvlaedge_version: Release version. Synchronized between NuvlaEdge and Deployment repository
         """
         self.logger: logging.Logger = logging.getLogger(__name__)
+        self.logger.debug(f'Creating Engine Handler for device {target_device}')
 
         # Assess device configuration
-        if isinstance(target_device, int):
-            self.logger.debug('Gather information from index')
-            self.device_config_file: Path = Path(self.get_device_config_by_index(target_device))
-        else:
-            self.logger.debug('Gather information from path')
-            self.device_config_file: Path = target_device
+        self.device_config_file: Path = target_device
         if not self.device_config_file.is_file():
             raise FileNotFoundError(f'Provided file {self.device_config_file} does not exists')
 
         self.device_config: TargetDeviceConfig = utils.get_model_from_toml(TargetDeviceConfig, self.device_config_file)
         self.device: SSHTarget = SSHTarget(self.device_config)
 
-        # Asses release configuration
-        if target_release:
-            target_release = Release(target_release)
-
-        else:
-            target_release = ReleaseHandler.get_latest_release()
-
-        self.release_config: TargetReleaseConfig = TargetReleaseConfig(tag=target_release,
-                                                                       repository=repo,
-                                                                       branch=branch,
-                                                                       include_peripherals=include_peripherals,
-                                                                       peripherals=peripherals)
-        self.release_handler: ReleaseHandler = ReleaseHandler(self.release_config)
-        self.logger.error(f'Gather information from release {self.release_config}')
+        self.engine_configuration: EngineEnvsConfiguration = EngineEnvsConfiguration()
+        self.release_handler = ReleaseHandler(self.device,
+                                              self.engine_configuration,
+                                              nuvlaedge_version,
+                                              deployment_branch,
+                                              nuvlaedge_branch)
 
     @staticmethod
     def get_device_config_by_index(device_index: int) -> Path:
@@ -81,38 +67,6 @@ class EngineHandler:
 
         raise IndexError(f'Device with index {device_index} not found in {cte.DEVICE_CONFIG_PATH}')
 
-    def prepare_compose_files(self,
-                              include_peripherals: bool = False,
-                              peripherals: list[str] = None):
-        """
-
-        :return: the path location of the files.
-        """
-        self.target_dir: str = cte.ROOT_PATH + cte.ENGINE_PATH + self.release_handler.release_tag
-        self.logger.error(f'Downloading files for release {self.release_handler.release_tag} into {self.target_dir}/')
-        self.device.run_command(f'mkdir -p {self.target_dir}')
-        for link in self.release_handler.get_download_cmd():
-            self.device.download_file(link=link,
-                                      file_name=link.split('/')[-1],
-                                      directory=self.target_dir)
-
-        if self.release_config.branch and self.release_config.repository:
-            self.logger.info(f'Working on pull request, editing microservice {self.release_config.branch} '
-                             f'to match nuvladev repository on tag {self.release_handler.requested_release.tag}')
-            if os.path.exists('docker-compose.yml'):
-                os.remove('docker-compose.yml')
-
-            wget.download('https://raw.githubusercontent.com/nuvlaedge/deployment/main/docker-compose.yml',
-                          out='docker-compose.yml')
-            self.release_handler.prepare_custom_release(os.getcwd())
-            self.device.send_file(os.getcwd() + '/docker-compose.yml', '/tmp/')
-
-            target_path: str = cte.ROOT_PATH + cte.ENGINE_PATH + '/' + self.release_handler.release_tag + '/' \
-                               + 'docker-compose.yml'
-
-            self.device.run_command(f'rm {target_path}')
-            self.device.run_command(f'mv /tmp/docker-compose.yml {target_path}')
-
     def start_engine(self, nuvlaedge_uuid: NuvlaUUID,
                      remove_old_installation: bool = False,
                      extra_envs: dict = None):
@@ -122,29 +76,31 @@ class EngineHandler:
         """
         if remove_old_installation:
             # 1. - Clean target
+            self.logger.debug('Removing possible old installations of NuvlaEdge')
             self.device.clean_target()
 
-        # 2. - Check remote files
-        self.prepare_compose_files()
+        # 2. - Prepare remote files
+        self.logger.debug('Download NuvlaEdge related files and images')
+        self.release_handler.download_nuvlaedge()
 
         # 3. - Start engine with target release (Future custom as well)
-        files: str = f' -f '.join([self.target_dir + '/' + i for i in self.release_handler.requested_release.components])
+        files: str = ' -f '.join(self.release_handler.get_files_path_as_str())
         start_command: str = cte.COMPOSE_UP.format(prepend='nohup',
                                                    project_name=cte.PROJECT_NAME,
                                                    files=files)
 
-        self.logger.debug(f'Starting engine with command: \n\n{start_command}\n')
-        envs_configuration: dict = {'NUVLABOX_UUID': nuvlaedge_uuid,
-                                    'NUVLAEDGE_UUID': nuvlaedge_uuid,
-                                    'COMPOSE_PROJECT_NAME': cte.PROJECT_NAME}
+        self.logger.debug(f'Starting engine with command: \n\n\t{start_command}\n')
+
+        self.engine_configuration.nuvlabox_uuid = nuvlaedge_uuid
+        self.engine_configuration.nuvlaedge_uuid = nuvlaedge_uuid
+
+        envs_configuration: dict = self.engine_configuration.model_dump(by_alias=True)
 
         if extra_envs:
             envs_configuration.update(extra_envs)
 
-        self.logger.info('Pull the images and update them')
-        self.device.run_command(f'docker compose -f {self.target_dir + "/" + "docker-compose.yml"} pull')
-
-        self.logger.info(f'Starting engine with Edge uuid: {nuvlaedge_uuid} and envs {envs_configuration}')
+        self.logger.info(f'Starting NuvlaEdge with UUID: {nuvlaedge_uuid} with configuration: \n\n '
+                         f'{json.dumps(envs_configuration, indent=4)} \n')
         self.device.run_command(start_command, envs=envs_configuration)
         self.logger.info('Device start command executed')
 
@@ -166,11 +122,3 @@ class EngineHandler:
         """
         self.device.run_command('docker ps')
         return True
-
-    def clean_device(self):
-        """
-
-        :return:
-        """
-
-
