@@ -55,13 +55,27 @@ jobs:
           echo "NEW_VERSION=$(poetry version -s)" >> "$GITHUB_OUTPUT"
           poetry lock
 
-      - name: Conventional Changelog Action
-        uses: TriPSs/conventional-changelog-action@v3.19.0
+      - uses: actions/setup-node@v3
         with:
-          git-push: false
-          skip-commit: true
-          skip-tag: true
-          version-file: pyproject.toml
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install Changelog generator
+        run: |
+          npm -i generate-changelog -g
+
+      - name: Generate Conventional Changelog
+        run: |
+          generate-changelog --${{ github.event.inputs.version }}
+#      - name: Conventional Changelog Action
+#        uses: TriPSs/conventional-changelog-action@v3.19.0
+#        with:
+#          git-push: 'false'
+#          skip-version-file: 'true'
+#          skip-commit: 'true'
+#          skip-tag: 'true'
+#          release-count: 0
+
 
 #      - name: Generate ChangeLog
 #        uses: heinrichreimer/github-changelog-generator-action@v2.3
