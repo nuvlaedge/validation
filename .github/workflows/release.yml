@@ -11,9 +11,11 @@ concurrency:
   cancel-in-progress: true
 
 on:
-  push:
-    tags:
-      - "**"
+  workflow_dispatch:
+
+#  push:
+#    tags:
+#      - "**"
 
 jobs:
   build-nuvlaedge:
