@@ -61,7 +61,7 @@ jobs:
 
       - name: Install Changelog generator
         run: |
-          npm -i generate-changelog -g
+          npm i generate-changelog -g
 
       - name: Generate Conventional Changelog
         run: |
