@@ -53,42 +53,14 @@ jobs:
           echo "OLD_VERSION=$(poetry version -s)" >> "$GITHUB_OUTPUT"
           poetry version ${{ github.event.inputs.version }}
           echo "NEW_VERSION=$(poetry version -s)" >> "$GITHUB_OUTPUT"
-          poetry lock
-
-      - uses: actions/setup-node@v3
-        with:
-          node-version: 18
-
-      - name: Install Changelog generator
-        run: |
-          npm i generate-changelog -g
-
-      - name: Generate Conventional Changelog
-        run: |
-          generate-changelog --${{ github.event.inputs.version }}
-#      - name: Conventional Changelog Action
-#        uses: TriPSs/conventional-changelog-action@v3.19.0
-#        with:
-#          git-push: 'false'
-#          skip-version-file: 'true'
-#          skip-commit: 'true'
-#          skip-tag: 'true'
-#          release-count: 0
-
-
-#      - name: Generate ChangeLog
-#        uses: heinrichreimer/github-changelog-generator-action@v2.3
-#        with:
-#          token: ${{ secrets.GITHUB_TOKEN }}
-#          base: "CHANGELOG.md"
-#          futureRelease: "${{ steps.versioning.outputs.NEW_VERSION }}"
+          poetry lock 
 
       - name: Generate new Tag
         run: |
           git config --global user.email "nuvlaedge-bot@sixsq.com"
           git config --global user.name "nuvlaedge-bot"
-          git add poetry.lock pyproject.toml CHANGELOG.md
-          git commit -m "Update ChangeLog for release ${{ steps.versioning.outputs.NEW_VERSION }}"
+          git add poetry.lock pyproject.toml
+          git commit -m "Bump to release: ${{ steps.versioning.outputs.NEW_VERSION }}"
           git push origin main
           git tag "${{ steps.versioning.outputs.NEW_VERSION }}" -m "NuvlaEdge Version ${{ steps.versioning.outputs.NEW_VERSION }}"
           git push origin --tags
