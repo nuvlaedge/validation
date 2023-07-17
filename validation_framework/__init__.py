@@ -121,11 +121,11 @@ def parse_arguments() -> argparse.Namespace:
     arguments.add_argument("--validator")
 
     # Until deployment and nuvlaedge are aligned we need both inputs
-    arguments.add_argument("--nuvlaedge_version", default=None)
+    arguments.add_argument("--nuvlaedge_version", default=None, nargs='?', const='')
 
     # Branch for devel
-    arguments.add_argument("--nuvlaedge_branch", default=None)
-    arguments.add_argument("--deployment_branch", default=None)
+    arguments.add_argument("--nuvlaedge_branch", default=None, nargs='?', const='')
+    arguments.add_argument("--deployment_branch", default=None, nargs='?', const='')
 
     # Credentials
     arguments.add_argument("--key")
