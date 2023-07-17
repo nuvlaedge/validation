@@ -52,9 +52,9 @@ class ReleaseHandler:
         self.device: SSHTarget = device
 
         # NuvlaEdge source code configuration
-        self.nuvlaedge_version = nuvlaedge_version.strip()
-        self.deployment_branch = deployment_branch.strip()
-        self.nuvlaedge_branch = nuvlaedge_branch.strip()
+        self.nuvlaedge_version = nuvlaedge_version.strip() if nuvlaedge_version else ''
+        self.deployment_branch = deployment_branch.strip() if deployment_branch else ''
+        self.nuvlaedge_branch = nuvlaedge_branch.strip() if nuvlaedge_branch else ''
         self.logger.info(f'\n\t Engine configuration: \n'
                          f'\t\t NuvlaEdge Version: {self.nuvlaedge_version} \n'
                          f'\t\t Deployment Branch: {self.deployment_branch} \n'
