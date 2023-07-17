@@ -86,7 +86,7 @@ class ReleaseHandler:
         # ------------------------------------------------------------
         if self.deployment_branch:
             self.logger.info(f'Running NuvlaEdge from deployment branch: {self.deployment_branch}')
-            self.deployment_link = cte.DEPLOYMENT_FILES_LINK.format(branch=self.deployment_branch,
+            self.deployment_link = cte.DEPLOYMENT_FILES_LINK.format(branch_name=self.deployment_branch,
                                                                     file='{file}')
 
         else:
