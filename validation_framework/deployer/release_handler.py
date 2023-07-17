@@ -52,9 +52,13 @@ class ReleaseHandler:
         self.device: SSHTarget = device
 
         # NuvlaEdge source code configuration
-        self.nuvlaedge_version = nuvlaedge_version
-        self.deployment_branch = deployment_branch
-        self.nuvlaedge_branch = nuvlaedge_branch
+        self.nuvlaedge_version = nuvlaedge_version.strip()
+        self.deployment_branch = deployment_branch.strip()
+        self.nuvlaedge_branch = nuvlaedge_branch.strip()
+        self.logger.info(f'\n\t Engine configuration: \n'
+                         f'\t\t NuvlaEdge Version: {self.nuvlaedge_version} \n'
+                         f'\t\t Deployment Branch: {self.deployment_branch} \n'
+                         f'\t\t NuvlaEdge Branch: {self.nuvlaedge_branch}')
 
         # Deployment release download link changes depending on the configuration.
         # Whether deployment branch is provided
