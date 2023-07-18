@@ -53,8 +53,8 @@ class ReleaseHandler:
 
         # NuvlaEdge source code configuration
         self.nuvlaedge_version = nuvlaedge_version.strip() if nuvlaedge_version else ''
-        self.deployment_branch = deployment_branch.strip() if deployment_branch else ''
-        self.nuvlaedge_branch = nuvlaedge_branch.strip() if nuvlaedge_branch else ''
+        self.deployment_branch = deployment_branch.strip() if deployment_branch and deployment_branch != 'None' else ''
+        self.nuvlaedge_branch = nuvlaedge_branch.strip() if nuvlaedge_branch and nuvlaedge_branch != 'None' else ''
         self.logger.info(f'\n\t Engine configuration: \n'
                          f'\t\t NuvlaEdge Version: {self.nuvlaedge_version} \n'
                          f'\t\t Deployment Branch: {self.deployment_branch} \n'
@@ -94,7 +94,7 @@ class ReleaseHandler:
                                                                     file='{file}')
 
         else:
-            if not self.nuvlaedge_version:
+            if not self.nuvlaedge_version or self.nuvlaedge_version == 'latest':
                 self.logger.info(
                     f'No deployment branch nor release version provided, gathering latest nuvlaedge release')
                 self.nuvlaedge_version = self.get_latest_release(cte.NUVLAEDGE_RELEASES_LINK)
