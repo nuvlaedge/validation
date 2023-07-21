@@ -5,6 +5,8 @@ import json
 import logging
 from pathlib import Path
 
+import fabric
+
 from validation_framework.common import (Release, utils)
 from validation_framework.common.nuvla_uuid import NuvlaUUID
 from validation_framework.common.schemas.release import TargetReleaseConfig
@@ -103,6 +105,40 @@ class EngineHandler:
                          f'{json.dumps(envs_configuration, indent=4)} \n')
         self.device.run_command(start_command, envs=envs_configuration)
         self.logger.info('Device start command executed')
+
+    def download_engine_logs(self):
+        """
+        Finds the containers related to the current engine deployment and downloads the logs from the files in
+        Returns:
+
+        """
+        self.logger.info(f'Retrieving Log files from engine run with UUID: {self.nuvlaedge_uuid}')
+        # 1. Retrieve deployment containers ID's
+        result: fabric.Result = self.device.run_command(
+            f'docker ps -a --format json '
+            f'--filter compose_project={self.engine_configuration.compose_project_name}')
+        containers = json.loads(result.stdout)
+
+        # 2. Iteratively copy files from /var/docker/logs/<container_id>.log to /tmp/<new_folder> and chmod before
+        # transferring it the running machine
+        self.device.run_command(f'mkdir -p /tmp/{self.engine_configuration.compose_project_name}')
+        local_tmp_path: Path = Path(f'/tmp/{self.engine_configuration.compose_project_name}')
+        local_tmp_path.mkdir(parents=True, exist_ok=True)
+
+        for c in containers:
+            c_id = c.get('identifier')
+            c_name = c.get('name')
+            self.device.run_sudo_command(f'sudo cp /var/docker/logs/{c_id} '
+                                         f'/tmp/{c_name}')
+            self.device.run_sudo_command(f'sudo chmod 777 /tmp/{c_name}')
+
+            # 3. Transfer back the files
+
+            self.device.download_remote_file(remote_file_path=f'/tmp/{c_name}',
+                                             local_file_path=local_tmp_path)
+
+        # 4. Remove remote temporal folder
+        self.device.run_sudo_command(f'sudo rm -r /tmp/{self.engine_configuration.compose_project_name}/')
 
     def stop_engine(self) -> bool:
         """
