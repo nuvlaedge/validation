@@ -24,7 +24,8 @@ class ParametrizedTests(unittest.TestCase):
                  nuvla_api_secret: str,
                  nuvlaedge_version: str = '',
                  deployment_branch: str = '',
-                 nuvlaedge_branch: str = ''):
+                 nuvlaedge_branch: str = '',
+                 retrieve_logs: bool = False):
 
         super().__init__(test_name)
 
@@ -35,6 +36,7 @@ class ParametrizedTests(unittest.TestCase):
         self.nuvlaedge_version: str = nuvlaedge_version
         self.target_nuvlaedge_branch: str = nuvlaedge_branch
         self.target_deployment_branch: str = deployment_branch
+        self.retrieve_logs: bool = retrieve_logs
 
     @staticmethod
     def parametrize(testcase_class,
@@ -43,18 +45,24 @@ class ParametrizedTests(unittest.TestCase):
                     nuvla_api_secret: str,
                     nuvlaedge_version: str = '',
                     deployment_branch: str = '',
-                    nuvlaedge_branch: str = ''):
+                    nuvlaedge_branch: str = '',
+                    retrieve_logs: bool = False):
         """
-        Create a suite containing all tests taken from the given
+         Create a suite containing all tests taken from the given
         subclass, passing them the parameters.
-        :param deployment_branch:
-        :param nuvlaedge_branch:
-        :param testcase_class: Class to type to be parametrized
-        :param target_device_config: Parameter to be added to the class
-        :param nuvlaedge_version: NuvlaEdge version
-        :param nuvla_api_secret:
-        :param nuvla_api_key:
-        :return: A test suite
+
+        Args:
+            testcase_class: Class to type to be parametrized
+            target_device_config: Parameter to be added to the class
+            nuvla_api_key:
+            nuvla_api_secret:
+            nuvlaedge_version: NuvlaEdge version
+            deployment_branch:
+            nuvlaedge_branch:
+            retrieve_logs:
+
+        Returns:
+            A test suite
         """
         test_loader = unittest.TestLoader()
         test_names = test_loader.getTestCaseNames(testcase_class)
@@ -68,7 +76,8 @@ class ParametrizedTests(unittest.TestCase):
                                          nuvla_api_secret,
                                          nuvlaedge_version,
                                          deployment_branch,
-                                         nuvlaedge_branch))
+                                         nuvlaedge_branch,
+                                         retrieve_logs))
         return suite
 
 
@@ -216,8 +225,24 @@ class ValidationBase(ParametrizedTests):
 
     def tearDown(self) -> None:
         super(ValidationBase, self).tearDown()
-        self.logger.info(f'Parent tear down {__name__}')
-        self.engine_handler.stop_engine()
+        self.logger.info('ValidationBase tear down, stopping and cleaning engine')
+
+        # Retrieve NuvlaEdge logs if UnitTest fail. If retrieve logs is selected as an input,
+        # ignore whether tests fail and always download logs
+        if not self.retrieve_logs:
+            if hasattr(self._outcome, 'errors'):
+                # Python 3.4 - 3.10  (These two methods have no side effects)
+                result = self.defaultTestResult()
+                self._feedErrorsToResult(result, self._outcome.errors)
+            else:
+                # Python 3.11+
+                result = self._outcome.result
+            ok = all(test != self for test, text in result.errors + result.failures)
+
+            # Demo output:  (print short info immediately - not important)
+            if not ok:
+                self.retrieve_logs = True
+                self.logger.error(f'Test failed with exception: {self.failureException}')
+
+        self.engine_handler.stop_engine(retrieve_logs=self.retrieve_logs)
         self.remove_nuvlaedge_from_nuvla()
-
-

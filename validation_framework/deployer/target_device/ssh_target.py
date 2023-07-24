@@ -7,7 +7,7 @@ import logging
 from contextlib import contextmanager
 
 import fabric
-from fabric import Connection
+from fabric import Connection, Result
 import invoke
 
 from validation_framework.common.constants import *
@@ -82,14 +82,19 @@ class SSHTarget(TargetDevice):
         with self.connection() as connection:
             result: fabric.Result = connection.put(local_file, remote=remote_path)
 
-    def get_logs(self) -> None:
-        pass
+    def download_remote_file(self, remote_file_path: str, local_file_path: Path) -> str | None:
+        """
+        Given a path on the remote ssh target device, retrieves the content of the file if exists.
+        Args:
+            remote_file_path: file to download from the remote device
+            local_file_path:
 
-    def get_ms_logs(self, microservice: str) -> None:
-        pass
+        Returns:
+            The local path where the file is stored. None if the file doesn't exist
+        """
 
-    def get_engine_db(self) -> None:
-        pass
+        with self.connection() as connection:
+            res: Result = connection.get(remote_file_path, local=str(local_file_path))
 
     def run_sudo_command(self, command: str, envs: dict | None = None, hide: bool = True) -> fabric.Result:
         self.logger.debug(f'Running {command} as SuperUser in {self.target_config.address}')
@@ -119,6 +124,8 @@ class SSHTarget(TargetDevice):
         Removes docker containers, services, volumes and networks from previous runs
         :return: None
         """
+        self.logger.info(f'Cleaning remote {self.target_config.alias} target device')
+
         command_list: list = ['docker service rm $(docker service ls -q)',
                               'docker stop $(docker ps -a -q)',
                               'docker rm $(docker ps -a -q)',
@@ -132,23 +139,3 @@ class SSHTarget(TargetDevice):
                 pass
             except Exception as ex:
                 self.logger.warning(f'System not present {ex}')
-
-    def start_edge(self, nuvlaedge_uuid: NuvlaUUID) -> None:
-        """
-        Starts a nuvla edge given the UUID in the target device. This function should not block and return once
-        the engine has been started
-        :param nuvlaedge_uuid: NuvlaEdge engine to start the engine wiht
-        :return:  None
-        """
-        start_command: str = f'nohup docker compose -p {"nuvlaedge"} -f {"docker-compose.yml"} up -d'
-        self.run_command_within_folder(start_command,
-                                       'some_folder_where the file is',
-                                       envs={'NUVLABOX_UUID': nuvlaedge_uuid,
-                                             'NUVLAEDGE_UUID': nuvlaedge_uuid})
-
-    def stop_edge(self):
-        """
-        Stops the started engine
-        :return:
-        """
-        stop_command: str = f''

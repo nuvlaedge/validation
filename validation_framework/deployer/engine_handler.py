@@ -5,9 +5,10 @@ import json
 import logging
 from pathlib import Path
 
-from validation_framework.common import (Release, utils)
+import fabric
+
+from validation_framework.common import utils
 from validation_framework.common.nuvla_uuid import NuvlaUUID
-from validation_framework.common.schemas.release import TargetReleaseConfig
 from validation_framework.common.schemas.engine import EngineEnvsConfiguration
 from validation_framework.common.schemas.target_device import TargetDeviceConfig
 from validation_framework.common import constants as cte
@@ -104,7 +105,47 @@ class EngineHandler:
         self.device.run_command(start_command, envs=envs_configuration)
         self.logger.info('Device start command executed')
 
-    def stop_engine(self) -> bool:
+    def download_engine_logs(self):
+        """
+        Finds the containers related to the current engine deployment and downloads the logs from the files in
+        Returns:
+
+        """
+        self.logger.info(f'Retrieving Log files from engine run with UUID: {self.nuvlaedge_uuid}')
+        # 1. Retrieve deployment containers ID's
+        result: fabric.Result = self.device.run_command(
+            "docker ps -a --format '{\"ID\":\"{{ .ID }}\", \"Image\": \"{{ .Image }}\", \"Names\":\"{{ .Names }}\"}' "
+            f"--filter label=com.docker.compose.project={self.engine_configuration.compose_project_name} | jq --tab -s .")
+
+        self.logger.debug(f'Extracting logs from: \n\n\t{result.stdout}\n')
+        containers = json.loads(result.stdout)
+
+        # 2. Iteratively copy files from /var/docker/logs/<container_id>.log to /tmp/<new_folder> and chmod before
+        # transferring it the running machine
+        self.device.run_command(f'mkdir -p /tmp/{self.engine_configuration.compose_project_name}')
+        local_tmp_path: Path = Path(f'/tmp/{self.engine_configuration.compose_project_name}')
+        local_tmp_path.mkdir(parents=True, exist_ok=True)
+
+        for c in containers:
+            c_name = c.get('Names')
+            full_id = self.device.run_command(command='docker inspect --format="{{.Id}}" ' + c_name).stdout
+            full_id = full_id.replace('\n', '')
+            full_id = full_id.replace('\\', '')
+
+            self.logger.debug(f'Processing logs for nuvlaedge {c_name}')
+            self.device.run_sudo_command(f'sudo cp /var/lib/docker/containers/{full_id}/{full_id}-json.log '
+                                         f'/tmp/{c_name}.log')
+            self.device.run_sudo_command(f'sudo chmod 777 /tmp/{c_name}.log')
+
+            # 3. Transfer back the files
+
+            self.device.download_remote_file(remote_file_path=f'/tmp/{c_name}.log',
+                                             local_file_path=local_tmp_path / (c_name + '.log'))
+
+        # 4. Remove remote temporal folder
+        self.device.run_sudo_command(f'sudo rm -r /tmp/{self.engine_configuration.compose_project_name}/')
+
+    def stop_engine(self, retrieve_logs: bool = False) -> bool:
         """
 
         :return:
@@ -112,6 +153,9 @@ class EngineHandler:
         if not self.engine_running():
             self.logger.info('Engine not running')
             return True
+
+        if retrieve_logs:
+            self.download_engine_logs()
 
         self.device.clean_target()
 
