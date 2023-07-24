@@ -101,28 +101,3 @@ class TargetDevice(ABC):
         Builds the different directories used by the validation system
         :return: None
         """
-
-    # Validation retrieval
-    @abstractmethod
-    def get_logs(self) -> None:
-        """
-        Retrieves all the logs from the deployed target_device engine
-        :return: None
-        """
-        pass
-
-    @abstractmethod
-    def get_ms_logs(self, microservice: str) -> None:
-        """
-        Retrieves the logs from the selected microservice
-        :param microservice: Microservice to retrieve the logs from
-        :return: None
-        """
-        pass
-
-    @abstractmethod
-    def get_engine_db(self) -> None:
-        """
-        Retrieves the whole target_device engine database
-        :return: None
-        """

@@ -67,7 +67,8 @@ def run_test_on_device(arguments: argparse.Namespace, validator: callable) -> li
                                                     nuvla_api_secret=arguments.secret,
                                                     nuvlaedge_version=arguments.nuvlaedge_version,
                                                     nuvlaedge_branch=arguments.nuvlaedge_branch,
-                                                    deployment_branch=arguments.deployment_branch))
+                                                    deployment_branch=arguments.deployment_branch,
+                                                    retrieve_logs=arguments.retrieve_logs))
         result = runner.run(suite)
         test_results.append(test_report)
 

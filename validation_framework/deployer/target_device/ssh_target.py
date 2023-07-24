@@ -94,10 +94,7 @@ class SSHTarget(TargetDevice):
         """
 
         with self.connection() as connection:
-            res: Result = connection.get(remote_file_path, local=local_file_path)
-            if res.failed:
-                return None
-            return local_file
+            res: Result = connection.get(remote_file_path, local=str(local_file_path))
 
     def run_sudo_command(self, command: str, envs: dict | None = None, hide: bool = True) -> fabric.Result:
         self.logger.debug(f'Running {command} as SuperUser in {self.target_config.address}')
@@ -127,6 +124,8 @@ class SSHTarget(TargetDevice):
         Removes docker containers, services, volumes and networks from previous runs
         :return: None
         """
+        self.logger.info(f'Cleaning remote {self.target_config.alias} target device')
+
         command_list: list = ['docker service rm $(docker service ls -q)',
                               'docker stop $(docker ps -a -q)',
                               'docker rm $(docker ps -a -q)',
