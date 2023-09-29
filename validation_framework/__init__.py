@@ -178,21 +178,21 @@ def get_validator_type(validator_name: str) -> tuple[callable, dict]:
     """
     Factory method to select and import validation test set
     """
-
-    if validator_name == 'basic_tests':
-        logger.info(f'Running basic tests')
-        from validation_framework.validators.tests.basic_tests import \
-            active_validators, get_validator
-    elif validator_name == 'peripherals':
-        logger.info(f'Running Peripherals validation tests')
-        from validation_framework.validators.tests.peripherals import \
-            active_validators, get_validator
-    elif validator_name == 'nuvla_operations':
-        logger.info(f'Running Nuvla Operations')
-        from validation_framework.validators.tests.nuvla_operations import \
-            active_validators, get_validator
-    else:
-        raise ValueError('No validator selected, cannot tests...')
+    match validator_name:
+        case 'basic_tests':
+            logger.info('Running basic tests')
+            from validation_framework.validators.tests.basic_tests import \
+                active_validators, get_validator
+        case 'peripherals':
+            logger.info('Running Peripherals validation tests')
+            from validation_framework.validators.tests.peripherals import \
+                active_validators, get_validator
+        case 'nuvla_operations':
+            logger.info('Running Nuvla Operations')
+            from validation_framework.validators.tests.nuvla_operations import \
+                active_validators, get_validator
+        case _:
+            raise ValueError('No validator selected, cannot tests...')
     return get_validator, active_validators
 
 

@@ -1,13 +1,17 @@
-alias = "rpi4"
+alias = "ubuntu_VM"
+
+# Orchestration engine
+coe = "kubernetes"
 
 # Network data
-address = "192.168.40.13"
+address = "194.182.163.45"
 port = 22
 hostname = ""
 
 # Naming data
-user = "pi"
+user = "ubuntu"
 
 # Security data
 pub_key_path = "~/.ssh/id_rsa.pub"
 private_key_path = "~/.ssh/id_rsa"
+

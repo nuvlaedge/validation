@@ -1,5 +1,8 @@
 alias = "ubuntu_VM"
 
+# Orchestration engine
+coe = "docker"
+
 # Network data
 address = "194.182.163.45"
 port = 22

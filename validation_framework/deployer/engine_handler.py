@@ -31,11 +31,13 @@ class EngineHandler:
                  include_peripherals: bool = False,
                  peripherals: list[str] = None):
         """
-        Engine handler constructor. It is in charge of assessing if the targets are passed as index or path to file.
-        If an index is passed has to find the corresponding file in the default folder, if it's a path, directly
-        loads the configuration.
+        Engine handler constructor. It is in charge of assessing if the targets are
+        passed as index or path to file. If an index is passed has to find the
+        corresponding file in the default folder, if it's a path, directly loads the
+        configuration.
         :param target_device: Index or path to target device file
-        :param nuvlaedge_version: Release version. Synchronized between NuvlaEdge and Deployment repository
+        :param nuvlaedge_version: Release version. Synchronized between NuvlaEdge and
+        Deployment repository
         """
         self.logger: logging.Logger = logging.getLogger(__name__)
         self.logger.debug(f'Creating Engine Handler for device {target_device}')
@@ -43,9 +45,12 @@ class EngineHandler:
         # Assess device configuration
         self.device_config_file: Path = target_device
         if not self.device_config_file.is_file():
-            raise FileNotFoundError(f'Provided file {self.device_config_file} does not exists')
+            raise FileNotFoundError(f'Provided file {self.device_config_file} '
+                                    f'does not exists')
 
-        self.device_config: TargetDeviceConfig = utils.get_model_from_toml(TargetDeviceConfig, self.device_config_file)
+        self.device_config: TargetDeviceConfig = utils.get_model_from_toml(
+            TargetDeviceConfig,
+            self.device_config_file)
         self.device: SSHTarget = SSHTarget(self.device_config)
 
         self.engine_configuration: EngineEnvsConfiguration = EngineEnvsConfiguration()
@@ -66,7 +71,8 @@ class EngineHandler:
             if file.is_file() and file.name.startswith(str(device_index)):
                 return cte.DEVICE_CONFIG_PATH / file
 
-        raise IndexError(f'Device with index {device_index} not found in {cte.DEVICE_CONFIG_PATH}')
+        raise IndexError(f'Device with index {device_index} not found in '
+                         f'{cte.DEVICE_CONFIG_PATH}')
 
     def start_engine(self, nuvlaedge_uuid: NuvlaUUID,
                      remove_old_installation: bool = False,
@@ -100,8 +106,9 @@ class EngineHandler:
         if extra_envs:
             envs_configuration.update(extra_envs)
 
-        self.logger.info(f'Starting NuvlaEdge with UUID: {nuvlaedge_uuid} with configuration: \n\n '
-                         f'{json.dumps(envs_configuration, indent=4)} \n')
+        self.logger.info(f'Starting NuvlaEdge with UUID: {nuvlaedge_uuid} with'
+                         f' configuration: '
+                         f'\n\n {json.dumps(envs_configuration, indent=4)} \n')
         self.device.run_command(start_command, envs=envs_configuration)
         self.logger.info('Device start command executed')
 
@@ -120,9 +127,10 @@ class EngineHandler:
         self.logger.debug(f'Extracting logs from: \n\n\t{result.stdout}\n')
         containers = json.loads(result.stdout)
 
-        # 2. Iteratively copy files from /var/docker/logs/<container_id>.log to /tmp/<new_folder> and chmod before
-        # transferring it the running machine
-        self.device.run_command(f'mkdir -p /tmp/{self.engine_configuration.compose_project_name}')
+        # 2. Iteratively copy files from /var/docker/logs/<container_id>.log to
+        # /tmp/<new_folder> and chmod before transferring it the running machine
+        self.device.run_command(
+            f'mkdir -p /tmp/{self.engine_configuration.compose_project_name}')
         local_tmp_path: Path = Path(f'/tmp/{self.engine_configuration.compose_project_name}')
         local_tmp_path.mkdir(parents=True, exist_ok=True)
 
@@ -143,7 +151,8 @@ class EngineHandler:
                                              local_file_path=local_tmp_path / (c_name + '.log'))
 
         # 4. Remove remote temporal folder
-        self.device.run_sudo_command(f'sudo rm -r /tmp/{self.engine_configuration.compose_project_name}/')
+        self.device.run_sudo_command(
+            f'sudo rm -r /tmp/{self.engine_configuration.compose_project_name}/')
 
     def stop_engine(self, retrieve_logs: bool = False) -> bool:
         """

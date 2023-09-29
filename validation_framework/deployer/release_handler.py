@@ -1,6 +1,7 @@
 """
-This module controls the NuvlaEdge release, the lack of release in favor of custom deployments. Also controls the
-configuration of the deployment files in case of non-standard release and the environmental variables required to
+This module controls the NuvlaEdge release, the lack of release in favor of custom
+deployments. Also controls the configuration of the deployment files in case of
+non-standard release and the environmental variables required to
 start the NuvlaEdge (This may be better handled in the engine)
 """
 import logging
@@ -23,23 +24,26 @@ class ReleaseHandler:
                  deployment_branch: str = '',
                  nuvlaedge_branch: str = ''):
         """
-        Takes care of all the configuration related to the release, pre-release and devel versions of NuvlaEdge
-        and deployment repositories. Depending on the parsed attributes, the configuration will change as follows:
+        Takes care of all the configuration related to the release, pre-release and devel
+         versions of NuvlaEdge and deployment repositories. Depending on the parsed
+         attributes, the configuration will change as follows:
 
-        If nuvlaedge_branch is provided, the configuration of the docker-compose.yml files environmental variable
-        changes as follows:
+        If nuvlaedge_branch is provided, the configuration of the docker-compose.yml
+        files environmental variable changes as follows:
             -  NE_IMAGE_ORGANIZATION -> nuvladev
             -  NE_RELEASE_TAG -> branch name
 
-        If deployment_branch is assigned, the compose files are downloaded from a branch instead of a release ignoring
-        the possible parsed version
+        If deployment_branch is assigned, the compose files are downloaded from a branch
+         instead of a release ignoring the possible parsed version
 
-        If nuvlaedge_version is assigned without no branch (ne or deployment) is presents it means that the validation
-        is a RELEASE VALIDATION and it should run only by tag name.
+        If nuvlaedge_version is assigned without no branch (ne or deployment) is presents
+         it means that the validation is a RELEASE VALIDATION and it should run only by
+         tag name.
 
-        If any of the branches are missing, nuvlaedge_version will be used instead (for either ne or deployment).
-        In this case if no NuvlaEdge version is assigned, the latest (release or pre-release) tag will be taken and
-        used following the previously mentioned process
+        If any of the branches are missing, nuvlaedge_version will be used instead
+         (for either ne or deployment). In this case if no NuvlaEdge version is assigned,
+         the latest (release or pre-release) tag will be taken and used following the
+         previously mentioned process
 
         Args:
             device: SSH device class
@@ -53,8 +57,10 @@ class ReleaseHandler:
 
         # NuvlaEdge source code configuration
         self.nuvlaedge_version = nuvlaedge_version.strip() if nuvlaedge_version else ''
-        self.deployment_branch = deployment_branch.strip() if deployment_branch and deployment_branch != 'None' else ''
-        self.nuvlaedge_branch = nuvlaedge_branch.strip() if nuvlaedge_branch and nuvlaedge_branch != 'None' else ''
+        self.deployment_branch = deployment_branch.strip() \
+            if deployment_branch and deployment_branch != 'None' else ''
+        self.nuvlaedge_branch = nuvlaedge_branch.strip() \
+            if nuvlaedge_branch and nuvlaedge_branch != 'None' else ''
         self.logger.info(f'\n\t Engine configuration: \n'
                          f'\t\t NuvlaEdge Version: {self.nuvlaedge_version} \n'
                          f'\t\t Deployment Branch: {self.deployment_branch} \n'
@@ -78,44 +84,52 @@ class ReleaseHandler:
         If nuvlaedge_branch is provided, the docker organization (NE_IMAGE_ORGANIZATION)
         becomes nuvladev and NE_RELEASE_TAG compose configuration becomes nuvlaedge_branch
 
-        If deployment_branch is assigned, the compose files are downloaded from a branch instead of a release ignoring
-        the possible parsed version
+        If deployment_branch is assigned, the compose files are downloaded from a branch
+        instead of a release ignoring the possible parsed version
 
-        If no nuvlaedge version is assigned, take the latest release. It is expected to always have deployment
-        and nuvlaedge repo's releases in the same versions.
+        If no nuvlaedge version is assigned, take the latest release. It is expected to
+        always have deployment and nuvlaedge repo's releases in the same versions.
         """
 
         # ------------------------------------------------------------
         # Handle deployment repository configuration
         # ------------------------------------------------------------
         if self.deployment_branch:
-            self.logger.info(f'Running NuvlaEdge from deployment branch: {self.deployment_branch}')
-            self.deployment_link = cte.DEPLOYMENT_FILES_LINK.format(branch_name=self.deployment_branch,
-                                                                    file='{file}')
+            self.logger.info(f'Running NuvlaEdge from deployment branch: '
+                             f'{self.deployment_branch}')
+            self.deployment_link = cte.DEPLOYMENT_FILES_LINK.format(
+                branch_name=self.deployment_branch,
+                file='{file}')
 
         else:
             if not self.nuvlaedge_version or self.nuvlaedge_version == 'latest':
-                self.logger.info(
-                    f'No deployment branch nor release version provided, gathering latest nuvlaedge release')
-                self.nuvlaedge_version = self.get_latest_release(cte.NUVLAEDGE_RELEASES_LINK)
+                self.logger.info('No deployment branch nor release version provided, '
+                                 'gathering latest nuvlaedge release')
+                self.nuvlaedge_version = \
+                    self.get_latest_release(cte.NUVLAEDGE_RELEASES_LINK)
 
-            self.logger.info(f'Running NuvlaEdge from deployment release version: {self.deployment_branch}')
-            self.deployment_link = cte.RELEASE_DOWNLOAD_LINK.format(version=self.nuvlaedge_version,
-                                                                    file='{file}')
+            self.logger.info(f'Running NuvlaEdge from deployment release version: '
+                             f'{self.deployment_branch}')
+            self.deployment_link = cte.RELEASE_DOWNLOAD_LINK.format(
+                version=self.nuvlaedge_version,
+                file='{file}')
 
         # ------------------------------------------------------------
         # Handle nuvlaedge repository configuration
         # ------------------------------------------------------------
         if self.nuvlaedge_branch:
-            self.logger.info(f'Running NuvlaEdge source code from branch: nuvlaedge:{self.nuvlaedge_branch}')
-            # Assign the branch to the nuvlaedge engine environmental variable configuration
+            self.logger.info(f'Running NuvlaEdge source code from branch: '
+                             f'nuvlaedge:{self.nuvlaedge_branch}')
+            # Assign the branch to the nuvlaedge engine environmental variable
+            # configuration
             self.engine_configuration.ne_image_tag = self.nuvlaedge_branch
 
             # Engine env configuration changes the organization if we are in a dev branch
             self.engine_configuration.ne_image_organization = 'nuvladev'
 
         else:
-            self.logger.info(f'Running NuvlaEdge source code on version {self.nuvlaedge_version}')
+            self.logger.info(f'Running NuvlaEdge source code on version '
+                             f'{self.nuvlaedge_version}')
             self.engine_configuration.ne_image_tag = self.nuvlaedge_version
 
             # For standard release versions, the docker organization is SixSq
@@ -134,7 +148,7 @@ class ReleaseHandler:
         if available_releases:
             return Release(available_releases[0].get('tag_name'))
         else:
-            raise NotImplemented
+            raise NotImplemented('')
 
     def download_nuvlaedge(self):
         """
@@ -158,12 +172,15 @@ class ReleaseHandler:
 
             self.engine_files.append(cte.ENGINE_BASE_FILE_NAME)
 
-        # TODO: iterate here when peripheral validation is implemented to download the peripheral deployment file
+        # TODO: iterate here when peripheral validation is implemented to download the
+        #  peripheral deployment file
 
         # ------------------------------------------------------------------------
         # Pull nuvlaedge image(s)
         # ------------------------------------------------------------------------
-        self.device.run_command(f'docker compose -f {self.engine_folder + "/" + cte.ENGINE_BASE_FILE_NAME} pull',
+        self.device.run_command(f'docker compose -f '
+                                f'{self.engine_folder + "/" + cte.ENGINE_BASE_FILE_NAME} '
+                                f'pull',
                                 envs=self.engine_configuration.model_dump(by_alias=True))
 
     def get_files_path_as_str(self) -> list[str]:
@@ -181,8 +198,8 @@ class ReleaseHandler:
 
     def gather_standard_release(self) -> bool:
         """
-        Checks the remote GH repository for the releases and gathers the information according
-        to the ReleaseSchema class
+        Checks the remote GH repository for the releases and gathers the information
+         according to the ReleaseSchema class
         :return: True if the release is successfully updated, false otherwise
         """
         available_releases: requests.Response = requests.get(cte.RELEASES_LINK)

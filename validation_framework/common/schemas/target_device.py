@@ -25,6 +25,7 @@ class TargetDeviceConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
 
     alias: str
+    coe: str
 
     # Network data
     address: str

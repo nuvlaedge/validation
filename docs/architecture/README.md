@@ -73,7 +73,7 @@ usage: __main__.py [-h] [--target TARGET] [--validator VALIDATOR] [--release REL
 
 options:
   -h, --help                show this help message and exit
-  --target TARGET           target device configuration file (e.g. rpi4.toml)
+  --target TARGET           target device configuration file (e.g. rpi4_docker.toml)
   --validator VALIDATOR     target validation set (e.g. basic_tests)
   --release RELEASE         target base release (e.g '2.4.6') to use as base
   --repository REPOSITORY   target repository to validate when writting code in a NuvlaEdge component
