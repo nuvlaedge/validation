@@ -115,11 +115,7 @@ class ValidationBase(ParametrizedTests):
         self.wait_for_capabilities(['NUVLA_JOB_PULL'])
 
     def get_system_up_time(self) -> float:
-        response: Result = \
-            self.engine_handler.device.run_command("awk '{print $1}' /proc/uptime")
-        if response.stdout:
-            up_time = float(response.stdout)
-            return up_time
+        return self.engine_handler.get_system_up_time_in_engine()
 
     def wait_for_capabilities(self, capabilities: list):
         """

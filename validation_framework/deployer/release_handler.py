@@ -10,15 +10,15 @@ import requests
 
 from validation_framework.common import Release
 from validation_framework.common.schemas.engine import EngineEnvsConfiguration
-from validation_framework.common.schemas.release import TargetReleaseConfig, ReleaseSchema
+from validation_framework.common.schemas.release import ReleaseSchema
 from validation_framework.common import constants as cte
-from validation_framework.deployer import SSHTarget
+from validation_framework.deployer.coe import coe_base
 
 
 class ReleaseHandler:
 
     def __init__(self,
-                 device: SSHTarget,
+                 coe: coe_base,
                  engine_configuration: EngineEnvsConfiguration,
                  nuvlaedge_version: str = '',
                  deployment_branch: str = '',
@@ -53,7 +53,7 @@ class ReleaseHandler:
         """
 
         self.logger: logging.Logger = logging.getLogger(__name__)
-        self.device: SSHTarget = device
+        self.coe: coe_base = coe
 
         # NuvlaEdge source code configuration
         self.nuvlaedge_version = nuvlaedge_version.strip() if nuvlaedge_version else ''
@@ -71,13 +71,13 @@ class ReleaseHandler:
         self.deployment_link: str = ''
 
         # Remote files
-        self.engine_folder: str = ''
         self.engine_files: list[str] = []
 
         self.engine_configuration: EngineEnvsConfiguration = engine_configuration
 
         # Generate source code configuration
         self.assess_nuvlaedge_sourcecode_configuration()
+        self.coe.set_engine_configuration(engine_configuration)
 
     def assess_nuvlaedge_sourcecode_configuration(self):
         """
@@ -159,29 +159,10 @@ class ReleaseHandler:
         # ------------------------------------------------------------------------
         # Download compose files
         # ------------------------------------------------------------------------
-        # Prepare target remote directory
-        self.engine_folder = cte.ROOT_PATH + cte.ENGINE_PATH + self.nuvlaedge_version
-        self.device.run_command(f'mkdir -p {self.engine_folder}')
-        self.logger.info(f'Downloading deployment files into {self.engine_folder}')
 
         # Download deployment files
         engine_base_link = self.deployment_link.format(file=cte.ENGINE_BASE_FILE_NAME)
-        if self.device.download_file(link=engine_base_link,
-                                     file_name=cte.ENGINE_BASE_FILE_NAME,
-                                     directory=self.engine_folder):
-
-            self.engine_files.append(cte.ENGINE_BASE_FILE_NAME)
-
-        # TODO: iterate here when peripheral validation is implemented to download the
-        #  peripheral deployment file
-
-        # ------------------------------------------------------------------------
-        # Pull nuvlaedge image(s)
-        # ------------------------------------------------------------------------
-        self.device.run_command(f'docker compose -f '
-                                f'{self.engine_folder + "/" + cte.ENGINE_BASE_FILE_NAME} '
-                                f'pull',
-                                envs=self.engine_configuration.model_dump(by_alias=True))
+        self.engine_files = self.coe.download_files(engine_base_link, self.nuvlaedge_version)
 
     def get_files_path_as_str(self) -> list[str]:
         """
@@ -191,10 +172,10 @@ class ReleaseHandler:
         Raises:
             NotFound if the files are not downloaded (variables not defined)
         """
-        if not self.engine_folder or not self.engine_files:
+        if not self.engine_files:
             raise FileNotFoundError('Engine deployment files not downloaded')
 
-        return [self.engine_folder + '/' + i for i in self.engine_files]
+        return self.engine_files
 
     def gather_standard_release(self) -> bool:
         """

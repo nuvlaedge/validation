@@ -24,7 +24,7 @@ class TestDeviceRestart(ValidationBase):
         :return:
         """
         try:
-            result: Result = self.engine_handler.device.run_sudo_command('sudo shutdown -r now')
+            result: Result = self.engine_handler.restart_engine()
 
         except invoke.exceptions.UnexpectedExit as ex:
             self.logger.info(f'Successfully rebooted {ex}')

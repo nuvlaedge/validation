@@ -12,7 +12,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 def coe_factory(device_configuration: TargetDeviceConfig, **kwargs):
     match device_configuration.coe:
         case 'docker':
-            return DockerCOE(**kwargs)
+            return DockerCOE(device_configuration, **kwargs)
 
         case 'kubernetes':
             return KubernetesCOE(**kwargs)

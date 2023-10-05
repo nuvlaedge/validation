@@ -118,24 +118,3 @@ class SSHTarget(TargetDevice):
         download_result: fabric.Result = self.run_command(f'wget {link} -t 3 -T 5 -O {directory}/{file_name}')
 
         return not download_result.failed
-
-    def clean_target(self):
-        """
-        Removes docker containers, services, volumes and networks from previous runs
-        :return: None
-        """
-        self.logger.info(f'Cleaning remote {self.target_config.alias} target device')
-
-        command_list: list = ['docker service rm $(docker service ls -q)',
-                              'docker stop $(docker ps -a -q)',
-                              'docker rm $(docker ps -a -q)',
-                              'docker network prune --force',
-                              'docker volume rm $(docker volume ls -q)']
-
-        for cmd in command_list:
-            try:
-                self.run_command(cmd)
-            except invoke.exceptions.UnexpectedExit:
-                pass
-            except Exception as ex:
-                self.logger.warning(f'System not present {ex}')
