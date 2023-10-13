@@ -69,18 +69,15 @@ class TestBasicAppDeployment(ValidationBase):
 
         nuvlabox_res: CimiResource = self.nuvla_client.get(self.uuid)
         nuvlabox_data: dict = nuvlabox_res.data
-        nuvlabox_infra: str = nuvlabox_data.get('infrastructure-service-group')
+        nuvlabox_isg_id: str = nuvlabox_data['infrastructure-service-group']
+        nuvlabox_isg: dict = self.nuvla_client.get(nuvlabox_isg_id).data
+        nuvlabox_is_id = nuvlabox_isg['infrastructure-services'][0]['href']
 
         # Find credential
         # Credentials finding
-        resp: CimiCollection = self.nuvla_client.search("credential", filter={"method='infrastructure-service-swarm'"})
-        infra_cred: str = ''
-
-        for i in resp:
-            it_infra = i.data.get('parent')
-            infra_res = self.nuvla_client.get(it_infra)
-            if nuvlabox_infra == infra_res.data.get('parent'):
-                infra_cred = i.data.get('id')
+        filter = f"method^='infrastructure-service-' and parent='{nuvlabox_is_id}'"
+        resp: CimiCollection = self.nuvla_client.search("credential", filter=filter)
+        infra_cred: str = resp.resources[0].id
 
         new_dep = Deployment(self.nuvla_client)
         deploy_res: CimiResource = new_dep.create(self.MODULE_ID, infra_cred_id=infra_cred)
