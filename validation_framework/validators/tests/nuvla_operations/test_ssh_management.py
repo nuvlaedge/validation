@@ -76,10 +76,11 @@ class TestSSHKeyManagement(ValidationBase):
         self.assertTrue(self.is_ssh_key_present(),
                         "Key not present in authorized keys ssh file")
 
-        time.sleep(3)
+        time.sleep(10)
         remove_ssh_result: bool = self.manipulate_ssh_key(operation='revoke-ssh-key')
         self.assertTrue(remove_ssh_result, "SSH not properly removed from Nuvla "
                                            "perspective")
+        time.sleep(20)
 
         self.assertFalse(self.is_ssh_key_present(),
                          "Key should be present in authorized keys ssh file")
