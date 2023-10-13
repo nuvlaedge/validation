@@ -13,8 +13,6 @@ from validation_framework.common.nuvla_uuid import NuvlaUUID
 from validation_framework.common.schemas.engine import EngineEnvsConfiguration
 from validation_framework.common.schemas.target_device import TargetDeviceConfig
 from validation_framework.common import constants as cte
-from validation_framework.deployer import SSHTarget
-from validation_framework.deployer.release_handler import ReleaseHandler
 from validation_framework.deployer.coe import coe_base, coe_factory
 
 
@@ -53,14 +51,11 @@ class EngineHandler:
         self.device_config: TargetDeviceConfig = utils.get_model_from_toml(
             TargetDeviceConfig,
             device_config_file)
-        self.coe: coe_base = coe_factory(self.device_config)
+        self.coe: coe_base = coe_factory(self.device_config, nuvlaedge_version=nuvlaedge_version,
+                                         deployment_branch=deployment_branch,
+                                         nuvlaedge_branch=nuvlaedge_branch)
 
         self.engine_configuration: EngineEnvsConfiguration = EngineEnvsConfiguration()
-        self.release_handler = ReleaseHandler(self.coe,
-                                              self.engine_configuration,
-                                              nuvlaedge_version,
-                                              deployment_branch,
-                                              nuvlaedge_branch)
 
     @staticmethod
     def get_device_config_by_index(device_index: int) -> Path:
@@ -88,13 +83,9 @@ class EngineHandler:
             self.logger.debug('Removing possible old installations of NuvlaEdge')
             self.coe.purge_engine()
 
-        # 2. - Prepare remote files
+        # 2. Start Engine
         self.logger.debug('Download NuvlaEdge related files and images')
-        self.release_handler.download_nuvlaedge()
-
-        # 3. - Start engine with target release (Future custom as well)
-        files_path = self.release_handler.get_files_path_as_str()
-        self.coe.start_engine(nuvlaedge_uuid, files_path, remove_old_installation, extra_envs)
+        self.coe.start_engine(nuvlaedge_uuid, remove_old_installation, extra_envs)
 
     def get_system_up_time_in_engine(self) -> float:
         return self.coe.get_system_up_time()

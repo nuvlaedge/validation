@@ -1,6 +1,7 @@
 import logging
 import json
 import invoke
+import requests
 
 from validation_framework.common.nuvla_uuid import NuvlaUUID
 from validation_framework.deployer.coe import COEBase
@@ -9,6 +10,7 @@ from validation_framework.deployer.target_device.ssh_target import SSHTarget
 from validation_framework.common import constants as cte
 from fabric import Result
 from pathlib import Path
+from validation_framework.common import Release
 
 logger: logging.Logger = logging.getLogger(__name__)
 
@@ -18,14 +20,80 @@ class DockerCOE(COEBase):
     def __init__(self, device_config: TargetDeviceConfig, **kwargs):
         self.engine_folder: str = ''
         self.device = SSHTarget(device_config)
-        super().__init__(self.device, logger)
+        super().__init__(self.device, logger, **kwargs)
+
+    @staticmethod
+    def get_latest_release(release_link: str) -> Release:
+        available_releases: list = requests.get(release_link).json()
+        if available_releases:
+            return Release(available_releases[0].get('tag_name'))
+        else:
+            raise NotImplemented('')
+    def assess_nuvlaedge_sourcecode_configuration(self):
+        """
+        If nuvlaedge_branch is provided, the docker organization (NE_IMAGE_ORGANIZATION)
+        becomes nuvladev and NE_RELEASE_TAG compose configuration becomes nuvlaedge_branch
+
+        If deployment_branch is assigned, the compose files are downloaded from a branch
+        instead of a release ignoring the possible parsed version
+
+        If no nuvlaedge version is assigned, take the latest release. It is expected to
+        always have deployment and nuvlaedge repo's releases in the same versions.
+        """
+
+        # ------------------------------------------------------------
+        # Handle deployment repository configuration
+        # ------------------------------------------------------------
+        if self.deployment_branch:
+            self.logger.info(f'Running NuvlaEdge from deployment branch: '
+                             f'{self.deployment_branch}')
+            self.deployment_link = cte.DEPLOYMENT_FILES_LINK.format(
+                branch_name=self.deployment_branch,
+                file='{file}')
+
+        else:
+            if not self.nuvlaedge_version or self.nuvlaedge_version == 'latest':
+                self.logger.info('No deployment branch nor release version provided, '
+                                 'gathering latest nuvlaedge release')
+                self.nuvlaedge_version = \
+                    self.get_latest_release(cte.NUVLAEDGE_RELEASES_LINK)
+
+            self.logger.info(f'Running NuvlaEdge from deployment release version: '
+                             f'{self.deployment_branch}')
+            self.deployment_link = cte.RELEASE_DOWNLOAD_LINK.format(
+                version=self.nuvlaedge_version,
+                file='{file}')
+
+        # ------------------------------------------------------------
+        # Handle nuvlaedge repository configuration
+        # ------------------------------------------------------------
+        if self.nuvlaedge_branch:
+            self.logger.info(f'Running NuvlaEdge source code from branch: '
+                             f'nuvlaedge:{self.nuvlaedge_branch}')
+            # Assign the branch to the nuvlaedge engine environmental variable
+            # configuration
+            self.engine_configuration.ne_image_tag = self.nuvlaedge_branch
+
+            # Engine env configuration changes the organization if we are in a dev branch
+            self.engine_configuration.ne_image_organization = 'nuvladev'
+
+        else:
+            self.logger.info(f'Running NuvlaEdge source code on version '
+                             f'{self.nuvlaedge_version}')
+            self.engine_configuration.ne_image_tag = self.nuvlaedge_version
+
+            # For standard release versions, the docker organization is SixSq
+            self.engine_configuration.ne_image_organization = 'sixsq'
 
     def start_engine(self,
                      uuid: NuvlaUUID,
-                     files_path: list[str],
                      remove_old_installation: bool = True,
                      extra_envs: dict = None):
 
+        if remove_old_installation:
+            self.purge_engine()
+        engine_base_link = self.deployment_link.format(file=cte.ENGINE_BASE_FILE_NAME)
+        files_path = self.download_files(engine_base_link, self.nuvlaedge_version)
         files: str = ' -f '.join(files_path)
         start_command: str = cte.COMPOSE_UP.format(prepend='nohup',
                                                    project_name=cte.PROJECT_NAME,
@@ -92,6 +160,7 @@ class DockerCOE(COEBase):
         # 4. Remove remote temporal folder
         self.device.run_sudo_command(
             f'sudo rm -r /tmp/{self.engine_configuration.compose_project_name}/')
+
     def get_container_logs(self, container):
         pass
 
@@ -140,8 +209,6 @@ class DockerCOE(COEBase):
         # ------------------------------------------------------------------------
         # Pull nuvlaedge image(s)
         # ------------------------------------------------------------------------
-        print(f'Engine Configuration Amit {self.engine_configuration.model_dump(by_alias=True)}')
-        self.logger.info(f'Engine Configuration Amit {self.engine_configuration.model_dump(by_alias=True)}')
         pull_result: Result = self.device.run_command(f'docker compose -f '
                                                       f'{self.engine_folder + "/" + cte.ENGINE_BASE_FILE_NAME} '
                                                       f'pull',

@@ -1,7 +1,7 @@
 alias = "rpi4"
 
 # Orchestration engine
-coe = "docker"
+coe = "kubernetes"
 
 # Network data
 address = "192.168.40.177"

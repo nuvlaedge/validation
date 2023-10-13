@@ -99,7 +99,7 @@ class SSHTarget(TargetDevice):
     def run_sudo_command(self, command: str, envs: dict | None = None, hide: bool = True) -> fabric.Result:
         self.logger.debug(f'Running {command} as SuperUser in {self.target_config.address}')
         with self.connection() as connection:
-            return connection.run(command, pty=True, env=envs, hide=hide, watchers=[self.SUDO_PASS])
+            return connection.run(command, pty=False, env=envs, hide=hide, watchers=[self.SUDO_PASS])
 
     def run_command(self, command: str, envs: dict | None = None, hide: bool = True) -> fabric.Result:
 

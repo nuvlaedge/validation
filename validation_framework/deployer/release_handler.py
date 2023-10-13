@@ -55,85 +55,8 @@ class ReleaseHandler:
         self.logger: logging.Logger = logging.getLogger(__name__)
         self.coe: coe_base = coe
 
-        # NuvlaEdge source code configuration
-        self.nuvlaedge_version = nuvlaedge_version.strip() if nuvlaedge_version else ''
-        self.deployment_branch = deployment_branch.strip() \
-            if deployment_branch and deployment_branch != 'None' else ''
-        self.nuvlaedge_branch = nuvlaedge_branch.strip() \
-            if nuvlaedge_branch and nuvlaedge_branch != 'None' else ''
-        self.logger.info(f'\n\t Engine configuration: \n'
-                         f'\t\t NuvlaEdge Version: {self.nuvlaedge_version} \n'
-                         f'\t\t Deployment Branch: {self.deployment_branch} \n'
-                         f'\t\t NuvlaEdge Branch: {self.nuvlaedge_branch}')
-
-        # Deployment release download link changes depending on the configuration.
-        # Whether deployment branch is provided
-        self.deployment_link: str = ''
-
         # Remote files
         self.engine_files: list[str] = []
-
-        self.engine_configuration: EngineEnvsConfiguration = engine_configuration
-
-        # Generate source code configuration
-        self.assess_nuvlaedge_sourcecode_configuration()
-        self.coe.set_engine_configuration(engine_configuration)
-
-    def assess_nuvlaedge_sourcecode_configuration(self):
-        """
-        If nuvlaedge_branch is provided, the docker organization (NE_IMAGE_ORGANIZATION)
-        becomes nuvladev and NE_RELEASE_TAG compose configuration becomes nuvlaedge_branch
-
-        If deployment_branch is assigned, the compose files are downloaded from a branch
-        instead of a release ignoring the possible parsed version
-
-        If no nuvlaedge version is assigned, take the latest release. It is expected to
-        always have deployment and nuvlaedge repo's releases in the same versions.
-        """
-
-        # ------------------------------------------------------------
-        # Handle deployment repository configuration
-        # ------------------------------------------------------------
-        if self.deployment_branch:
-            self.logger.info(f'Running NuvlaEdge from deployment branch: '
-                             f'{self.deployment_branch}')
-            self.deployment_link = cte.DEPLOYMENT_FILES_LINK.format(
-                branch_name=self.deployment_branch,
-                file='{file}')
-
-        else:
-            if not self.nuvlaedge_version or self.nuvlaedge_version == 'latest':
-                self.logger.info('No deployment branch nor release version provided, '
-                                 'gathering latest nuvlaedge release')
-                self.nuvlaedge_version = \
-                    self.get_latest_release(cte.NUVLAEDGE_RELEASES_LINK)
-
-            self.logger.info(f'Running NuvlaEdge from deployment release version: '
-                             f'{self.deployment_branch}')
-            self.deployment_link = cte.RELEASE_DOWNLOAD_LINK.format(
-                version=self.nuvlaedge_version,
-                file='{file}')
-
-        # ------------------------------------------------------------
-        # Handle nuvlaedge repository configuration
-        # ------------------------------------------------------------
-        if self.nuvlaedge_branch:
-            self.logger.info(f'Running NuvlaEdge source code from branch: '
-                             f'nuvlaedge:{self.nuvlaedge_branch}')
-            # Assign the branch to the nuvlaedge engine environmental variable
-            # configuration
-            self.engine_configuration.ne_image_tag = self.nuvlaedge_branch
-
-            # Engine env configuration changes the organization if we are in a dev branch
-            self.engine_configuration.ne_image_organization = 'nuvladev'
-
-        else:
-            self.logger.info(f'Running NuvlaEdge source code on version '
-                             f'{self.nuvlaedge_version}')
-            self.engine_configuration.ne_image_tag = self.nuvlaedge_version
-
-            # For standard release versions, the docker organization is SixSq
-            self.engine_configuration.ne_image_organization = 'sixsq'
 
     def release_exists(self) -> bool:
         """
@@ -141,41 +64,6 @@ class ReleaseHandler:
         Returns:
             Bool
         """
-
-    @staticmethod
-    def get_latest_release(release_link: str) -> Release:
-        available_releases: list = requests.get(release_link).json()
-        if available_releases:
-            return Release(available_releases[0].get('tag_name'))
-        else:
-            raise NotImplemented('')
-
-    def download_nuvlaedge(self):
-        """
-        Downloads the deployment configuration files and pulls the image
-        Returns:
-            None
-        """
-        # ------------------------------------------------------------------------
-        # Download compose files
-        # ------------------------------------------------------------------------
-
-        # Download deployment files
-        engine_base_link = self.deployment_link.format(file=cte.ENGINE_BASE_FILE_NAME)
-        self.engine_files = self.coe.download_files(engine_base_link, self.nuvlaedge_version)
-
-    def get_files_path_as_str(self) -> list[str]:
-        """
-        Combines the engine folder with the file names
-        Returns:
-            A list of full paths to the engine files
-        Raises:
-            NotFound if the files are not downloaded (variables not defined)
-        """
-        if not self.engine_files:
-            raise FileNotFoundError('Engine deployment files not downloaded')
-
-        return self.engine_files
 
     def gather_standard_release(self) -> bool:
         """

@@ -15,7 +15,7 @@ def coe_factory(device_configuration: TargetDeviceConfig, **kwargs):
             return DockerCOE(device_configuration, **kwargs)
 
         case 'kubernetes':
-            return KubernetesCOE(**kwargs)
+            return KubernetesCOE(device_configuration, **kwargs)
 
         case _:
             logger.info(f'COE {device_configuration.coe} not implemented')

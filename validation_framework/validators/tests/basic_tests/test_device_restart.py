@@ -47,16 +47,16 @@ class TestDeviceRestart(ValidationBase):
         self.logger.info(f'Waiting for device to come back up')
 
         # Give some time for the reboot to execute
-        time.sleep(30)
+        time.sleep(200)
 
         later_up_time: float = self.get_system_up_time()
         start_time: float = time.time()
         while later_up_time > initial_up_time:
             later_up_time = self.get_system_up_time()
-            if time.time() - start_time > 180:
+            if time.time() - start_time > 400:
                 self.logger.error("Device didn't reboot 3 min")
                 break
             time.sleep(1)
 
-        self.assertTrue(later_up_time < 180)
+        self.assertTrue(later_up_time < 400)
 

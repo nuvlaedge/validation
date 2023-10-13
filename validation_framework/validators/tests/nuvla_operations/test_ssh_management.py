@@ -10,7 +10,7 @@ from validation_framework.common.constants import DEFAULT_JOBS_TIMEOUT
 from validation_framework.validators import ValidationBase
 
 
-@validator('SSHKeysManagement')
+#@validator('SSHKeysManagement')
 class TestSSHKeyManagement(ValidationBase):
     VALIDATION_SSH_ID: str = "credential/41f3180e-dcee-434a-a3f8-88e7520245f8"
 

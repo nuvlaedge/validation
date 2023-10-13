@@ -42,7 +42,6 @@ class TestBasicAppDeployment(ValidationBase):
 
         self.logger.info('Deployment Started')
 
-    def stop_deployment(self, deployment_id):
         deployment_resource: Deployment = Deployment(self.nuvla_client)
         deployment_resource.stop(deployment_id)
 
