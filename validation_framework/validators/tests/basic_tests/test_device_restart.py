@@ -45,18 +45,21 @@ class TestDeviceRestart(ValidationBase):
         self.trigger_restart()
 
         self.logger.info(f'Waiting for device to come back up')
+        coe_type = self.engine_handler.get_coe_type()
+        time_to_sleep = 100 if coe_type == 'docker' else 200
+        time_to_wait_for_reboot = 180 if coe_type == 'docker' else 400
 
         # Give some time for the reboot to execute
-        time.sleep(200)
+        time.sleep(time_to_sleep)
 
         later_up_time: float = self.get_system_up_time()
         start_time: float = time.time()
         while later_up_time > initial_up_time:
             later_up_time = self.get_system_up_time()
-            if time.time() - start_time > 400:
-                self.logger.error("Device didn't reboot 3 min")
+            if time.time() - start_time > time_to_wait_for_reboot:
+                self.logger.error("Device didn't reboot ")
                 break
             time.sleep(1)
 
-        self.assertTrue(later_up_time < 400)
+        self.assertTrue(later_up_time < time_to_wait_for_reboot)
 

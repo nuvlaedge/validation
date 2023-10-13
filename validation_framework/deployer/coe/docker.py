@@ -124,6 +124,25 @@ class DockerCOE(COEBase):
     def stop_engine(self):
         self.purge_engine()
 
+    def get_authorized_keys(self):
+        return self.device.run_command("cat ~/.ssh/authorized_keys")
+
+    def peripherals_running(self, peripherals: set) -> bool:
+        cont_filter: dict = {"Names": "{{ .Names }}"}
+
+        data: list[dict] = self.device.get_remote_containers(
+            containers_filter=cont_filter)
+
+        # Find network container in list
+        self.logger.debug('Removing ')
+        for c in data:
+            if peripherals.__contains__(c):
+                peripherals.remove(c.get("Names"))
+        return not bool(peripherals)
+
+    def get_remote_containers(self, containers_filter: dict = None) -> list:
+        return self.device.get_remote_containers(containers_filter)
+
     def get_engine_logs(self):
         self.logger.info(f'Retrieving Log files from engine run with UUID: {self.engine_configuration.nuvlaedge_uuid}')
         # 1. Retrieve deployment containers ID's
@@ -170,6 +189,9 @@ class DockerCOE(COEBase):
 
     def remove_engine(self):
         self.purge_engine()
+
+    def get_coe_type(self):
+        return "docker"
 
     def purge_engine(self):
         """

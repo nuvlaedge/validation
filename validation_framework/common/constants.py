@@ -19,7 +19,7 @@ PERIPHERAL_BASE_FILE_NAME: str = 'docker-compose.{peripheral}.yml'
 NUVLAEDGE_KUBE_REPO: str = 'https://nuvlaedge.github.io/deployment'
 NUVLAEDGE_KUBE_LOCAL_REPO_NAME: str = 'nuvlaedge'
 NUVLAEDGE_KUBE_LOCAL_CHART_NAME: str = 'nuvlaedge'
-NUVLAEDGE_KUBE_INSTALL_IMAGE: str = ('sudo helm install nuvlabox-{uuid} {repo}/{chart} --version {version} '
+NUVLAEDGE_KUBE_INSTALL_IMAGE: str = ('sudo helm install nuvlaedge-{uuid} {repo}/{chart} --version {version} '
                                      '--set NUVLAEDGE_UUID=nuvlabox/{uuid} --set vpnClient=true '
                                      '--set kubernetesNode={hostname}')
 NUVLAEDGE_KUBE_CERTIFICATE_MANAGER: str = 'kubernetes-credentials-manager'

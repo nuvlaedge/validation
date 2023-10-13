@@ -21,11 +21,11 @@ class TestPeripheralNetwork(ValidationBase):
 
         self.engine_handler: EngineHandler = EngineHandler(
             cte.DEVICE_CONFIG_PATH / self.target_config_file,
-            self.target_engine_version,
-            repo=self.target_repository,
-            branch=self.target_branch,
+            nuvlaedge_version=self.nuvlaedge_version,
+            nuvlaedge_branch=self.target_nuvlaedge_branch,
+            deployment_branch=self.target_deployment_branch,
             include_peripherals=True,
-            peripherals=['network'])
+            peripherals=['Network'])
 
         self.uuid: NuvlaUUID = self.create_nuvlaedge_in_nuvla()
 
@@ -37,19 +37,11 @@ class TestPeripheralNetwork(ValidationBase):
         self.wait_for_commissioned()
         self.wait_for_operational()
 
-        cont_filter: dict = {"Names": "{{ .Names }}"}
-        data: list[dict] = self.engine_handler.device.get_remote_containers(
-            containers_filter=cont_filter)
+        time.sleep(10)
+        peripherals: set = {'network'}
 
-        # Find network container in list
-        self.logger.debug(f'Checking remote containers looking for network')
-        found: bool = False
-        for c in data:
-            if 'network' in c.get('Names'):
-                found = True
-                break
-        self.assertTrue(found, 'Network container not found in remote devices')
-
+        self.assertTrue(self.engine_handler.check_if_peripherals_running(peripherals),
+                        'Network peripheral is not running')
         # Gather data from Nuvla and check peripherals are being reported
         self.logger.debug(
             f'Checking Nuvla peripheral registration with a {self.TIMEOUT}s timeout')

@@ -53,9 +53,14 @@ class EngineHandler:
             device_config_file)
         self.coe: coe_base = coe_factory(self.device_config, nuvlaedge_version=nuvlaedge_version,
                                          deployment_branch=deployment_branch,
-                                         nuvlaedge_branch=nuvlaedge_branch)
+                                         nuvlaedge_branch=nuvlaedge_branch,
+                                         include_peripherals=include_peripherals,
+                                         peripherals=peripherals)
 
         self.engine_configuration: EngineEnvsConfiguration = EngineEnvsConfiguration()
+
+    def get_coe_type(self) -> str:
+        return self.coe.get_coe_type()
 
     @staticmethod
     def get_device_config_by_index(device_index: int) -> Path:
@@ -106,3 +111,12 @@ class EngineHandler:
             self.coe.get_engine_logs()
 
         self.coe.stop_engine()
+
+    def check_if_peripherals_running(self, peripherals: set) -> bool:
+        """
+            Check if all the peripherals are running in the device
+            peripherals need to be given in lowercase
+        :param peripherals:
+        :return:
+        """
+        return self.coe.peripherals_running(peripherals)

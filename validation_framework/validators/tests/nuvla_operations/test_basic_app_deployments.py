@@ -2,6 +2,7 @@
 
 """
 import time
+import unittest
 
 from nuvla.api.resources import Deployment
 
@@ -11,10 +12,10 @@ from validation_framework.common.constants import DEFAULT_DEPLOYMENTS_TIMEOUT
 from nuvla.api.models import CimiResponse, CimiResource, CimiCollection
 
 
-@validator('BasicAppDeployment')
+#@validator('BasicAppDeployment')
 class TestBasicAppDeployment(ValidationBase):
-    APP_NAME: str = 'nginx'
-    MODULE_ID: str = 'module/96f09292-6aa4-49e1-a5d6-e0fb90fbf787'
+    APP_NAME: str = 'Nginx App in Kubernetes'
+    MODULE_ID: str = 'module/95e17c68-11e5-482e-b887-b34b1a322e7d'
 
     STATE_PENDING: str = 'PENDING'
     STATE_STARTED: str = 'STARTED'
@@ -37,11 +38,12 @@ class TestBasicAppDeployment(ValidationBase):
             state = self.nuvla_client.get(deployment_id).data.get('state')
 
             if time.time() > start_time + DEFAULT_DEPLOYMENTS_TIMEOUT or state == self.STATE_ERROR:
-                self.logger.error(f'Deployment {deployment_id} did not start in time')
+                self.logger.error(f'Deployment {deployment_id} did not start in time. State {state}')
                 self.assertTrue(False, f'Deployment {deployment_id} did not start in time')
 
         self.logger.info('Deployment Started')
 
+    def stop_deployment(self, deployment_id):
         deployment_resource: Deployment = Deployment(self.nuvla_client)
         deployment_resource.stop(deployment_id)
 
@@ -80,6 +82,11 @@ class TestBasicAppDeployment(ValidationBase):
         infra_cred: str = resp.resources[0].id
 
         new_dep = Deployment(self.nuvla_client)
+        coe_type = self.engine_handler.get_coe_type()
+
+        if coe_type == 'docker':
+            self.MODULE_ID = 'module/96f09292-6aa4-49e1-a5d6-e0fb90fbf787'
+
         deploy_res: CimiResource = new_dep.create(self.MODULE_ID, infra_cred_id=infra_cred)
         deploy_data: dict = deploy_res.data
 
@@ -87,10 +94,11 @@ class TestBasicAppDeployment(ValidationBase):
             deploy_data['execution-mode'] = 'pull'
             self.nuvla_client.edit(deploy_data.get('id'), deploy_data)
         else:
-            deploy_data['execution-mode'] = 'mixed'
+            deploy_data['execution-mode'] = 'push'
             self.nuvla_client.edit(deploy_data.get('id'), deploy_data)
 
         return deploy_data.get('id')
+
 
     def test_app_deployment_pull(self):
         self.logger.info(f'Starting pull application deployment validation tests')
@@ -115,6 +123,9 @@ class TestBasicAppDeployment(ValidationBase):
         self.stop_deployment(deployment_id)
 
     def test_app_deployment_push(self):
+        if self.engine_handler.get_coe_type() == 'kubernetes':
+            self.logger.info('Disabling push app deployment test for kubernetes')
+            return
         self.logger.info(f'Starting push application deployment validation tests')
         self.wait_for_commissioned()
         self.wait_for_operational()

@@ -18,6 +18,8 @@ class COEBase(ABC):
         nuvlaedge_branch: str = ''
         nuvlaedge_version: str = ''
         deployment_branch: str = ''
+        self.include_peripherals = False
+        self.peripherals: list[str] = []
         for key, value in kwargs.items():
             if key == 'nuvlaedge_branch':
                 nuvlaedge_branch = value
@@ -25,6 +27,10 @@ class COEBase(ABC):
                 nuvlaedge_version = value
             elif key == 'deployment_branch':
                 deployment_branch = value
+            elif key == 'include_peripherals':
+                self.include_peripherals = value
+            elif key == 'peripherals':
+                self.peripherals = value
                 # NuvlaEdge source code configuration
         self.nuvlaedge_version = nuvlaedge_version.strip() if nuvlaedge_version else ''
         self.deployment_branch = deployment_branch.strip() \
@@ -82,6 +88,18 @@ class COEBase(ABC):
 
     @abstractmethod
     def purge_engine(self):
+        pass
+
+    @abstractmethod
+    def get_coe_type(self):
+        pass
+
+    @abstractmethod
+    def peripherals_running(self, peripherals: set) -> bool:
+        pass
+
+    @abstractmethod
+    def get_authorized_keys(self):
         pass
 
     def restart_system(self) -> Result:
