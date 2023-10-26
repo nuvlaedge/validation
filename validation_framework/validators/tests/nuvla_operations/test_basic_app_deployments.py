@@ -82,9 +82,8 @@ class TestBasicAppDeployment(ValidationBase):
         infra_cred: str = resp.resources[0].id
 
         new_dep = Deployment(self.nuvla_client)
-        coe_type = self.engine_handler.get_coe_type()
 
-        if coe_type == 'docker':
+        if self.engine_handler.coe_type == 'docker':
             self.MODULE_ID = 'module/96f09292-6aa4-49e1-a5d6-e0fb90fbf787'
 
         deploy_res: CimiResource = new_dep.create(self.MODULE_ID, infra_cred_id=infra_cred)
@@ -123,7 +122,7 @@ class TestBasicAppDeployment(ValidationBase):
         self.stop_deployment(deployment_id)
 
     def test_app_deployment_push(self):
-        if self.engine_handler.get_coe_type() == 'kubernetes':
+        if self.engine_handler.coe_type == 'kubernetes':
             self.logger.info('Disabling push app deployment test for kubernetes')
             return
         self.logger.info(f'Starting push application deployment validation tests')

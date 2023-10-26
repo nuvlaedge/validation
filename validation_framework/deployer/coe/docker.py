@@ -29,6 +29,7 @@ class DockerCOE(COEBase):
             return Release(available_releases[0].get('tag_name'))
         else:
             raise NotImplemented('')
+
     def assess_nuvlaedge_sourcecode_configuration(self):
         """
         If nuvlaedge_branch is provided, the docker organization (NE_IMAGE_ORGANIZATION)
@@ -122,7 +123,11 @@ class DockerCOE(COEBase):
         pass
 
     def stop_engine(self):
-        self.purge_engine()
+        command = 'docker stop $(docker ps -a -q)'
+        try:
+            self.device.run_command(command)
+        except Exception as ex:
+            self.logger.warning(f'Unable to run commands on {self.device} {ex}')
 
     def get_authorized_keys(self):
         return self.device.run_command("cat ~/.ssh/authorized_keys")
@@ -161,39 +166,29 @@ class DockerCOE(COEBase):
         local_tmp_path.mkdir(parents=True, exist_ok=True)
 
         for c in containers:
-            c_name = c.get('Names')
-            full_id = self.device.run_command(command='docker inspect --format="{{.Id}}" ' + c_name).stdout
-            full_id = full_id.replace('\n', '')
-            full_id = full_id.replace('\\', '')
-
-            self.logger.debug(f'Processing logs for nuvlaedge {c_name}')
-            self.device.run_sudo_command(f'sudo cp /var/lib/docker/containers/{full_id}/{full_id}-json.log '
-                                         f'/tmp/{c_name}.log')
-            self.device.run_sudo_command(f'sudo chmod 777 /tmp/{c_name}.log')
-
-            # 3. Transfer back the files
-
-            self.device.download_remote_file(remote_file_path=f'/tmp/{c_name}.log',
-                                             local_file_path=local_tmp_path / (c_name + '.log'))
+            # 3. Download and transfer back the files
+            self.get_container_logs(c, True, local_tmp_path)
 
         # 4. Remove remote temporal folder
         self.device.run_sudo_command(
             f'sudo rm -r /tmp/{self.engine_configuration.compose_project_name}/')
 
-    def get_container_logs(self, container):
-        pass
+    def get_container_logs(self, container, download_to_local=False, path: Path = None):
+        c_name = container.get('Names')
+        get_logs_cmd = f'sudo docker logs {c_name} >> /tmp/{self.engine_configuration.compose_project_name}/{c_name}.log'
+
+        self.logger.debug(f'Processing logs for nuvlaedge {c_name}')
+        self.device.run_sudo_command(get_logs_cmd)
+
+        if download_to_local and path is not None:
+            self.device.download_remote_file(remote_file_path=f'/tmp/{self.engine_configuration.compose_project_name}/{c_name}.log',
+                                             local_file_path=path / (c_name + '.log'))
 
     def engine_running(self) -> bool:
         result: Result = self.device.run_command(f'docker ps | grep {cte.PROJECT_NAME}')
         return result.stdout.strip() != ''
 
     def remove_engine(self):
-        self.purge_engine()
-
-    def get_coe_type(self):
-        return "docker"
-
-    def purge_engine(self):
         """
         Removes docker containers, services, volumes and networks from the device
         :return: None
@@ -201,7 +196,6 @@ class DockerCOE(COEBase):
         self.logger.info(f'Purging engine in device {self.device}')
 
         command_list: list = ['docker service rm $(docker service ls -q)',
-                              'docker stop $(docker ps -a -q)',
                               'docker rm $(docker ps -a -q)',
                               'docker network prune --force',
                               'docker volume rm $(docker volume ls -q)']
@@ -213,6 +207,14 @@ class DockerCOE(COEBase):
                 pass
             except Exception as ex:
                 self.logger.warning(f'Unable to run commands on {self.device} {ex}')
+
+
+    def get_coe_type(self):
+        return "docker"
+
+    def purge_engine(self):
+        self.stop_engine()
+        self.remove_engine()
 
     def download_files(self, source, version) -> list[str]:
         self.engine_folder = cte.ROOT_PATH + cte.ENGINE_PATH + version

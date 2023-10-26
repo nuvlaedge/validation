@@ -6,6 +6,7 @@ from validation_framework.common.schemas.engine import EngineEnvsConfiguration
 from validation_framework.deployer.target_device.target import TargetDevice
 
 from fabric import Result
+from pathlib import Path
 
 
 class COEBase(ABC):
@@ -75,7 +76,7 @@ class COEBase(ABC):
         pass
 
     @abstractmethod
-    def get_container_logs(self, container):
+    def get_container_logs(self, container, download_to_local=False, path: Path = None):
         pass
 
     @abstractmethod

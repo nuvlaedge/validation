@@ -59,7 +59,8 @@ class EngineHandler:
 
         self.engine_configuration: EngineEnvsConfiguration = EngineEnvsConfiguration()
 
-    def get_coe_type(self) -> str:
+    @property
+    def coe_type(self) -> str:
         return self.coe.get_coe_type()
 
     @staticmethod
@@ -110,7 +111,7 @@ class EngineHandler:
         if retrieve_logs:
             self.coe.get_engine_logs()
 
-        self.coe.stop_engine()
+        self.coe.purge_engine()
 
     def check_if_peripherals_running(self, peripherals: set) -> bool:
         """

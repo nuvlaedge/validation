@@ -19,6 +19,7 @@ logger: logging.Logger = logging.getLogger(__name__)
 class KubernetesCOE(COEBase):
 
     def __init__(self, device_config: TargetDeviceConfig, **kwargs):
+        self.namespaces_running = []
         self.engine_folder: str = ''
         self.device = SSHTarget(device_config)
         self.nuvla_uuid = ''
@@ -70,9 +71,10 @@ class KubernetesCOE(COEBase):
 
         self.namespace = self.__get_current_nuvlaedge_namespace_running()
 
-        self.cred_check_thread = CertificateSignCheck(device_config=self.device.target_config,
-                                                      namespace=self.namespace)
-        self.cred_check_thread.start()
+        if self.cred_check_thread is None:
+            self.cred_check_thread = CertificateSignCheck(device_config=self.device.target_config,
+                                                          namespace=self.namespace)
+            self.cred_check_thread.start()
 
         self.logger.info('Device start command executed')
 
@@ -83,7 +85,21 @@ class KubernetesCOE(COEBase):
         pass
 
     def stop_engine(self):
-        self.purge_engine()
+        if not self.namespaces_running:
+            self.namespaces_running = self.__get_namespaces_running()
+        for namespace in self.namespaces_running:
+            if namespace.__contains__('kube') or namespace == 'default':
+                continue
+            deployments = self.__get_deployments_running(namespace)
+            for deployment in deployments:
+                stop_cmd = (f'sudo kubectl scale -n {namespace} deployment '
+                            f'{deployment} --replicas=0')
+                try:
+                    self.device.run_sudo_command(stop_cmd)
+                except invoke.exceptions.UnexpectedExit as ex:
+                    self.logger.error(f'Unexpected exit on command {stop_cmd} : Exception : {ex}')
+                except Exception as ex:
+                    self.logger.error(f'Error while stopping deployment {deployment}: {ex}')
 
     def get_authorized_keys(self):
         return self.device.run_sudo_command("sudo cat /root/.ssh/authorized_keys")
@@ -108,16 +124,17 @@ class KubernetesCOE(COEBase):
         local_tmp_path.mkdir(parents=True, exist_ok=True)
 
         for pod in pods:
-            pod_name = pod.get("name")
-            get_logs_cmd = (f'sudo kubectl logs -n {self.namespace} {pod_name} >> '
-                            f'/tmp/{self.engine_configuration.compose_project_name}/{pod_name}.log')
-            self.device.run_sudo_command(get_logs_cmd)
+            self.get_container_logs(pod)
 
+    def get_container_logs(self, pod, download_to_local=False, path: Path = None):
+        pod_name = pod.get("name")
+        get_logs_cmd = (f'sudo kubectl logs -n {self.namespace} {pod_name} >> '
+                        f'/tmp/{self.engine_configuration.compose_project_name}/{pod_name}.log')
+        self.device.run_sudo_command(get_logs_cmd)
+
+        if download_to_local and path is not None:
             self.device.download_remote_file(remote_file_path=f'/tmp/{pod_name}.log',
-                                             local_file_path=local_tmp_path / (pod_name + '.log'))
-
-    def get_container_logs(self, container):
-        pass
+                                             local_file_path=path / (pod_name + '.log'))
 
     def get_coe_type(self):
         return "kubernetes"
@@ -130,7 +147,28 @@ class KubernetesCOE(COEBase):
         return True
 
     def remove_engine(self):
-        self.purge_engine()
+        self.logger.debug(f'Removing engine in device {self.device}')
+        if self.cred_check_thread:
+            self.logger.debug("Waiting for credentials check thread to close")
+            self.cred_check_thread.join(50)
+
+        self.namespaces_running = self.__get_namespaces_running()
+        commands: list = ['sudo kubectl delete clusterrolebindings.rbac.authorization.k8s.io '
+                          'nuvla-cluster-role-binding nuvlaedge-service-account-cluster-role-binding']
+
+        for namespace in self.namespaces_running:
+            if namespace.__contains__('kube') or namespace == 'default':
+                continue
+            commands.append(f'sudo kubectl delete ns {namespace}')
+            commands.append(f'sudo helm uninstall {namespace}')
+
+        for cmd in commands:
+            try:
+                self.device.run_sudo_command(cmd)
+            except invoke.exceptions.UnexpectedExit as ex:
+                self.logger.error(f'Unexpected exit on command {cmd} : Exception : {ex}')
+            except Exception as ex:
+                self.logger.error(f'Unable to run commands on {self.device} {ex}')
 
     def peripherals_running(self, peripherals: set) -> bool:
         get_all_pods_running_cmd = (f'sudo kubectl get -n {self.namespace} pods -o json | '
@@ -155,29 +193,8 @@ class KubernetesCOE(COEBase):
             This will remove all pods and namespaces for kubernetes
         :return:
         """
-        self.logger.info(f'Purging engine in device {self.device}')
-        if self.cred_check_thread is not None:
-            self.logger.info("Waiting for credentials check thread to close")
-            self.cred_check_thread.join(50)
-
-        self.logger.info(f'Purging engine in device {self.device}')
-        namespaces_running = self.__get_namespaces_running()
-        commands: list = ['sudo kubectl delete clusterrolebindings.rbac.authorization.k8s.io '
-                          'nuvla-cluster-role-binding nuvlaedge-service-account-cluster-role-binding']
-
-        for namespace in namespaces_running:
-            if namespace.__contains__('kube') or namespace == 'default':
-                continue
-            commands.append(f'sudo kubectl delete ns {namespace}')
-            commands.append(f'sudo helm uninstall {namespace}')
-
-        for cmd in commands:
-            try:
-                self.device.run_sudo_command(cmd)
-            except invoke.exceptions.UnexpectedExit as ex:
-                self.logger.error(f'Unexpected exit on command {cmd} : Exception : {ex}')
-            except Exception as ex:
-                self.logger.error(f'Unable to run commands on {self.device} {ex}')
+        self.stop_engine()
+        self.remove_engine()
 
     def __get_current_nuvlaedge_namespace_running(self):
         get_curr_nuvlaedge_namespace_cmd = ('sudo kubectl get namespaces -o json | jq '
@@ -201,6 +218,23 @@ class KubernetesCOE(COEBase):
                 output.append(namespace.replace('"', ''))
         running_namespaces = ' '.join([str(item) for item in output])
         self.logger.debug(f'Current namespaces running {running_namespaces}')
+        return output
+
+    def __get_deployments_running(self, namespace):
+        get_deployments_cmd = (f'sudo kubectl get deployments -n {namespace} -o json | '
+                               'jq \'.items[] | select(.spec.replicas != 0) | .metadata.name\'')
+        result: Result = self.device.run_sudo_command(get_deployments_cmd)
+        output = []
+        if result.failed or result.stdout == '':
+            return output
+        deployments = result.stdout
+        list_deployments = deployments.split('\n')
+
+        for deployment in list_deployments:
+            if deployment:
+                output.append(deployment.replace('"', ''))
+        running_deployments = ' '.join([str(item) for item in output])
+        self.logger.debug(f'Current deployments running {running_deployments}')
         return output
 
 
@@ -239,9 +273,9 @@ class CertificateSignCheck(Thread):
         self.namespace = namespace
 
     def join(self, timeout: float | None = 0):
-        logger.info('Exiting Certificate sign check thread')
+        logger.debug('Exiting Certificate sign check thread')
         self.exit_event.set()
-        super().join(timeout)
+        super(CertificateSignCheck, self).join(timeout)
 
     def run(self):
         credentials_pod = ''
@@ -253,13 +287,12 @@ class CertificateSignCheck(Thread):
 
         time_to_sleep = 2
         while not self.exit_event.is_set():
-            if not self.device.is_reachable():
-                self.exit_event.wait(30)
-                continue
             get_csr_cmd = (f'sudo kubectl get certificatesigningrequests.certificates.k8s.io -o json | jq \'.items[] | '
                            f'select(.metadata.name == "{csr_name}") | '
                            '.status.conditions[0].type\'')
             self.exit_event.wait(time_to_sleep)
+            if not self.device.is_reachable():
+                continue
 
             result: Result = self.device.run_sudo_command(get_csr_cmd)
             if result.failed:
@@ -268,7 +301,7 @@ class CertificateSignCheck(Thread):
             status = result.stdout
             status = status.strip().replace('"', '')
             if status == "Approved":
-                time_to_sleep = 5
+                time_to_sleep = 50
                 continue
             # approve certificate
             approve_csr_cmd = f'sudo kubectl certificate approve {csr_name}'

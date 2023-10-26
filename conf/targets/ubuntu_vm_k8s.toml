@@ -4,7 +4,7 @@ alias = "ubuntu_VM"
 coe = "kubernetes"
 
 # Network data
-address = "194.182.163.45"
+address = "194.182.163.87"
 port = 22
 hostname = ""
 

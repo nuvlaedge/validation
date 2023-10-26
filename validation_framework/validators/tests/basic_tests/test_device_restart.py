@@ -44,8 +44,8 @@ class TestDeviceRestart(ValidationBase):
         self.logger.info(f"Initial up time {initial_up_time}")
         self.trigger_restart()
 
-        self.logger.info(f'Waiting for device to come back up')
-        coe_type = self.engine_handler.get_coe_type()
+        self.logger.info('Waiting for device to come back up')
+        coe_type = self.engine_handler.coe_type
         time_to_sleep = 100 if coe_type == 'docker' else 200
         time_to_wait_for_reboot = 180 if coe_type == 'docker' else 400
 
