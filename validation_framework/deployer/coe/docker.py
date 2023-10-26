@@ -21,6 +21,7 @@ class DockerCOE(COEBase):
         self.engine_folder: str = ''
         self.device = SSHTarget(device_config)
         super().__init__(self.device, logger, **kwargs)
+        self.assess_nuvlaedge_sourcecode_configuration()
 
     @staticmethod
     def get_latest_release(release_link: str) -> Release:
