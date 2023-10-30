@@ -181,7 +181,8 @@ class ValidationBase(ParametrizedTests):
 
         response: CimiResponse = self.nuvla_client.add(
             'nuvlabox',
-            data={'refresh-interval': 30,
+            data={'refresh-interval': 60,
+                  'heartbeat-interval': 15,
                   'name': cte.NUVLAEDGE_NAME.format(
                       device=self.engine_handler.device_config.alias),
                   'tags': ['nuvlaedge.validation=True', 'cli.created=True'],
