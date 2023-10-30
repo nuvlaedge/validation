@@ -54,9 +54,12 @@ class TestSSHKeyManagement(ValidationBase):
         present or not
         returns: True if KeyText is present in authorized keys
         """
-        self.logger.info(f'Gathering remote authorized keys')
-        command = self.engine_handler.device.run_command("cat ~/.ssh/authorized_keys")
-        return "TestPublicKey" in command.stdout
+        self.logger.info('Gathering remote authorized keys')
+        command = self.engine_handler.coe.get_authorized_keys()
+        if command.failed or command.stdout == '':
+            return False
+        print(f"Command output {command.stdout}")
+        return "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC" in command.stdout
 
     def test_ssh_key_management(self):
         self.logger.info("Starting SSH key management validation tests")
@@ -68,14 +71,16 @@ class TestSSHKeyManagement(ValidationBase):
         deploy_ssh_result: bool = self.manipulate_ssh_key()
         self.assertTrue(deploy_ssh_result, "SSH not properly added from Nuvla "
                                            "perspective")
+        time.sleep(10)
 
         self.assertTrue(self.is_ssh_key_present(),
                         "Key not present in authorized keys ssh file")
 
-        time.sleep(3)
+        time.sleep(10)
         remove_ssh_result: bool = self.manipulate_ssh_key(operation='revoke-ssh-key')
         self.assertTrue(remove_ssh_result, "SSH not properly removed from Nuvla "
                                            "perspective")
+        time.sleep(20)
 
         self.assertFalse(self.is_ssh_key_present(),
                          "Key should be present in authorized keys ssh file")

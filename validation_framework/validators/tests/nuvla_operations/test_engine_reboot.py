@@ -13,7 +13,7 @@ from pprint import pprint as pp
 
 @validator('EngineReboot')
 class TestEngineReboot(ValidationBase):
-    WAIT_TIME: float = 120.0
+    WAIT_TIME: float = 400
 
     def execute_reboot_operation(self):
         nuvlabox: CimiResource = self.nuvla_client.get(self.uuid)

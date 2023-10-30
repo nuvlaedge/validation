@@ -29,6 +29,9 @@ class TargetDevice(ABC):
         self.address: str = self.target_config.address
         self.user: str = self.target_config.user
 
+    def __str__(self):
+        return f'{self.user}@{self.hostname if self.hostname else self.address}'
+
     @abstractmethod
     def is_reachable(self) -> bool:
         """
@@ -70,14 +73,6 @@ class TargetDevice(ABC):
         """
         pass
 
-    @abstractmethod
-    def clean_target(self) -> None:
-        """
-        Removes docker containers, services, volumes and networks from previous runs
-        :return: None
-        """
-        ...
-
     def get_remote_containers(self, containers_filter: dict = None) -> list:
         json_format: dict = containers_filter if containers_filter is not None else {"{{ .ID }}":
                                                                                          {"Image": "{{ .Image }}",
@@ -101,3 +96,7 @@ class TargetDevice(ABC):
         Builds the different directories used by the validation system
         :return: None
         """
+
+    @abstractmethod
+    def run_sudo_command(self, command: str, envs: dict | None = None, hide: bool = True) -> fabric.Result:
+        pass

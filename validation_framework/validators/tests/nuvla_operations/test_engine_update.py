@@ -24,6 +24,8 @@ class EngineUpdateUp(ValidationBase):
         available_releases: list = releases.data.get('resources')
         selected_release: str = ''
         selected_rel_version: str = ''
+        print(f'Nuvlabox engine {nuvlabox}')
+        #print(f'Available Releases {available_releases}')
         current_release: str = nuvlabox.data.get('nuvlabox-engine-version')
 
         for rel in available_releases:

@@ -15,6 +15,17 @@ DEPLOYMENT_FILES_LINK: str = 'https://raw.githubusercontent.com/nuvlaedge/deploy
 ENGINE_BASE_FILE_NAME: str = 'docker-compose.yml'
 PERIPHERAL_BASE_FILE_NAME: str = 'docker-compose.{peripheral}.yml'
 
+# Kubernetes
+NUVLAEDGE_KUBE_REPO: str = 'https://nuvlaedge.github.io/deployment'
+NUVLAEDGE_KUBE_LOCAL_REPO_NAME: str = 'nuvlaedge'
+NUVLAEDGE_KUBE_LOCAL_CHART_NAME: str = 'nuvlaedge'
+NUVLAEDGE_KUBE_INSTALL_IMAGE: str = ('sudo helm install nuvlaedge-{uuid} {repo}/{chart} --version {version} '
+                                     '--set NUVLAEDGE_UUID=nuvlabox/{uuid} --set vpnClient=true '
+                                     '--set kubernetesNode={hostname}')
+NUVLAEDGE_KUBE_CERTIFICATE_MANAGER: str = 'kubernetes-credentials-manager'
+NUVLAEDGE_KUBE_CSR_NAME_KEY: str = 'CSR_NAME'
+NUVLAEDGE_KUBE_CREDENTIAL_CHECK_INTERVAL: int = 5  # seconds
+
 # File locations
 GENERAL_CONFIG_PATH: Path = Path('./conf/').resolve()
 DEVICE_CONFIG_PATH: Path = GENERAL_CONFIG_PATH / 'targets'
@@ -42,5 +53,5 @@ JSON_RESULTS_PATH: Path = RESULTS_PATH / 'json'
 XML_RESULTS_PATH: Path = RESULTS_PATH / 'xml'
 
 # Timeouts
-DEFAULT_JOBS_TIMEOUT: int = 3*60
-DEFAULT_DEPLOYMENTS_TIMEOUT: int = 5*60
+DEFAULT_JOBS_TIMEOUT: int = 3 * 60
+DEFAULT_DEPLOYMENTS_TIMEOUT: int = 5 * 60

@@ -97,7 +97,7 @@ class ValidationBase(ParametrizedTests):
         except IndexError:
             last_state: str = 'UNKNOWN'
 
-        self.logger.info(f'Waiting until device is commissioned')
+        self.logger.info('Waiting until device is commissioned')
         while last_state != self.STATE_LIST[2]:
             time.sleep(1)
             last_state: str = self.get_nuvlaedge_status()[0]
@@ -107,7 +107,7 @@ class ValidationBase(ParametrizedTests):
 
         :return:
         """
-        self.logger.info(f'Waiting for status device: OPERATIONAL')
+        self.logger.info('Waiting for status device: OPERATIONAL')
         last_status: str = self.get_nuvlaedge_status()[1]
         while last_status != "OPERATIONAL":
             time.sleep(1)
@@ -115,11 +115,7 @@ class ValidationBase(ParametrizedTests):
         self.wait_for_capabilities(['NUVLA_JOB_PULL'])
 
     def get_system_up_time(self) -> float:
-        response: Result = \
-            self.engine_handler.device.run_command("awk '{print $1}' /proc/uptime")
-        if response.stdout:
-            up_time = float(response.stdout)
-            return up_time
+        return self.engine_handler.get_system_up_time_in_engine()
 
     def wait_for_capabilities(self, capabilities: list):
         """
@@ -152,9 +148,10 @@ class ValidationBase(ParametrizedTests):
 
     def get_nuvlaedge_status(self) -> tuple[str, str]:
         """
-        This function retrieves the Edge state and status. Status will be setup once the NuvlaEdge engine has started.
-        State is defined by Nuvla Logic and status is defined by the NuvlaEdge system depending on the NuvlaEdge
-         initialization progress.
+        This function retrieves the Edge state and status. Status will be setup once the
+        NuvlaEdge engine has started. State is defined by Nuvla Logic and status is
+        defined by the NuvlaEdge system depending on the NuvlaEdge initialization
+        progress.
         :return: Tuple [state, status].
         """
         response: CimiCollection = self.nuvla_client.search('nuvlabox',
@@ -184,11 +181,14 @@ class ValidationBase(ParametrizedTests):
 
         response: CimiResponse = self.nuvla_client.add(
             'nuvlabox',
-            data={'refresh-interval': 30,
-                  'name': cte.NUVLAEDGE_NAME.format(device=self.engine_handler.device_config.alias),
+            data={'refresh-interval': 60,
+                  'heartbeat-interval': 15,
+                  'name': cte.NUVLAEDGE_NAME.format(
+                      device=self.engine_handler.device_config.alias),
                   'tags': ['nuvlaedge.validation=True', 'cli.created=True'],
                   'version': it_release,
-                  'vpn-server-id': 'infrastructure-service/eb8e09c2-8387-4f6d-86a4-ff5ddf3d07d7'})
+                  'vpn-server-id':
+                      'infrastructure-service/eb8e09c2-8387-4f6d-86a4-ff5ddf3d07d7'})
 
         return NuvlaUUID(response.data.get('resource-id'))
 
@@ -205,7 +205,7 @@ class ValidationBase(ParametrizedTests):
         while ne_state not in ['DECOMMISSIONED', 'NEW']:
             time.sleep(1)
             ne_state = self.get_nuvlaedge_status()[0]
-        self.logger.info(f'Decommissioning...')
+        self.logger.info('Decommissioning...')
         self.nuvla_client.delete(self.uuid)
 
     def setUp(self) -> None:
@@ -214,11 +214,14 @@ class ValidationBase(ParametrizedTests):
 
         self.nuvla_client: NuvlaClient = NuvlaClient(reauthenticate=True)
 
-        self.logger.info(f'Creating engine handler on deployment version: {self.nuvlaedge_version}')
-        self.engine_handler: EngineHandler = EngineHandler(cte.DEVICE_CONFIG_PATH / self.target_config_file,
-                                                           nuvlaedge_version=self.nuvlaedge_version,
-                                                           nuvlaedge_branch=self.target_nuvlaedge_branch,
-                                                           deployment_branch=self.target_deployment_branch)
+        self.logger.info(f'Creating engine handler on deployment version: '
+                         f'{self.nuvlaedge_version}')
+        self.engine_handler: EngineHandler = EngineHandler(
+            cte.DEVICE_CONFIG_PATH / self.target_config_file,
+            nuvlaedge_version=self.nuvlaedge_version,
+            nuvlaedge_branch=self.target_nuvlaedge_branch,
+            deployment_branch=self.target_deployment_branch)
+
         self.uuid: NuvlaUUID = self.create_nuvlaedge_in_nuvla()
 
         self.logger.info(f'Target device: {self.engine_handler.device_config.hostname}')
@@ -227,8 +230,8 @@ class ValidationBase(ParametrizedTests):
         super(ValidationBase, self).tearDown()
         self.logger.info('ValidationBase tear down, stopping and cleaning engine')
 
-        # Retrieve NuvlaEdge logs if UnitTest fail. If retrieve logs is selected as an input,
-        # ignore whether tests fail and always download logs
+        # Retrieve NuvlaEdge logs if UnitTest fail. If retrieve logs is selected as an
+        # input, ignore whether tests fail and always download logs
         if not self.retrieve_logs:
             if hasattr(self._outcome, 'errors'):
                 # Python 3.4 - 3.10  (These two methods have no side effects)
