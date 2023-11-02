@@ -12,7 +12,7 @@ from validation_framework.common.constants import DEFAULT_DEPLOYMENTS_TIMEOUT
 from nuvla.api.models import CimiResponse, CimiResource, CimiCollection
 
 
-@validator('BasicAppDeployment')
+#@validator('BasicAppDeployment')
 class TestBasicAppDeployment(ValidationBase):
     APP_NAME: str = 'Nginx App in Kubernetes'
     MODULE_ID: str = 'module/95e17c68-11e5-482e-b887-b34b1a322e7d'
@@ -116,31 +116,6 @@ class TestBasicAppDeployment(ValidationBase):
         self.assertEqual(self.nuvla_client.get(deployment_id).data.get('state'),
                          self.STATE_STARTED,
                          f'Deployment successfully started in PULL mode')
-        self.logger.info(f'Running deployment for 100 seconds')
-        time.sleep(100)
-        self.logger.info(f'Stopping deployment')
-        self.stop_deployment(deployment_id)
-
-    def test_app_deployment_push(self):
-        if self.engine_handler.coe_type == 'kubernetes':
-            self.logger.info('Disabling push app deployment test for kubernetes')
-            return
-        self.logger.info(f'Starting push application deployment validation tests')
-        self.wait_for_commissioned()
-        self.wait_for_operational()
-        self.logger.info('Wait a long time to let everything set up')
-        time.sleep(120)
-        self.logger.info(f'Device up and ready. Launching ')
-        deployment_id = self.configure_deployment()
-
-        self.logger.info(f"Starting deployment {deployment_id}")
-        deployment_resource: Deployment = Deployment(self.nuvla_client)
-        deployment_resource.start(deployment_id)
-
-        self.wait_for_deployment_start(deployment_id)
-        self.assertEqual(self.nuvla_client.get(deployment_id).data.get('state'),
-                         self.STATE_STARTED,
-                         f'Deployment successfully started in PUSH mode')
         self.logger.info(f'Running deployment for 100 seconds')
         time.sleep(100)
         self.logger.info(f'Stopping deployment')

@@ -175,7 +175,9 @@ class ValidationBase(ParametrizedTests):
         """
         if self.uuid:
             return self.uuid
-        self.nuvla_client.login_apikey(self.nuvla_api_key, self.nuvla_api_secret)
+        resp = self.nuvla_client.login_apikey(self.nuvla_api_key, self.nuvla_api_secret)
+
+        self.logger.info(f'Response from login {resp.content} {self.nuvla_api_key} {self.nuvla_api_secret} ')
 
         it_release: int = 2
 

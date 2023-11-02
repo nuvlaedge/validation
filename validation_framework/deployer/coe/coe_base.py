@@ -43,6 +43,27 @@ class COEBase(ABC):
                          f'\t\t Deployment Branch: {self.deployment_branch} \n'
                          f'\t\t NuvlaEdge Branch: {self.nuvlaedge_branch}')
 
+        # ------------------------------------------------------------
+        # Handle nuvlaedge repository configuration
+        # ------------------------------------------------------------
+        if self.nuvlaedge_branch:
+            self.logger.info(f'Running NuvlaEdge source code from branch: '
+                             f'nuvlaedge:{self.nuvlaedge_branch}')
+            # Assign the branch to the nuvlaedge engine environmental variable
+            # configuration
+            self.engine_configuration.ne_image_tag = self.nuvlaedge_branch
+
+            # Engine env configuration changes the organization if we are in a dev branch
+            self.engine_configuration.ne_image_organization = 'nuvladev'
+
+        else:
+            self.logger.info(f'Running NuvlaEdge source code on version '
+                             f'{self.nuvlaedge_version}')
+            self.engine_configuration.ne_image_tag = self.nuvlaedge_version
+
+            # For standard release versions, the docker organization is SixSq
+            self.engine_configuration.ne_image_organization = 'sixsq'
+
         # Deployment release download link changes depending on the configuration.
         # Whether deployment branch is provided
         self.deployment_link: str = ''

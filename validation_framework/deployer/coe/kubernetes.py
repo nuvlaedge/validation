@@ -13,8 +13,6 @@ from threading import Event, Thread
 import re
 from pathlib import Path
 
-logger: logging.Logger = logging.getLogger(__name__)
-
 
 class KubernetesCOE(COEBase):
 
@@ -26,7 +24,7 @@ class KubernetesCOE(COEBase):
         self.namespace = ''
         self.certificate_manager_pod = ''
         self.cred_check_thread: CertificateSignCheck = None
-        super().__init__(self.device, logger, **kwargs)
+        super().__init__(self.device, logging.getLogger(__name__), **kwargs)
 
     def start_engine(self,
                      uuid: NuvlaUUID,
@@ -46,13 +44,14 @@ class KubernetesCOE(COEBase):
         result: Result = self.device.run_sudo_command(add_repo_cmd)
         if result.failed:
             self.logger.error(f'Could not add repo to helm {cte.NUVLAEDGE_KUBE_REPO}: {result.stderr}')
-        version = "''" if self.nuvlaedge_version == '' else self.nuvlaedge_version
+
         install_image_cmd = cte.NUVLAEDGE_KUBE_INSTALL_IMAGE.format(
             uuid=self.nuvla_uuid,
             repo=cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME,
             chart=cte.NUVLAEDGE_KUBE_LOCAL_CHART_NAME,
-            version=version,
-            hostname=self.device.hostname
+            hostname=self.device.hostname,
+            organization=self.engine_configuration.ne_image_organization,
+            version=self.engine_configuration.ne_image_tag
         )
 
         if self.include_peripherals:
