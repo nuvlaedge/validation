@@ -106,7 +106,7 @@ class KubernetesCOE(COEBase):
     def get_engine_logs(self):
         self.logger.info(f'Retrieving Log files from engine run with UUID: {self.engine_configuration.nuvlaedge_uuid}')
         get_pods_cmd = (f'sudo kubectl get pods -n {self.namespace} -o json | '
-                        'jq \'.items[] | .metadata.name\'')
+                        'jq \'.items[] | select(.status.phase == "Running") | .metadata.name\'')
         result: Result = self.device.run_sudo_command(get_pods_cmd)
         if result.failed or result.stdout == '':
             return
@@ -129,7 +129,10 @@ class KubernetesCOE(COEBase):
         for pod in pods:
             if pod != '':
                 pod = pod.replace('"', '')
-                self.get_container_logs(pod)
+                try:
+                    self.get_container_logs(pod)
+                except Exception as ex:
+                    self.logger.warning(f'Error while downloading logs for pod {pod} : {ex}')
 
     def get_container_logs(self, pod, download_to_local=False, path: Path = None):
         get_logs_cmd = (f'sudo kubectl logs -n {self.namespace} {pod} >> '
