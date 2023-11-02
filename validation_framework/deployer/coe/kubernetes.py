@@ -106,14 +106,14 @@ class KubernetesCOE(COEBase):
     def get_engine_logs(self):
         self.logger.info(f'Retrieving Log files from engine run with UUID: {self.engine_configuration.nuvlaedge_uuid}')
         get_pods_cmd = (f'sudo kubectl get pods -n {self.namespace} -o json | '
-                        'jq \'.items[] | {name: .metadata.name}\'')
+                        'jq \'.items[] | .metadata.name\'')
         result: Result = self.device.run_sudo_command(get_pods_cmd)
         if result.failed or result.stdout == '':
             return
 
         # 1. Get all pods in the concerned namespace
         self.logger.debug(f'Extracting logs from: \n\n\t{result.stdout}\n')
-        pods = json.loads(result.stdout)
+        pods = result.stdout.split('\n')
 
         # 2. Iteratively copy logs from kubernetes pods
         #    to /tmp/<new_folder> and chmod before transferring it to the running machine
@@ -122,18 +122,23 @@ class KubernetesCOE(COEBase):
         local_tmp_path: Path = Path(f'/tmp/{self.engine_configuration.compose_project_name}')
         local_tmp_path.mkdir(parents=True, exist_ok=True)
 
+        # 3. Provide permissions to the folder
+        self.device.run_sudo_command(
+            f'sudo chmod 777 /tmp/{self.engine_configuration.compose_project_name}')
+
         for pod in pods:
-            self.get_container_logs(pod)
+            if pod != '':
+                pod = pod.replace('"', '')
+                self.get_container_logs(pod)
 
     def get_container_logs(self, pod, download_to_local=False, path: Path = None):
-        pod_name = pod.get("name")
-        get_logs_cmd = (f'sudo kubectl logs -n {self.namespace} {pod_name} >> '
-                        f'/tmp/{self.engine_configuration.compose_project_name}/{pod_name}.log')
+        get_logs_cmd = (f'sudo kubectl logs -n {self.namespace} {pod} >> '
+                        f'/tmp/{self.engine_configuration.compose_project_name}/{pod}.log')
         self.device.run_sudo_command(get_logs_cmd)
 
         if download_to_local and path is not None:
-            self.device.download_remote_file(remote_file_path=f'/tmp/{pod_name}.log',
-                                             local_file_path=path / (pod_name + '.log'))
+            self.device.download_remote_file(remote_file_path=f'/tmp/{pod}.log',
+                                             local_file_path=path / (pod + '.log'))
 
     def get_coe_type(self):
         return "kubernetes"

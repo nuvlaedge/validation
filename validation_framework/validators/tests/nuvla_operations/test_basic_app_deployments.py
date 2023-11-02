@@ -12,7 +12,7 @@ from validation_framework.common.constants import DEFAULT_DEPLOYMENTS_TIMEOUT
 from nuvla.api.models import CimiResponse, CimiResource, CimiCollection
 
 
-#@validator('BasicAppDeployment')
+@validator('BasicAppDeployment')
 class TestBasicAppDeployment(ValidationBase):
     APP_NAME: str = 'Nginx App in Kubernetes'
     MODULE_ID: str = 'module/95e17c68-11e5-482e-b887-b34b1a322e7d'
