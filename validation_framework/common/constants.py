@@ -21,8 +21,9 @@ NUVLAEDGE_KUBE_LOCAL_REPO_NAME: str = 'nuvlaedge'
 NUVLAEDGE_KUBE_LOCAL_CHART_NAME: str = 'nuvlaedge'
 NUVLAEDGE_KUBE_INSTALL_IMAGE: str = ('sudo helm install nuvlaedge-{uuid} {repo}/{chart} '
                                      '--set NUVLAEDGE_UUID=nuvlabox/{uuid} --set vpnClient=true '
-                                     '--set kubernetesNode={hostname} --set nuvlaedge.image.organization={organization}'
-                                     ' --set nuvlaedge.image.tag={version}')
+                                     '--set kubernetesNode={hostname} '
+                                     '--set nuvlaedge.image.organization={organization} '
+                                     '--set nuvlaedge.image.tag={version}')
 NUVLAEDGE_KUBE_CERTIFICATE_MANAGER: str = 'kubernetes-credentials-manager'
 NUVLAEDGE_KUBE_CSR_NAME_KEY: str = 'CSR_NAME'
 NUVLAEDGE_KUBE_CREDENTIAL_CHECK_INTERVAL: int = 5  # seconds

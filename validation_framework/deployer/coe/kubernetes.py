@@ -72,7 +72,7 @@ class KubernetesCOE(COEBase):
 
         if self.cred_check_thread is None:
             self.cred_check_thread = CertificateSignCheck(device_config=self.device.target_config,
-                                                          namespace=self.namespace)
+                                                          namespace=self.namespace, logger=self.logger)
             self.cred_check_thread.start()
 
         self.logger.info('Device start command executed')
@@ -248,7 +248,7 @@ def get_pod_name(device: TargetDevice, namespace, app_name, status: str = 'Runni
     return list_names[0].replace('"', '')
 
 
-def get_environmental_value(device, namespace, pod_name, key):
+def get_environmental_value(device, namespace, pod_name, key, logger):
     get_pod_details = f'sudo kubectl get pod -n {namespace} {pod_name} -o json'
     result: Result = device.run_sudo_command(get_pod_details)
     if result.failed or result.stdout == '':
@@ -265,14 +265,15 @@ def get_environmental_value(device, namespace, pod_name, key):
 
 
 class CertificateSignCheck(Thread):
-    def __init__(self, device_config: TargetDeviceConfig, namespace):
+    def __init__(self, logger: logging.Logger, device_config: TargetDeviceConfig, namespace):
         super(CertificateSignCheck, self).__init__()
         self.device = SSHTarget(device_config)
         self.exit_event: Event = Event()
         self.namespace = namespace
+        self.logger = logger
 
     def join(self, timeout: float | None = 0):
-        logger.debug('Exiting Certificate sign check thread')
+        self.logger.debug('Exiting Certificate sign check thread')
         self.exit_event.set()
         super(CertificateSignCheck, self).join(timeout)
 
@@ -282,7 +283,7 @@ class CertificateSignCheck(Thread):
             credentials_pod = get_pod_name(self.device, self.namespace, cte.NUVLAEDGE_KUBE_CERTIFICATE_MANAGER)
             time.sleep(0.5)
         csr_name = get_environmental_value(self.device, self.namespace, credentials_pod,
-                                           cte.NUVLAEDGE_KUBE_CSR_NAME_KEY)
+                                           cte.NUVLAEDGE_KUBE_CSR_NAME_KEY, self.logger)
 
         time_to_sleep = 2
         while not self.exit_event.is_set():
@@ -307,5 +308,5 @@ class CertificateSignCheck(Thread):
             try:
                 self.device.run_sudo_command(approve_csr_cmd)
             except Exception as ex:
-                logger.warning(f'Approval of csr command failed : {ex}')
-            logger.info(f'Approved certificate {csr_name}')
+                self.logger.warning(f'Approval of csr command failed : {ex}')
+            self.logger.info(f'Approved certificate {csr_name}')
