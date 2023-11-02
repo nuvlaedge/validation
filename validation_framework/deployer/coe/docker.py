@@ -12,15 +12,13 @@ from fabric import Result
 from pathlib import Path
 from validation_framework.common import Release
 
-logger: logging.Logger = logging.getLogger(__name__)
-
 
 class DockerCOE(COEBase):
 
     def __init__(self, device_config: TargetDeviceConfig, **kwargs):
         self.engine_folder: str = ''
         self.device = SSHTarget(device_config)
-        super().__init__(self.device, logger, **kwargs)
+        super().__init__(self.device, logging.getLogger(__name__), **kwargs)
         self.assess_nuvlaedge_sourcecode_configuration()
 
     @staticmethod
@@ -65,27 +63,6 @@ class DockerCOE(COEBase):
             self.deployment_link = cte.RELEASE_DOWNLOAD_LINK.format(
                 version=self.nuvlaedge_version,
                 file='{file}')
-
-        # ------------------------------------------------------------
-        # Handle nuvlaedge repository configuration
-        # ------------------------------------------------------------
-        if self.nuvlaedge_branch:
-            self.logger.info(f'Running NuvlaEdge source code from branch: '
-                             f'nuvlaedge:{self.nuvlaedge_branch}')
-            # Assign the branch to the nuvlaedge engine environmental variable
-            # configuration
-            self.engine_configuration.ne_image_tag = self.nuvlaedge_branch
-
-            # Engine env configuration changes the organization if we are in a dev branch
-            self.engine_configuration.ne_image_organization = 'nuvladev'
-
-        else:
-            self.logger.info(f'Running NuvlaEdge source code on version '
-                             f'{self.nuvlaedge_version}')
-            self.engine_configuration.ne_image_tag = self.nuvlaedge_version
-
-            # For standard release versions, the docker organization is SixSq
-            self.engine_configuration.ne_image_organization = 'sixsq'
 
     def start_engine(self,
                      uuid: NuvlaUUID,
