@@ -143,6 +143,10 @@ class DockerCOE(COEBase):
         local_tmp_path: Path = Path(f'/tmp/{self.engine_configuration.compose_project_name}')
         local_tmp_path.mkdir(parents=True, exist_ok=True)
 
+        self.device.run_sudo_command(
+            f'sudo chmod 777 /tmp/{self.engine_configuration.compose_project_name}'
+        )
+
         for c in containers:
             # 3. Download and transfer back the files
             self.get_container_logs(c, True, local_tmp_path)
@@ -156,7 +160,11 @@ class DockerCOE(COEBase):
         get_logs_cmd = f'sudo docker logs {c_name} >> /tmp/{self.engine_configuration.compose_project_name}/{c_name}.log'
 
         self.logger.debug(f'Processing logs for nuvlaedge {c_name}')
-        self.device.run_sudo_command(get_logs_cmd)
+        try:
+            self.device.run_sudo_command(get_logs_cmd)
+        except Exception as ex:
+            self.logger.warning(f'Unable to get logs for the container {container} : {ex}')
+            return
 
         if download_to_local and path is not None:
             self.device.download_remote_file(remote_file_path=f'/tmp/{self.engine_configuration.compose_project_name}/{c_name}.log',
