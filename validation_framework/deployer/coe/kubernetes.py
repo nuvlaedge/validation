@@ -148,16 +148,24 @@ class KubernetesCOE(COEBase):
 
     def engine_running(self) -> bool:
         check_pods_cmd = f'sudo kubectl get pods -n {self.namespace} --no-headers'
-        result: Result = self.device.run_sudo_command(check_pods_cmd)
-        if result.failed or result.stdout.__contains__('No resources found'):
+        result: Result = None
+        try:
+            result = self.device.run_sudo_command(check_pods_cmd)
+            if result.failed or result.stdout.__contains__('No resources found'):
+                return False
+        except Exception as ex:
+            self.logger.warning(f'Exception occurred {ex}')
             return False
         return True
 
-    def remove_engine(self):
-        self.logger.debug(f'Removing engine in device {self.device}')
+    def finish_tasks(self):
         if self.cred_check_thread:
             self.logger.debug("Waiting for credentials check thread to close")
             self.cred_check_thread.join(50)
+
+    def remove_engine(self):
+        self.logger.debug(f'Removing engine in device {self.device}')
+        self.finish_tasks()
 
         self.namespaces_running = self.__get_namespaces_running()
         commands: list = ['sudo kubectl delete clusterrolebindings.rbac.authorization.k8s.io '

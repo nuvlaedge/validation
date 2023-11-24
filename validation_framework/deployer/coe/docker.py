@@ -167,8 +167,9 @@ class DockerCOE(COEBase):
             return
 
         if download_to_local and path is not None:
-            self.device.download_remote_file(remote_file_path=f'/tmp/{self.engine_configuration.compose_project_name}/{c_name}.log',
-                                             local_file_path=path / (c_name + '.log'))
+            self.device.download_remote_file(
+                remote_file_path=f'/tmp/{self.engine_configuration.compose_project_name}/{c_name}.log',
+                local_file_path=path / (c_name + '.log'))
 
     def engine_running(self) -> bool:
         result: Result = self.device.run_command(f'docker ps | grep {cte.PROJECT_NAME}')
@@ -194,9 +195,11 @@ class DockerCOE(COEBase):
             except Exception as ex:
                 self.logger.warning(f'Unable to run commands on {self.device} {ex}')
 
-
     def get_coe_type(self):
         return "docker"
+
+    def finish_tasks(self):
+        pass
 
     def purge_engine(self):
         self.stop_engine()
