@@ -106,6 +106,7 @@ class EngineHandler:
         """
         if not self.coe.engine_running():
             self.logger.info('Engine not running')
+            self.coe.finish_tasks()
             return True
 
         if retrieve_logs:

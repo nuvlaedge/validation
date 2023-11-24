@@ -124,6 +124,10 @@ class COEBase(ABC):
     def get_authorized_keys(self):
         pass
 
+    @abstractmethod
+    def finish_tasks(self):
+        pass
+
     def restart_system(self) -> Result:
         return self.device.run_sudo_command('sudo shutdown -r now')
 
