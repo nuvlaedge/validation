@@ -4,6 +4,7 @@ Target Device SSH implementation
 import json
 import os
 import logging
+import time
 from contextlib import contextmanager
 
 import fabric
@@ -28,12 +29,19 @@ class SSHTarget(TargetDevice):
         super().__init__(target_config, logging.getLogger(__name__))
         self.logger.info(f'Starting SSH target with configuration '
                          f'{json.dumps(target_config.dict(), indent=4)}')
-        if not self.is_reachable():
-            self.logger.debug(f'Device {self.target_config.alias} not reachable in {self.target_config.address} ')
-            raise ConnectionError(f'Device {self.target_config.alias} not reachable in {self.target_config.address} ')
-        else:
-            self.logger.info(f'Device {self.target_config.alias} online and ready')
-            self.build_directory_tree()
+        retrials = 0
+        maxretrials = 5
+        timeout = 3
+        while not self.is_reachable():
+            self.logger.debug(f'Device {self.target_config.alias} not reachable in {self.target_config.address}. '
+                              f'Retrying... retrail({retrials}) ')
+            if retrials == maxretrials:
+                raise ConnectionError(f'Device {self.target_config.alias} not reachable in {self.target_config.address} ')
+            time.sleep(timeout)
+            retrials += 1
+
+        self.logger.info(f'Device {self.target_config.alias} online and ready')
+        self.build_directory_tree()
 
     @contextmanager
     def connection(self) -> Connection:
