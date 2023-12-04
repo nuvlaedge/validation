@@ -57,7 +57,7 @@ class TestDeviceRestart(ValidationBase):
         while later_up_time > initial_up_time:
             later_up_time = self.get_system_up_time()
             if time.time() - start_time > time_to_wait_for_reboot:
-                self.logger.error("Device didn't reboot ")
+                self.logger.error(f"Device didn't reboot in {time_to_wait_for_reboot/60}")
                 break
             time.sleep(1)
 
