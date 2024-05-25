@@ -133,7 +133,8 @@ def parse_arguments() -> argparse.Namespace:
     arguments.add_argument("--secret")
 
     # Logging
-    arguments.add_argument("--log_level", default='INFO')
+    arguments.add_argument("--log_level", default='INFO', 
+                           choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
     # TODO: Future implementation
     arguments.add_argument("--retrieve_logs", default=False)
 
@@ -198,10 +199,12 @@ def get_validator_type(validator_name: str) -> tuple[callable, dict]:
 
 def entrypoint():
     global active_validators
-    # Configure the logger by dict. Should be adaptable via command line
-    config_logger()
 
     args: argparse.Namespace = parse_arguments()
+
+    # Configure the logger by dict. Should be adaptable via command line
+    config_logger(level=logging.getLevelName(args.log_level))
+
     logger.info(f'Parsed arguments: {args}')
 
     validator_type = args.validator

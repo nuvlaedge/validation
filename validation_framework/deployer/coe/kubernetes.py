@@ -293,11 +293,15 @@ class CertificateSignCheck(Thread):
         self.exit_event.set()
         super(CertificateSignCheck, self).join(timeout)
 
+    def debug(self, msg, *args, **kwargs):
+        self.logger.debug(f'{self.__class__.__name__}: {msg}', *args, **kwargs)
+
     def run(self):
         credentials_pod = ''
         while credentials_pod == '':
             credentials_pod = get_pod_name(self.device, self.namespace, cte.NUVLAEDGE_KUBE_CERTIFICATE_MANAGER)
             time.sleep(0.5)
+            
         csr_name = get_environmental_value(self.device, self.namespace, credentials_pod,
                                            cte.NUVLAEDGE_KUBE_CSR_NAME_KEY, self.logger)
 
@@ -306,19 +310,25 @@ class CertificateSignCheck(Thread):
             get_csr_cmd = (f'sudo kubectl get certificatesigningrequests.certificates.k8s.io -o json | jq \'.items[] | '
                            f'select(.metadata.name == "{csr_name}") | '
                            '.status.conditions[0].type\'')
+
             self.exit_event.wait(time_to_sleep)
+
             if not self.device.is_reachable():
+                self.debug('Device not reachable.')
                 continue
 
             result: Result = self.device.run_sudo_command(get_csr_cmd)
             if result.failed:
+                self.debug(f'Running following command failed: {get_csr_cmd}')
                 continue
 
             status = result.stdout
             status = status.strip().replace('"', '')
             if status == "Approved":
                 time_to_sleep = 50
+                self.debug('Certificate is approved')
                 continue
+
             # approve certificate
             approve_csr_cmd = f'sudo kubectl certificate approve {csr_name}'
             try:
