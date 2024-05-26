@@ -57,7 +57,7 @@ class SSHTarget(TargetDevice):
         yield new_connection
         new_connection.close()
 
-    def is_reachable(self, silent=False) -> bool:
+    def is_reachable(self, silent=True) -> bool:
         try:
             if not silent:
                 self.logger.info('Running connection')

@@ -86,11 +86,11 @@ class EngineHandler:
         """
         if remove_old_installation:
             # 1. - Clean target
-            self.logger.debug('Removing possible old installations of NuvlaEdge')
+            self.logger.info('Removing possible old installations of NuvlaEdge')
             self.coe.purge_engine()
 
         # 2. Start Engine
-        self.logger.debug('Download NuvlaEdge related files and images')
+        self.logger.info('Download NuvlaEdge related files and images')
         self.coe.start_engine(nuvlaedge_uuid, False, extra_envs)
 
     def get_system_up_time_in_engine(self) -> float:
