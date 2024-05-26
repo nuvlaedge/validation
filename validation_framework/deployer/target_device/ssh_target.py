@@ -62,8 +62,8 @@ class SSHTarget(TargetDevice):
             if not silent:
                 self.logger.info('Running connection')
             it_result: fabric.Result = self.run_command('hostname')
+            self.hostname = it_result.stdout.strip()
             if not silent:
-                self.hostname = it_result.stdout.strip()
                 self.logger.info(f'Host {self.hostname} reachable')
             return not it_result.failed
         except Exception as ex:
