@@ -169,7 +169,7 @@ class KubernetesCOE(COEBase):
 
         self.namespaces_running = self.__get_namespaces_running()
         commands: list = ['sudo kubectl delete clusterrolebindings.rbac.authorization.k8s.io '
-                          'nuvla-cluster-role-binding nuvlaedge-service-account-cluster-role-binding']
+                          'nuvla-crb nuvlaedge-service-account-cluster-role-binding']
 
         for namespace in self.namespaces_running:
             if namespace.__contains__('kube') or namespace == 'default':
@@ -301,7 +301,7 @@ class CertificateSignCheck(Thread):
         while credentials_pod == '':
             credentials_pod = get_pod_name(self.device, self.namespace, cte.NUVLAEDGE_KUBE_CERTIFICATE_MANAGER)
             time.sleep(0.5)
-            
+
         csr_name = get_environmental_value(self.device, self.namespace, credentials_pod,
                                            cte.NUVLAEDGE_KUBE_CSR_NAME_KEY, self.logger)
 
