@@ -15,15 +15,20 @@ DEPLOYMENT_FILES_LINK: str = 'https://raw.githubusercontent.com/nuvlaedge/deploy
 ENGINE_BASE_FILE_NAME: str = 'docker-compose.yml'
 PERIPHERAL_BASE_FILE_NAME: str = 'docker-compose.{peripheral}.yml'
 
+DEPLOYMENT_GIT_CLONE: str = 'git clone --single-branch --depth 1 --branch {branch} ' \
+                            'https://github.com/nuvlaedge/deployment.git ' \
+                            '{path}'
+
 # Kubernetes
 NUVLAEDGE_KUBE_REPO: str = 'https://nuvlaedge.github.io/deployment'
 NUVLAEDGE_KUBE_LOCAL_REPO_NAME: str = 'nuvlaedge'
 NUVLAEDGE_KUBE_LOCAL_CHART_NAME: str = 'nuvlaedge'
-NUVLAEDGE_KUBE_INSTALL_IMAGE: str = ('sudo helm install nuvlaedge-{uuid} {repo}/{chart} '
+NUVLAEDGE_KUBE_INSTALL_IMAGE: str = ('sudo helm install nuvlaedge-{uuid} {chart} '
                                      '--set NUVLAEDGE_UUID=nuvlabox/{uuid} --set vpnClient=true '
                                      '--set kubernetesNode={hostname} '
                                      '--set nuvlaedge.image.organization={organization} '
                                      '--set nuvlaedge.image.tag={version}')
+                                     
 NUVLAEDGE_KUBE_CERTIFICATE_MANAGER: str = 'kubernetes-credentials-manager'
 NUVLAEDGE_KUBE_CSR_NAME_KEY: str = 'CSR_NAME'
 NUVLAEDGE_KUBE_CREDENTIAL_CHECK_INTERVAL: int = 5  # seconds
