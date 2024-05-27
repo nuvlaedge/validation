@@ -52,11 +52,11 @@ class KubernetesCOE(COEBase):
             self.logger.error(f'Could not update helm repo {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}: {result.stderr}')
 
         if self.deployment_branch:
-            path = f'{cte.ROOT_PATH}/{cte.ENGINE_PATH}/deployment'
-            self.device.run_sudo_command(f'sudo rm -Rf "{path}"')
+            path = f'{cte.ROOT_PATH}{cte.ENGINE_PATH}deployment'
+            self.device.run_sudo_command(f'sudo rm -Rf {path}')
             self.device.run_command(cte.DEPLOYMENT_GIT_CLONE.format(branch=self.deployment_branch,
                                                                     path=path))
-            chart = f'{path}/helm/nuvlaedge-engine'  
+            chart = f'{path}/helm'
         else:
             chart = f'{cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}/{cte.NUVLAEDGE_KUBE_LOCAL_CHART_NAME}'
             if self.nuvlaedge_version:
