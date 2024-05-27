@@ -184,8 +184,10 @@ class KubernetesCOE(COEBase):
         self.finish_tasks()
 
         self.namespaces_running = self.__get_namespaces_running()
-        commands: list = ['sudo kubectl delete clusterrolebindings.rbac.authorization.k8s.io '
-                          'nuvla-crb nuvlaedge-service-account-cluster-role-binding']
+        commands: list = ['sudo kubectl delete '
+                          'clusterrolebindings.rbac.authorization.k8s.io '
+                          'nuvla-crb '
+                          f'nuvlaedge-service-account-cluster-role-binding-{self.nuvla_uuid}']
 
         for namespace in self.namespaces_running:
             if namespace.__contains__('kube') or namespace == 'default':
