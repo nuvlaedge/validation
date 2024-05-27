@@ -45,7 +45,13 @@ class KubernetesCOE(COEBase):
         if result.failed:
             self.logger.error(f'Could not add repo to helm {cte.NUVLAEDGE_KUBE_REPO}: {result.stderr}')
 
-        install_image_cmd = cte.NUVLAEDGE_KUBE_INSTALL_IMAGE.format(
+        if self.nuvlaedge_branch:
+            self.device.run_sudo_command(cte.NUVLAEDGE_KUBE_GIT_CLONE.format(version=self.nuvlaedge_branch))
+
+        install_cmd_template = cte.NUVLAEDGE_KUBE_INSTALL_IMAGE
+        install_cmd_template += '.' if self.nuvlaedge_branch else '--version={version}'
+
+        install_image_cmd = cte.install_cmd_template.format(
             uuid=self.nuvla_uuid,
             repo=cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME,
             chart=cte.NUVLAEDGE_KUBE_LOCAL_CHART_NAME,
