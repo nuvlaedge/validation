@@ -40,21 +40,31 @@ class KubernetesCOE(COEBase):
         """
         idparts = uuid.split('/')
         self.nuvla_uuid = idparts[1]
+
         add_repo_cmd = f'sudo helm repo add {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME} {cte.NUVLAEDGE_KUBE_REPO}'
         result: Result = self.device.run_sudo_command(add_repo_cmd)
         if result.failed:
             self.logger.error(f'Could not add repo to helm {cte.NUVLAEDGE_KUBE_REPO}: {result.stderr}')
 
-        if self.nuvlaedge_branch:
-            self.device.run_sudo_command(cte.NUVLAEDGE_KUBE_GIT_CLONE.format(version=self.nuvlaedge_branch))
+        update_repo_cmd = f'sudo helm repo update nuvlaedge {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}'
+        result: Result = self.device.run_sudo_command(update_repo_cmd)
+        if result.failed:
+            self.logger.error(f'Could not update helm repo {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}: {result.stderr}')
 
-        install_cmd_template = cte.NUVLAEDGE_KUBE_INSTALL_IMAGE
-        install_cmd_template += '.' if self.nuvlaedge_branch else '--version={version}'
+        if self.deployment_branch:
+            path = f'{cte.ROOT_PATH}/{cte.ENGINE_PATH}/deployment'
+            self.device.run_sudo_command(f'sudo rm -Rf "{path}"')
+            self.device.run_command(cte.DEPLOYMENT_GIT_CLONE.format(branch=self.deployment_branch,
+                                                                    path=path))
+            chart = f'{path}/helm/nuvlaedge-engine'  
+        else:
+            chart = f'{cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}/{cte.NUVLAEDGE_KUBE_LOCAL_CHART_NAME}'
+            if self.nuvlaedge_version:
+                chart += f' --version={self.nuvlaedge_version}'
 
-        install_image_cmd = cte.install_cmd_template.format(
+        install_image_cmd = cte.NUVLAEDGE_KUBE_INSTALL_IMAGE.format(
             uuid=self.nuvla_uuid,
-            repo=cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME,
-            chart=cte.NUVLAEDGE_KUBE_LOCAL_CHART_NAME,
+            chart=chart,
             hostname=self.device.hostname,
             organization=self.engine_configuration.ne_image_organization,
             version=self.engine_configuration.ne_image_tag
