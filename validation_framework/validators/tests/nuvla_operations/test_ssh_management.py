@@ -56,11 +56,14 @@ class TestSSHKeyManagement(ValidationBase):
         """
         self.logger.info('Gathering remote authorized keys')
         ssh_key: str = ('ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQC+OUPEq3qiLPye+oMQkGaTsEMgDbX/0oWGZQ359wWhVZRDCkdQMbkrPZWKAaVSOfJZZeGgmDGmuibuQy3fv0j8sOF4XgwkL6hldmOD1HclCqCe6jQClOhuz8r7xOH0i/DOxu9Iv425h20EygKQiqkQ8bgNLdDn67XSTn'
-                   '9kr6oXITWmM0yWdhjPXPO4IyfhNQa7+hu1nj1HJ5mcVqzWlr57cbJdyHZroXXUQZ+yctgax+sLsYHlea5yzrtfwuota+o6bOiDk9Mbbd2729nXNMSxjpabPgz3+POXWwegkJNl4BZSdq4GUPFiYeo7Mz7M4H3r8l1gdHvjXaS2/gx3Or8UgJ3qCxW4ehjIJFC/LAhsqAvoUa'
-                   'xAQ2BXp8lY42pCT3vOXnPVLyPEl6QBunUfC//PaROc+P+Nmra2o6DM4itv25er7J1WhifhhiMju6gqRR2iQO31PddAuTZhULcJibSgSYPCXcBB/z3jQ63DHaFaMKlCnSAJeh+ePNcv2MNY51s= random@sixsq')
+                        '9kr6oXITWmM0yWdhjPXPO4IyfhNQa7+hu1nj1HJ5mcVqzWlr57cbJdyHZroXXUQZ+yctgax+sLsYHlea5yzrtfwuota+o6bOiDk9Mbbd2729nXNMSxjpabPgz3+POXWwegkJNl4BZSdq4GUPFiYeo7Mz7M4H3r8l1gdHvjXaS2/gx3Or8UgJ3qCxW4ehjIJFC/LAhsqAvoUa'
+                        'xAQ2BXp8lY42pCT3vOXnPVLyPEl6QBunUfC//PaROc+P+Nmra2o6DM4itv25er7J1WhifhhiMju6gqRR2iQO31PddAuTZhULcJibSgSYPCXcBB/z3jQ63DHaFaMKlCnSAJeh+ePNcv2MNY51s= random@sixsq')
         command = self.engine_handler.coe.get_authorized_keys()
-        if command.failed or command.stdout == '':
+        msg = 'command "{command.command}": \nstderr: {command.stderr} \nstdout: {command.stdout}'
+        if command.failed:
+            self.logger.error(f'Failed to run {msg}')
             return False
+        self.logger.debug(f'Return of {msg}')
         return ssh_key in command.stdout
 
     def test_ssh_key_management(self):
