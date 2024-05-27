@@ -59,7 +59,7 @@ class KubernetesCOE(COEBase):
             chart = f'{path}/helm'
         else:
             chart = f'{cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}/{cte.NUVLAEDGE_KUBE_LOCAL_CHART_NAME}'
-            if self.nuvlaedge_version:
+            if self.nuvlaedge_version and self.nuvlaedge_version != 'latest':
                 chart += f' --version={self.nuvlaedge_version}'
 
         install_image_cmd = cte.NUVLAEDGE_KUBE_INSTALL_IMAGE.format(
