@@ -106,8 +106,8 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: >
-            nuvladev/nuvlaedge-validation:latest,
-            nuvladev/nuvlaedge-validation:${{ needs.trigger-release.outputs.tag_name }}
+            nuvladev/nuvlaedge-validation:${{ needs.trigger-release.outputs.tag_name }},
+            nuvladev/nuvlaedge-validation:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
