@@ -4,12 +4,12 @@ alias = "ubuntu_VM"
 coe = "docker"
 
 # Network data
-address = "185.19.30.169"
+address = "194.182.163.45"
 port = 22
 hostname = ""
 
 # Naming data
-user = "root"
+user = "ubuntu"
 
 # Security data
 pub_key_path = "~/.ssh/id_rsa.pub"
