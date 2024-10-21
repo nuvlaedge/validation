@@ -134,13 +134,13 @@ class KubernetesCOE(COEBase):
         # 2. Iteratively copy logs from kubernetes pods
         #    to /tmp/<new_folder> and chmod before transferring it to the running machine
         self.device.run_sudo_command(
-            f'sudo mkdir -p /tmp/{self.engine_configuration.compose_project_name}')
-        local_tmp_path: Path = Path(f'/tmp/{self.engine_configuration.compose_project_name}')
+            f'sudo mkdir -p /tmp/{self.engine_configuration.compose_project_name}/logs')
+        local_tmp_path: Path = Path(f'/tmp/{self.engine_configuration.compose_project_name}/logs')
         local_tmp_path.mkdir(parents=True, exist_ok=True)
 
         # 3. Provide permissions to the folder
         self.device.run_sudo_command(
-            f'sudo chmod 777 /tmp/{self.engine_configuration.compose_project_name}')
+            f'sudo chmod 777 /tmp/{self.engine_configuration.compose_project_name}/logs')
 
         for pod in pods:
             if pod != '':
@@ -152,7 +152,7 @@ class KubernetesCOE(COEBase):
 
     def get_container_logs(self, pod, download_to_local=False, path: Path = None):
         get_logs_cmd = (f'sudo kubectl logs -n {self.namespace} {pod} >> '
-                        f'/tmp/{self.engine_configuration.compose_project_name}/{pod}.log')
+                        f'/tmp/{self.engine_configuration.compose_project_name}/logs/{pod}.log')
         self.device.run_sudo_command(get_logs_cmd)
 
         if download_to_local and path is not None:

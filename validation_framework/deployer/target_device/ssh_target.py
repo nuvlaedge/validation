@@ -103,6 +103,7 @@ class SSHTarget(TargetDevice):
 
         with self.connection() as connection:
             res: Result = connection.get(remote_file_path, local=str(local_file_path))
+        return None
 
     def run_sudo_command(self, command: str, envs: dict | None = None, hide: bool = True) -> fabric.Result:
         self.logger.debug(f'Running {command} as SuperUser in {self.target_config.address}')
