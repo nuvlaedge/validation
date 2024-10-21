@@ -139,12 +139,12 @@ class DockerCOE(COEBase):
         # 2. Iteratively copy files from /var/docker/logs/<container_id>.log to
         # /tmp/<new_folder> and chmod before transferring it the running machine
         self.device.run_command(
-            f'mkdir -p /tmp/{self.engine_configuration.compose_project_name}')
-        local_tmp_path: Path = Path(f'/tmp/{self.engine_configuration.compose_project_name}')
+            f'mkdir -p /tmp/{self.engine_configuration.compose_project_name}/logs')
+        local_tmp_path: Path = Path(f'/tmp/{self.engine_configuration.compose_project_name}/logs')
         local_tmp_path.mkdir(parents=True, exist_ok=True)
 
         self.device.run_sudo_command(
-            f'sudo chmod 777 /tmp/{self.engine_configuration.compose_project_name}'
+            f'sudo chmod 777 /tmp/{self.engine_configuration.compose_project_name}/logs'
         )
 
         for c in containers:
