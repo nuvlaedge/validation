@@ -1,0 +1,41 @@
+x-common: &common
+  image: "nuvladev/nuvlaedge-validation:runner"
+  restart: once
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /Users/sixsq/.ssh/:/home/runner/.ssh/
+  labels:
+    - "validation_runner"
+
+services:
+  rpi4_k:
+    <<: *common
+    hostname: validation_runner_rpi4_kubernetes
+    environment:
+      - RUNNER_TOKEN=$RUNNER_TOKEN
+      - ORGANIZATION=$ORGANIZATION
+      - RUNNER_TARGET=rpi4_kubernetes
+
+  rpi4_d:
+    <<: *common
+    hostname: validation_runner_rpi4_docker
+    environment:
+      - RUNNER_TOKEN=$RUNNER_TOKEN
+      - ORGANIZATION=$ORGANIZATION
+      - RUNNER_TARGET=rpi4_docker
+
+  ubuntu_k:
+    <<: *common
+    hostname: validation_runner_ubuntu_kubernetes
+    environment:
+      - RUNNER_TOKEN=$RUNNER_TOKEN
+      - ORGANIZATION=$ORGANIZATION
+      - RUNNER_TARGET=ubuntu_kubernetes
+
+  ubuntu_d:
+    <<: *common
+    hostname: validation_runner_ubuntu_docker
+    environment:
+      - RUNNER_TOKEN=$RUNNER_TOKEN
+      - ORGANIZATION=$ORGANIZATION
+      - RUNNER_TARGET=ubuntu_docker

@@ -1,26 +1,27 @@
-FROM ubuntu:22.04
+FROM docker AS docker
+FROM alpine:3.20
 
-ARG RUNNER_VERSION
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apt update -y && apt upgrade -y && useradd -m runner
+RUN apk update && adduser -S runner
 
-RUN apt install -y curl \
-                   wget \
-                   lsb-release
+COPY --from=docker /usr/local/bin/docker /usr/bin/docker
+
+RUN apk add curl \
+            wget \
+            lsb-release
 
 
 RUN mkdir /home/runner/actions-runner
 
 WORKDIR /home/runner/actions-runner
 
-RUN curl -o actions-runner-linux-x64-2.301.1.tar.gz -L  \
-    https://github.com/actions/runner/releases/download/v2.301.1/actions-runner-linux-x64-2.301.1.tar.gz
+RUN curl -o actions-runner-linux-x64-2.320.0.tar.gz -L https://github.com/actions/runner/releases/download/v2.320.0/actions-runner-linux-x64-2.320.0.tar.gz
 
-RUN tar xzf ./actions-runner-linux-x64-2.301.1.tar.gz
-
-RUN ./bin/installdependencies.sh
-
+RUN tar xzf ./actions-runner-linux-x64-2.320.0.tar.gz
+#
+#RUN ./bin/installdependencies.sh
+#
 COPY start_runner.sh start_runner.sh
 
 # Make runner configure and execute the GH runner
