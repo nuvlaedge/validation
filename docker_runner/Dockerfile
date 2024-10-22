@@ -9,7 +9,8 @@ COPY --from=docker /usr/local/bin/docker /usr/bin/docker
 
 RUN apk add curl \
             wget \
-            lsb-release
+            lsb-release \
+            bash
 
 
 RUN mkdir /home/runner/actions-runner
