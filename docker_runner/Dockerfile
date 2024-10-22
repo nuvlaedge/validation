@@ -1,16 +1,15 @@
 FROM docker AS docker
-FROM alpine:3.20
+FROM ubuntu:24.10
 
 ENV DEBIAN_FRONTEND=noninteractive
 
-RUN apk update && adduser -S runner
+RUN apt update && apt upgrade -y && useradd -m runner
 
 COPY --from=docker /usr/local/bin/docker /usr/bin/docker
 
-RUN apk add curl \
+RUN apt install -y curl \
             wget \
-            lsb-release \
-            bash
+            lsb-release
 
 
 RUN mkdir /home/runner/actions-runner
@@ -21,7 +20,7 @@ RUN curl -o actions-runner-linux-x64-2.320.0.tar.gz -L https://github.com/action
 
 RUN tar xzf ./actions-runner-linux-x64-2.320.0.tar.gz
 #
-#RUN ./bin/installdependencies.sh
+RUN ./bin/installdependencies.sh
 #
 COPY start_runner.sh start_runner.sh
 
