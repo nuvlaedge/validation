@@ -36,7 +36,7 @@ RUN echo "runner ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/runner
 # Make runner configure and execute the GH runner
 RUN chown -R runner ~runner
 
-USER root
+USER runner
 
 RUN chmod +x start_runner.sh
 

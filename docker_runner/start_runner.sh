@@ -6,10 +6,7 @@ ORGANIZATION=${ORGANIZATION:-nuvlaedge}
 RUNNER_TARGET=$RUNNER_TARGET
 REG_TOKEN=$RUNNER_TOKEN
 
-chmod 666 /var/run/docker.sock
-
-# Switch to runner user and execute the rest of the script
-exec sudo -u runner -H "$@"
+sudo chmod 666 /var/run/docker.sock
 
 # Commented for a future automation with organization level token
 #ACCESS_TOKEN=$ACCESS_TOKEN
