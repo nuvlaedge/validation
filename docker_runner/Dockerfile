@@ -13,6 +13,7 @@ RUN apt install -y curl \
             libicu-dev \
             libssl-dev \
             libkrb5-dev \
+            sudo \
             zlib1g
 
 

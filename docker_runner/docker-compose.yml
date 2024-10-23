@@ -1,6 +1,5 @@
 x-common: &common
   image: "nuvladev/nuvlaedge-validation:runner"
-  restart: once
   volumes:
     - /var/run/docker.sock:/var/run/docker.sock
     - /Users/sixsq/.ssh/:/home/runner/.ssh/
