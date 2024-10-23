@@ -9,7 +9,11 @@ COPY --from=docker /usr/local/bin/docker /usr/bin/docker
 
 RUN apt install -y curl \
             wget \
-            lsb-release
+            lsb-release \
+            libicu-dev \
+            libssl-dev \
+            libkrb5-dev \
+            zlib1g
 
 
 RUN mkdir /home/runner/actions-runner
