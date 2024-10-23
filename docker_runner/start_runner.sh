@@ -14,6 +14,8 @@ cd /home/runner/actions-runner
 
 echo ${ORGANIZATION}
 
+export DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=1
+
 ./config.sh --unattended --url https://github.com/${ORGANIZATION} --token ${REG_TOKEN} --replace --name ${HOSTNAME} --labels validation-runner,${RUNNER_TARGET}
 
 cleanup() {
