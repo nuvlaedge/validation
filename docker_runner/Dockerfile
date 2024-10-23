@@ -31,14 +31,12 @@ COPY start_runner.sh start_runner.sh
 
 # Add runner to docker group
 RUN groupadd docker && usermod -aG docker runner
-
-# Change permissions of docker.sock
-RUN chmod 666 /var/run/docker.sock
+RUN echo "runner ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/runner
 
 # Make runner configure and execute the GH runner
 RUN chown -R runner ~runner
 
-USER runner
+USER root
 
 RUN chmod +x start_runner.sh
 

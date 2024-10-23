@@ -6,6 +6,11 @@ ORGANIZATION=${ORGANIZATION:-nuvlaedge}
 RUNNER_TARGET=$RUNNER_TARGET
 REG_TOKEN=$RUNNER_TOKEN
 
+chmod 666 /var/run/docker.sock
+
+# Switch to runner user and execute the rest of the script
+exec sudo -u runner -H "$@"
+
 # Commented for a future automation with organization level token
 #ACCESS_TOKEN=$ACCESS_TOKEN
 #REG_TOKEN=$(curl -sX POST -H "Authorization: token ${ACCESS_TOKEN}" https://api.github.com/orgs/${ORGANIZATION}/actions/runners/registration-token | jq .token --raw-output)
