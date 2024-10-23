@@ -29,6 +29,12 @@ RUN ./bin/installdependencies.sh
 #
 COPY start_runner.sh start_runner.sh
 
+# Add runner to docker group
+RUN groupadd docker && usermod -aG docker runner
+
+# Change permissions of docker.sock
+RUN chmod 666 /var/run/docker.sock
+
 # Make runner configure and execute the GH runner
 RUN chown -R runner ~runner
 

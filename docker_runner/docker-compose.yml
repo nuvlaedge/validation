@@ -29,7 +29,7 @@ services:
     environment:
       - RUNNER_TOKEN=$RUNNER_TOKEN
       - ORGANIZATION=$ORGANIZATION
-      - RUNNER_TARGET=ubuntu_kubernetes
+      - RUNNER_TARGET=ubuntu_vm_kubernetes
 
   ubuntu_d:
     <<: *common
@@ -37,4 +37,4 @@ services:
     environment:
       - RUNNER_TOKEN=$RUNNER_TOKEN
       - ORGANIZATION=$ORGANIZATION
-      - RUNNER_TARGET=ubuntu_docker
+      - RUNNER_TARGET=ubuntu_vm_docker
