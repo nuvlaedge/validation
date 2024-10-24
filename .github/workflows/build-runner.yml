@@ -7,7 +7,6 @@ on:
       files:
         - "docker_runner/**"
         - ".github/workflows/build-runner.yml"
-    pull_request:
 
 jobs:
   build-runner:
