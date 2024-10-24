@@ -1,5 +1,5 @@
 FROM docker AS docker
-FROM ubuntu:24.10
+FROM python:3.12.7-bullseye
 
 ENV DEBIAN_FRONTEND=noninteractive
 
