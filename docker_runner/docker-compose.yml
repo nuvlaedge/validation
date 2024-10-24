@@ -1,0 +1,63 @@
+x-common: &common
+  image: "nuvladev/nuvlaedge-validation:runner"
+  labels:
+    - "validation_runner"
+
+volumes:
+  rpi4_kubernetes-vol:
+    driver: local
+  rpi4_docker-vol:
+    driver: local
+  ubuntu_vm_k8s-vol:
+    driver: local
+  ubuntu_vm_docker-vol:
+    driver: local
+
+services:
+  rpi4_k:
+    <<: *common
+    hostname: rpi4_kubernetes_runner
+    environment:
+      - RUNNER_TOKEN=$RUNNER_TOKEN
+      - ORGANIZATION=$ORGANIZATION
+      - RUNNER_TARGET=rpi4_kubernetes
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/ubuntu/.ssh:/home/runner/.ssh/
+      - "rpi4_kubernetes-vol:/home/runner/actions-runner/results"
+
+  rpi4_d:
+    <<: *common
+    hostname: rpi4_docker_runner
+    environment:
+      - RUNNER_TOKEN=$RUNNER_TOKEN
+      - ORGANIZATION=$ORGANIZATION
+      - RUNNER_TARGET=rpi4_docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/ubuntu/.ssh:/home/runner/.ssh/
+      - "rpi4_docker-vol:/home/runner/actions-runner/results"
+
+  ubuntu_k:
+    <<: *common
+    hostname: ubuntu_kubernetes_runner
+    environment:
+      - RUNNER_TOKEN=$RUNNER_TOKEN
+      - ORGANIZATION=$ORGANIZATION
+      - RUNNER_TARGET=ubuntu_vm_k8s
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/ubuntu/.ssh:/home/runner/.ssh/
+      - "ubuntu_vm_k8s-vol:/home/runner/actions-runner/results"
+
+  ubuntu_d:
+    <<: *common
+    hostname: ubuntu_docker_runner
+    environment:
+      - RUNNER_TOKEN=$RUNNER_TOKEN
+      - ORGANIZATION=$ORGANIZATION
+      - RUNNER_TARGET=ubuntu_vm_docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /home/ubuntu/.ssh:/home/runner/.ssh/
+      - "ubuntu_vm_docker-vol:/home/runner/actions-runner/results"
