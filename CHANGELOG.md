@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.4.1](https://github.com/nuvlaedge/validation/compare/1.4.0...1.4.1) (2024-10-24)
+
+
+### Bug Fixes
+
+* **gh-runner:** Added docker cli and binding to container runner. Added docker-compose.yml to ease deployment of runners ([#57](https://github.com/nuvlaedge/validation/issues/57)) ([0cb9ab0](https://github.com/nuvlaedge/validation/commit/0cb9ab0f8704acfd2c049fe3ada93fa3308ed286))
+
 ## [1.4.0](https://github.com/nuvlaedge/validation/compare/1.3.18...1.4.0) (2024-10-21)
 
 
@@ -18,5 +25,3 @@
 * Add manual workflow trigger to release ([1ff4dac](https://github.com/nuvlaedge/validation/commit/1ff4dac79fd92e889da367c85e4454bea45e30f3))
 * Add release please tooling for release ([0c13a6f](https://github.com/nuvlaedge/validation/commit/0c13a6f2e94f6cc672e33a397a7b0e56cf09f63f))
 * Fixed target Nuvladev repository and Github credential ([0931d6d](https://github.com/nuvlaedge/validation/commit/0931d6da785e16b688fc139c54f3136995f824f3))
-
-
