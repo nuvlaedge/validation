@@ -14,8 +14,10 @@ import re
 from pathlib import Path
 
 
-class KubernetesCOE(COEBase):
+_KUBECONFIG_ENV = {"KUBECONFIG": "/etc/rancher/k3s/k3s.yaml"}
 
+class KubernetesCOE(COEBase):
+    
     def __init__(self, device_config: TargetDeviceConfig, **kwargs):
         self.namespaces_running = []
         self.engine_folder: str = ''
@@ -42,18 +44,18 @@ class KubernetesCOE(COEBase):
         self.nuvla_uuid = idparts[1]
 
         add_repo_cmd = f'sudo helm repo add {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME} {cte.NUVLAEDGE_KUBE_REPO}'
-        result: Result = self.device.run_sudo_command(add_repo_cmd)
+        result: Result = self.device.run_sudo_command(add_repo_cmd, envs=_KUBECONFIG_ENV)
         if result.failed:
             self.logger.error(f'Could not add repo to helm {cte.NUVLAEDGE_KUBE_REPO}: {result.stderr}')
 
         update_repo_cmd = f'sudo helm repo update nuvlaedge {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}'
-        result: Result = self.device.run_sudo_command(update_repo_cmd)
+        result: Result = self.device.run_sudo_command(update_repo_cmd, envs=_KUBECONFIG_ENV)
         if result.failed:
             self.logger.error(f'Could not update helm repo {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}: {result.stderr}')
 
         if self.deployment_branch:
             path = f'{cte.ROOT_PATH}{cte.ENGINE_PATH}deployment'
-            self.device.run_sudo_command(f'sudo rm -Rf {path}')
+            self.device.run_sudo_command(f'sudo rm -Rf {path}', envs=_KUBECONFIG_ENV)
             self.device.run_command(cte.DEPLOYMENT_GIT_CLONE.format(branch=self.deployment_branch,
                                                                     path=path))
             chart = f'{path}/helm'
@@ -78,6 +80,7 @@ class KubernetesCOE(COEBase):
         envs_configuration: dict = self.engine_configuration.model_dump(by_alias=True)
         if extra_envs:
             envs_configuration.update(extra_envs)
+        envs_configuration.update(_KUBECONFIG_ENV)
 
         self.logger.info(f'Starting NuvlaEdge with UUID: {self.nuvla_uuid} with'
                          f' configuration: '
@@ -110,7 +113,7 @@ class KubernetesCOE(COEBase):
                 stop_cmd = (f'sudo kubectl scale -n {namespace} deployment '
                             f'{deployment} --replicas=0')
                 try:
-                    self.device.run_sudo_command(stop_cmd)
+                    self.device.run_sudo_command(stop_cmd, envs=_KUBECONFIG_ENV)
                 except invoke.exceptions.UnexpectedExit as ex:
                     self.logger.error(f'Unexpected exit on command {stop_cmd} : Exception : {ex}')
                 except Exception as ex:
@@ -123,7 +126,7 @@ class KubernetesCOE(COEBase):
         self.logger.info(f'Retrieving Log files from engine run with UUID: {self.engine_configuration.nuvlaedge_uuid}')
         get_pods_cmd = (f'sudo kubectl get pods -n {self.namespace} -o json | '
                         'jq \'.items[] | select(.status.phase == "Running") | .metadata.name\'')
-        result: Result = self.device.run_sudo_command(get_pods_cmd)
+        result: Result = self.device.run_sudo_command(get_pods_cmd, envs=_KUBECONFIG_ENV)
         if result.failed or result.stdout == '':
             return
 
@@ -153,7 +156,7 @@ class KubernetesCOE(COEBase):
     def get_container_logs(self, pod, download_to_local=False, path: Path = None):
         get_logs_cmd = (f'sudo kubectl logs -n {self.namespace} {pod} >> '
                         f'/tmp/{self.engine_configuration.compose_project_name}/logs/{pod}.log')
-        self.device.run_sudo_command(get_logs_cmd)
+        self.device.run_sudo_command(get_logs_cmd, envs=_KUBECONFIG_ENV)
 
         if download_to_local and path is not None:
             self.device.download_remote_file(remote_file_path=f'/tmp/{pod}.log',
@@ -166,7 +169,7 @@ class KubernetesCOE(COEBase):
         check_pods_cmd = f'sudo kubectl get pods -n {self.namespace} --no-headers'
         result: Result = None
         try:
-            result = self.device.run_sudo_command(check_pods_cmd)
+            result = self.device.run_sudo_command(check_pods_cmd, envs=_KUBECONFIG_ENV)
             if result.failed or result.stdout.__contains__('No resources found'):
                 return False
         except Exception as ex:
@@ -197,7 +200,7 @@ class KubernetesCOE(COEBase):
 
         for cmd in commands:
             try:
-                self.device.run_sudo_command(cmd)
+                self.device.run_sudo_command(cmd, envs=_KUBECONFIG_ENV)
             except invoke.exceptions.UnexpectedExit as ex:
                 self.logger.error(f'Unexpected exit on command {cmd} : Exception : {ex}')
             except Exception as ex:
@@ -208,7 +211,7 @@ class KubernetesCOE(COEBase):
                                     'jq \'.items[] | select(.status.phase == "Running") | '
                                     '.metadata.name | select(contains("peripheral-manager"))\'')
 
-        result: Result = self.device.run_sudo_command(get_all_pods_running_cmd)
+        result: Result = self.device.run_sudo_command(get_all_pods_running_cmd, envs=_KUBECONFIG_ENV)
         if result.failed or result.stdout == '':
             return False
 
@@ -233,7 +236,7 @@ class KubernetesCOE(COEBase):
         get_curr_nuvlaedge_namespace_cmd = ('sudo kubectl get namespaces -o json | jq '
                                             '\'.items[].metadata.labels."kubernetes.io/metadata.name"'
                                             f' | select(contains("{self.nuvla_uuid}"))\'')
-        result: Result = self.device.run_sudo_command(get_curr_nuvlaedge_namespace_cmd)
+        result: Result = self.device.run_sudo_command(get_curr_nuvlaedge_namespace_cmd, envs=_KUBECONFIG_ENV)
         namespaces = result.stdout.split('\n')
         namespace = namespaces[0].replace('"', '')
         return namespace
@@ -241,7 +244,7 @@ class KubernetesCOE(COEBase):
     def __get_namespaces_running(self) -> []:
         get_nuvla_namespaces_cmd = ('sudo kubectl get namespaces -o json | jq '
                                     '\'.items[].metadata.labels."kubernetes.io/metadata.name"\'')
-        result: Result = self.device.run_sudo_command(get_nuvla_namespaces_cmd)
+        result: Result = self.device.run_sudo_command(get_nuvla_namespaces_cmd, envs=_KUBECONFIG_ENV)
         namespaces = result.stdout
         list_namespaces = namespaces.split('\n')
 
@@ -256,7 +259,7 @@ class KubernetesCOE(COEBase):
     def __get_deployments_running(self, namespace):
         get_deployments_cmd = (f'sudo kubectl get deployments -n {namespace} -o json | '
                                'jq \'.items[] | select(.spec.replicas != 0) | .metadata.name\'')
-        result: Result = self.device.run_sudo_command(get_deployments_cmd)
+        result: Result = self.device.run_sudo_command(get_deployments_cmd, envs=_KUBECONFIG_ENV)
         output = []
         if result.failed or result.stdout == '':
             return output
@@ -275,7 +278,7 @@ def get_pod_name(device: TargetDevice, namespace, app_name, status: str = 'Runni
     get_pod_cmd = (f'sudo kubectl get -n {namespace} pods -o json |'
                    f' jq \'.items[] | select(.status.phase == "{status}") | '
                    f'.metadata.name | select(contains("{app_name}"))\'')
-    result: Result = device.run_sudo_command(get_pod_cmd)
+    result: Result = device.run_sudo_command(get_pod_cmd, envs=_KUBECONFIG_ENV)
     if result.failed or result.stdout == '':
         return ''
     list_names = result.stdout.strip().split('\n')
@@ -284,7 +287,7 @@ def get_pod_name(device: TargetDevice, namespace, app_name, status: str = 'Runni
 
 def get_environmental_value(device, namespace, pod_name, key, logger):
     get_pod_details = f'sudo kubectl get pod -n {namespace} {pod_name} -o json'
-    result: Result = device.run_sudo_command(get_pod_details)
+    result: Result = device.run_sudo_command(get_pod_details, envs=_KUBECONFIG_ENV)
     if result.failed or result.stdout == '':
         logger.warning(f'Unable to get details of the pod {pod_name} in namespace {namespace}')
         return ''
@@ -335,7 +338,7 @@ class CertificateSignCheck(Thread):
                 self.debug('Device not reachable.')
                 continue
 
-            result: Result = self.device.run_sudo_command(get_csr_cmd)
+            result: Result = self.device.run_sudo_command(get_csr_cmd, envs=_KUBECONFIG_ENV)
             if result.failed:
                 self.debug(f'Running following command failed: {get_csr_cmd}')
                 continue
@@ -350,7 +353,7 @@ class CertificateSignCheck(Thread):
             # approve certificate
             approve_csr_cmd = f'sudo kubectl certificate approve {csr_name}'
             try:
-                self.device.run_sudo_command(approve_csr_cmd)
+                self.device.run_sudo_command(approve_csr_cmd, envs=_KUBECONFIG_ENV)
             except Exception as ex:
                 self.logger.warning(f'Approval of csr command failed : {ex}')
             self.logger.info(f'Approved certificate {csr_name}')
