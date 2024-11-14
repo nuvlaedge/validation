@@ -141,7 +141,7 @@ class UpdateNuvlaEdge(ValidationBase):
             environment=[f"{k}={v}" for k, v in d.items()],
             current_version=origin_version,
             force_restart=False,
-            working_dir=params['working-dir'],
+            working_dir=params.get('working-dir', ""),
             config_files=["docker-compose.yml"]
         )
 
