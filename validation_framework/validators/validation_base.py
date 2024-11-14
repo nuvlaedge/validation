@@ -5,8 +5,9 @@ General purpose class for NuvlaEdge validation
 import logging
 import time
 import unittest
+from logging import exception
 
-from fabric import Result
+import requests
 from nuvla.api import Api as NuvlaClient
 from nuvla.api.models import CimiResponse, CimiCollection
 
@@ -14,6 +15,11 @@ from validation_framework.common import constants as cte
 from validation_framework.common.nuvla_uuid import NuvlaUUID
 from validation_framework.deployer.engine_handler import EngineHandler
 
+# Dynamically add methods to UpdateNuvlaEdge
+def create_update_method(release, target_branch):
+    def method(self):
+        self.run_update(release, target_branch)
+    return method
 
 class ParametrizedTests(unittest.TestCase):
 
@@ -65,11 +71,20 @@ class ParametrizedTests(unittest.TestCase):
             A test suite
         """
         test_loader = unittest.TestLoader()
-        test_names = test_loader.getTestCaseNames(testcase_class)
 
         suite = unittest.TestSuite()
 
-        for name in test_names:
+        if testcase_class.__name__ == "UpdateNuvlaEdge":
+            releases = testcase_class.get_sorted_releases()
+            for release in releases:
+                method_name = f"test_update_{release[0].replace(".", "_")}_to_{nuvlaedge_branch}"
+                method = create_update_method(release[0], nuvlaedge_branch)
+                setattr(testcase_class, method_name, method)
+                setattr(testcase_class, 'release_id', release[1])
+
+        test_cases = test_loader.getTestCaseNames(testcase_class)
+
+        for name in test_cases:
             suite.addTest(testcase_class(name,
                                          target_device_config,
                                          nuvla_api_key,
@@ -81,26 +96,34 @@ class ParametrizedTests(unittest.TestCase):
         return suite
 
 
+
+
 class ValidationBase(ParametrizedTests):
     uuid: NuvlaUUID = ''
     STATE_HIST: list[str] = []
     STATE_LIST: list[str] = ['NEW', 'ACTIVATED', 'COMMISSIONED', 'DECOMMISSIONED']
 
-    def wait_for_commissioned(self):
+    def wait_for_commissioned(self, engine: EngineHandler = None, uuid: NuvlaUUID = None):
         """
 
         :return:
         """
-        self.engine_handler.start_engine(self.uuid, remove_old_installation=True)
+        if not engine:
+            engine = self.engine_handler
+
+        if not uuid:
+            uuid = self.uuid
+
+        engine.start_engine(uuid, remove_old_installation=True)
         try:
-            last_state: str = self.get_nuvlaedge_status()[0]
+            last_state: str = self.get_nuvlaedge_status(uuid=uuid)[0]
         except IndexError:
             last_state: str = 'UNKNOWN'
 
         self.logger.info('Waiting until device is commissioned')
         while last_state != self.STATE_LIST[2]:
             time.sleep(1)
-            last_state: str = self.get_nuvlaedge_status()[0]
+            last_state: str = self.get_nuvlaedge_status(uuid=uuid)[0]
 
     def wait_for_operational(self):
         """
@@ -146,7 +169,47 @@ class ValidationBase(ParametrizedTests):
         self.logger.info(f'NuvlaEdge {self.uuid} does not have {capabilities} capabilities')
         self.assertTrue(False, f'NuvlaEdge {self.uuid} does not have {capabilities} capabilities')
 
-    def get_nuvlaedge_status(self) -> tuple[str, str]:
+
+    def get_field_from_resource(self, res_id: str, field: str) -> str | dict:
+        """
+        Retrieve a field from a resource
+
+        :param res_id:  ID
+        :param field: Field to retrieve
+        :return: Field value
+        """
+        try:
+            return self.nuvla_client.get(res_id).data[field]
+        except Exception:
+            self.logger.debug(f'Could not retrieve {field} from {res_id}')
+            return 'UNKNOWN'
+
+    def wait_update_ready(self, uuid: NuvlaUUID = None) -> tuple[str, dict | None]:
+        t_time = time.time()
+        status = 'UNKNOWN'
+        while time.time() < t_time + cte.DEFAULT_JOBS_TIMEOUT:
+            time.sleep(1)
+            status = self.get_field_from_resource(uuid, 'nuvlabox-status')
+            if status and status != 'UNKNOWN':
+                break
+
+        if not status or status == 'UNKNOWN':
+            self.logger.error(f'Could not retrieve status from {uuid}')
+            return 'UNKNOWN', None
+
+        while time.time() < t_time + cte.DEFAULT_JOBS_TIMEOUT:
+            time.sleep(1)
+            version = self.get_field_from_resource(status, 'nuvlabox-engine-version')
+            params = self.get_field_from_resource(status, 'installation-parameters')
+            ready = (version and params) and (version != 'UNKNOWN' and params != 'UNKNOWN')
+            if not ready:
+                self.logger.debug(f'Version or params  not yet available in NuvlaBox status {status}')
+                continue
+            return version, params
+
+        return 'UNKNOWN', None
+
+    def get_nuvlaedge_status(self, uuid: NuvlaUUID = None) -> tuple[str, str]:
         """
         This function retrieves the Edge state and status. Status will be setup once the
         NuvlaEdge engine has started. State is defined by Nuvla Logic and status is
@@ -154,8 +217,10 @@ class ValidationBase(ParametrizedTests):
         progress.
         :return: Tuple [state, status].
         """
+        if not uuid:
+            uuid = self.uuid
         response: CimiCollection = self.nuvla_client.search('nuvlabox',
-                                                            filter=f'id=="{self.uuid}"')
+                                                            filter=f'id=="{uuid}"')
 
         try:
             status_response: CimiCollection = self.nuvla_client.search(
@@ -168,7 +233,7 @@ class ValidationBase(ParametrizedTests):
         self.STATE_HIST.append(response.resources[0].data['state'])
         return response.resources[0].data['state'], status
 
-    def create_nuvlaedge_in_nuvla(self) -> NuvlaUUID:
+    def create_nuvlaedge_in_nuvla(self, name: str = '', suffix: str = '') -> NuvlaUUID:
         """
         Given API keys from remote NuvlaInstallation creates a new NuvlaEdge
         :return:
@@ -179,12 +244,17 @@ class ValidationBase(ParametrizedTests):
 
         it_release: int = 2
 
+        if not name:
+            name = cte.NUVLAEDGE_NAME.format(device=self.target_config_file.replace(".toml", ""))
+
+        if suffix:
+            name = f'{name}-{suffix}'
+
         response: CimiResponse = self.nuvla_client.add(
             'nuvlabox',
             data={'refresh-interval': 60,
-                  'heartbeat-interval': 15,
-                  'name': cte.NUVLAEDGE_NAME.format(
-                      device=self.engine_handler.device_config.alias),
+                  'heartbeat-interval': 20,
+                  'name': name,
                   'tags': ['nuvlaedge.validation=True', 'cli.created=True'],
                   'version': it_release,
                   'vpn-server-id':

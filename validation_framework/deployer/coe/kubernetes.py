@@ -28,9 +28,12 @@ class KubernetesCOE(COEBase):
         self.cred_check_thread: CertificateSignCheck = None
         super().__init__(self.device, logging.getLogger(__name__), **kwargs)
 
+        self.project_name: str = ''
+
     def start_engine(self,
                      uuid: NuvlaUUID,
                      remove_old_installation: bool = True,
+                     project_name: str = cte.PROJECT_NAME,
                      extra_envs: dict = None):
         """
         Pulls the correct kubernetes image
@@ -38,7 +41,9 @@ class KubernetesCOE(COEBase):
         :param uuid:
         :param remove_old_installation:
         :param extra_envs:
+        :param project_name:
         :return:
+
         """
         idparts = uuid.split('/')
         self.nuvla_uuid = idparts[1]
@@ -71,6 +76,7 @@ class KubernetesCOE(COEBase):
             organization=self.engine_configuration.ne_image_organization,
             version=self.engine_configuration.ne_image_tag
         )
+        self.project_name = project_name
 
         if self.include_peripherals:
             for peripheral in self.peripherals:
@@ -241,7 +247,7 @@ class KubernetesCOE(COEBase):
         namespace = namespaces[0].replace('"', '')
         return namespace
 
-    def __get_namespaces_running(self) -> []:
+    def __get_namespaces_running(self) -> list:
         get_nuvla_namespaces_cmd = ('sudo kubectl get namespaces -o json | jq '
                                     '\'.items[].metadata.labels."kubernetes.io/metadata.name"\'')
         result: Result = self.device.run_sudo_command(get_nuvla_namespaces_cmd, envs=_KUBECONFIG_ENV)

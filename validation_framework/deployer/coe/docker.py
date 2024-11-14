@@ -19,6 +19,7 @@ class DockerCOE(COEBase):
         self.engine_folder: str = ''
         self.device = SSHTarget(device_config)
         super().__init__(self.device, logging.getLogger(__name__), **kwargs)
+
         self.assess_nuvlaedge_sourcecode_configuration()
 
     @staticmethod
@@ -67,7 +68,8 @@ class DockerCOE(COEBase):
     def start_engine(self,
                      uuid: NuvlaUUID,
                      remove_old_installation: bool = True,
-                     extra_envs: dict = None):
+                     extra_envs: dict = None,
+                     project_name: str = cte.PROJECT_NAME):
 
         if remove_old_installation:
             self.purge_engine()
@@ -75,8 +77,9 @@ class DockerCOE(COEBase):
         files_path = self.download_files(engine_base_link, self.nuvlaedge_version)
         files: str = ' -f '.join(files_path)
         start_command: str = cte.COMPOSE_UP.format(prepend='nohup',
-                                                   project_name=cte.PROJECT_NAME,
+                                                   project_name=project_name,
                                                    files=files)
+        self.project_name = project_name
 
         self.logger.debug(f'Starting engine with command: \n\n\t{start_command}\n')
 
@@ -87,7 +90,7 @@ class DockerCOE(COEBase):
 
         if extra_envs:
             envs_configuration.update(extra_envs)
-
+        self.logger.info(f"Parsed UUID: {uuid}")
         self.logger.info(f'Starting NuvlaEdge with UUID: {uuid} with'
                          f' configuration: '
                          f'\n\n {json.dumps(envs_configuration, indent=4)} \n')
@@ -99,6 +102,7 @@ class DockerCOE(COEBase):
 
     def remove_peripheral(self):
         pass
+
 
     def stop_engine(self):
         command = 'docker stop $(docker ps -a -q)'
