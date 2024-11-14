@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.0](https://github.com/nuvlaedge/validation/compare/1.4.1...1.5.0) (2024-11-14)
+
+
+### Features
+
+* **operation:** Added NuvlaEdge update operation validation ([#59](https://github.com/nuvlaedge/validation/issues/59)) ([9e2e3d1](https://github.com/nuvlaedge/validation/commit/9e2e3d1faeda352da180ab8f092a9843d2099c12))
+
 ## [1.4.1](https://github.com/nuvlaedge/validation/compare/1.4.0...1.4.1) (2024-10-30)
 
 
