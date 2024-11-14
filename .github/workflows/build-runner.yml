@@ -4,9 +4,8 @@ on:
     push:
       branches:
         - main
-      files:
+      paths:
         - "docker_runner/**"
-        - ".github/workflows/build-runner.yml"
 
 jobs:
   build-runner:

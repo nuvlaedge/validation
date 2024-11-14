@@ -1,6 +1,7 @@
 import logging
 from abc import ABC, abstractmethod
 
+from validation_framework.common import constants
 from validation_framework.common.nuvla_uuid import NuvlaUUID
 from validation_framework.common.schemas.engine import EngineEnvsConfiguration
 from validation_framework.deployer.target_device.target import TargetDevice
@@ -15,23 +16,16 @@ class COEBase(ABC):
         self.logger: logging.Logger = logger
         self.device: TargetDevice = device
 
+        self.project_name: str = kwargs.get('project_name', constants.PROJECT_NAME)
+        self.engine_env: list[str] = []
+
         self.engine_configuration: EngineEnvsConfiguration = EngineEnvsConfiguration()
-        nuvlaedge_branch: str = ''
-        nuvlaedge_version: str = ''
-        deployment_branch: str = ''
-        self.include_peripherals = False
-        self.peripherals: list[str] = []
-        for key, value in kwargs.items():
-            if key == 'nuvlaedge_branch':
-                nuvlaedge_branch = value
-            elif key == 'nuvlaedge_version':
-                nuvlaedge_version = value
-            elif key == 'deployment_branch':
-                deployment_branch = value
-            elif key == 'include_peripherals':
-                self.include_peripherals = value
-            elif key == 'peripherals':
-                self.peripherals = value
+        nuvlaedge_branch: str = kwargs.get('nuvlaedge_branch', '')
+        nuvlaedge_version: str = kwargs.get('nuvlaedge_version', '')
+        deployment_branch: str = kwargs.get('deployment_branch', '')
+        self.include_peripherals = kwargs.get('include_peripherals', False)
+        self.peripherals: list[str] = kwargs.get('peripherals', [])
+
                 # NuvlaEdge source code configuration
         self.nuvlaedge_version = nuvlaedge_version.strip() if nuvlaedge_version else ''
         self.deployment_branch = deployment_branch.strip() \
@@ -72,6 +66,7 @@ class COEBase(ABC):
     def start_engine(self,
                      uuid: NuvlaUUID,
                      remove_old_installation: bool = True,
+                     project_name: str = constants.PROJECT_NAME,
                      extra_envs: dict = None):
         """
 
