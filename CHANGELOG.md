@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.5.1](https://github.com/nuvlaedge/validation/compare/1.5.0...1.5.1) (2024-11-14)
+
+
+### Bug Fixes
+
+* Fixed k8s bug on update operation ([#61](https://github.com/nuvlaedge/validation/issues/61)) ([6a1fdda](https://github.com/nuvlaedge/validation/commit/6a1fdda3b2cfffdd1fc810499beb9ad84e78a66e))
+* Refactored nuvlabox-status retrieval to reduce Nuvla overload ([#63](https://github.com/nuvlaedge/validation/issues/63)) ([9a75ede](https://github.com/nuvlaedge/validation/commit/9a75ede06d766b2a0f302ae8c381e50ae4ecf304))
+
 ## [1.5.0](https://github.com/nuvlaedge/validation/compare/1.4.1...1.5.0) (2024-11-14)
 
 
