@@ -9,7 +9,7 @@ from logging import exception
 
 import requests
 from nuvla.api import Api as NuvlaClient
-from nuvla.api.models import CimiResponse, CimiCollection
+from nuvla.api.models import CimiResponse, CimiCollection, CimiResource
 
 from validation_framework.common import constants as cte
 from validation_framework.common.nuvla_uuid import NuvlaUUID
@@ -122,10 +122,10 @@ class ValidationBase(ParametrizedTests):
 
         self.logger.info('Waiting until device is commissioned')
         while last_state != self.STATE_LIST[2]:
-            time.sleep(1)
+            time.sleep(2)
             last_state: str = self.get_nuvlaedge_status(uuid=uuid)[0]
 
-    def wait_for_operational(self):
+    def wait_for_operational(self, uuid: NuvlaUUID = None):
         """
 
         :return:
@@ -133,7 +133,7 @@ class ValidationBase(ParametrizedTests):
         self.logger.info('Waiting for status device: OPERATIONAL')
         last_status: str = self.get_nuvlaedge_status()[1]
         while last_status != "OPERATIONAL":
-            time.sleep(1)
+            time.sleep(2)
             last_status: str = self.get_nuvlaedge_status()[1]
         self.wait_for_capabilities(['NUVLA_JOB_PULL'])
 
@@ -219,19 +219,16 @@ class ValidationBase(ParametrizedTests):
         """
         if not uuid:
             uuid = self.uuid
-        response: CimiCollection = self.nuvla_client.search('nuvlabox',
-                                                            filter=f'id=="{uuid}"')
 
+        response: CimiResource = self.nuvla_client.get(uuid, select=['state', 'nuvlabox-status'])
         try:
-            status_response: CimiCollection = self.nuvla_client.search(
-                'nuvlabox-status',
-                filter=f'id=="{response.resources[0].data["nuvlabox-status"]}"')
-            status = status_response.resources[0].data['status']
+            status_resource: CimiResource = self.nuvla_client.get(response.data['nuvlabox-status'], select=['status'])
+            status = status_resource.data.get('status','UNKNOWN')
         except:
             status = 'UNKNOWN'
 
-        self.STATE_HIST.append(response.resources[0].data['state'])
-        return response.resources[0].data['state'], status
+        self.STATE_HIST.append(response.data['state'])
+        return response.data['state'], status
 
     def create_nuvlaedge_in_nuvla(self, name: str = '', suffix: str = '') -> NuvlaUUID:
         """
