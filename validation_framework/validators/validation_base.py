@@ -314,5 +314,7 @@ class ValidationBase(ParametrizedTests):
                 self.retrieve_logs = True
                 self.logger.error(f'Test failed with exception: {self.failureException}')
 
-        self.engine_handler.stop_engine(retrieve_logs=self.retrieve_logs)
-        self.remove_nuvlaedge_from_nuvla()
+        if self.engine_handler:
+            self.engine_handler.stop_engine(retrieve_logs=self.retrieve_logs)
+        if self.uuid:
+            self.remove_nuvlaedge_from_nuvla()

@@ -87,7 +87,7 @@ class EngineHandler:
         if remove_old_installation:
             # 1. - Clean target
             self.logger.info('Removing possible old installations of NuvlaEdge')
-            self.coe.purge_engine()
+            self.coe.purge_engine(nuvlaedge_uuid)
 
         # 2. Start Engine
         self.logger.info('Download NuvlaEdge related files and images')

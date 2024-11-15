@@ -11,6 +11,7 @@ import requests
 
 from nuvla.api import Api as NuvlaClient
 from nuvla.api.models import CimiResource, CimiResponse
+from packaging.version import Version
 from pydantic import BaseModel, ConfigDict
 
 from validation_framework.common.constants import DEFAULT_JOBS_TIMEOUT
@@ -29,6 +30,7 @@ version (Most likely in NuvlaDev)
 
 GH_API_URL = "https://api.github.com/repos/{repo}/releases"
 NUVLA_RELEASE_ENDPOINT = "https://nuvla.io/api/nuvlabox-release"
+MINIMUM_K8S_VERSION = "2.16.0"
 
 @dataclass
 class FutureResult:
@@ -47,8 +49,13 @@ class UpdateNuvlaEdge(ValidationBase):
         self.uuids: dict[str, str] = {}
 
     def run_update(self, origin, target):
-        self.custom_setup(origin, target)
         engine = self.engines[origin]
+
+        if Version(origin) < Version(MINIMUM_K8S_VERSION) and engine.coe_type == 'kubernetes':
+            self.logger.info(f"Skipping {origin} to {target} update. Minimum NuvlaEdge version for Kubernetes validation update is {MINIMUM_K8S_VERSION}")
+            return
+
+        self.custom_setup(origin, target)
         uuid = self.uuids[origin]
 
         self.wait_for_commissioned(engine=engine, uuid=NuvlaUUID(uuid))
