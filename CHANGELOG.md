@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.2](https://github.com/nuvlaedge/validation/compare/1.5.1...1.5.2) (2024-11-18)
+
+
+### Bug Fixes
+
+* Fixed update process for K8s NuvlaEdges. ([8c63a67](https://github.com/nuvlaedge/validation/commit/8c63a67b1336b435dc586fd74beeff2a458aa6d2))
+
 ## [1.5.1](https://github.com/nuvlaedge/validation/compare/1.5.0...1.5.1) (2024-11-14)
 
 
