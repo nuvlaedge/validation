@@ -179,7 +179,7 @@ class DockerCOE(COEBase):
         result: Result = self.device.run_command(f'docker ps | grep {cte.PROJECT_NAME}')
         return result.stdout.strip() != ''
 
-    def remove_engine(self):
+    def remove_engine(self, uuid: NuvlaUUID = None):
         """
         Removes docker containers, services, volumes and networks from the device
         :return: None
@@ -205,9 +205,9 @@ class DockerCOE(COEBase):
     def finish_tasks(self):
         pass
 
-    def purge_engine(self):
+    def purge_engine(self, uuid: NuvlaUUID = None):
         self.stop_engine()
-        self.remove_engine()
+        self.remove_engine(uuid)
 
     def download_files(self, source, version) -> list[str]:
         self.engine_folder = cte.ROOT_PATH + cte.ENGINE_PATH + version

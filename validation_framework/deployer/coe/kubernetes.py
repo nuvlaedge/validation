@@ -48,12 +48,12 @@ class KubernetesCOE(COEBase):
         idparts = uuid.split('/')
         self.nuvla_uuid = idparts[1]
 
-        add_repo_cmd = f'sudo helm repo add {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME} {cte.NUVLAEDGE_KUBE_REPO}'
+        add_repo_cmd = f'helm repo add {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME} {cte.NUVLAEDGE_KUBE_REPO}'
         result: Result = self.device.run_sudo_command(add_repo_cmd, envs=_KUBECONFIG_ENV)
         if result.failed:
             self.logger.error(f'Could not add repo to helm {cte.NUVLAEDGE_KUBE_REPO}: {result.stderr}')
 
-        update_repo_cmd = f'sudo helm repo update nuvlaedge {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}'
+        update_repo_cmd = f'helm repo update nuvlaedge {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}'
         result: Result = self.device.run_sudo_command(update_repo_cmd, envs=_KUBECONFIG_ENV)
         if result.failed:
             self.logger.error(f'Could not update helm repo {cte.NUVLAEDGE_KUBE_LOCAL_REPO_NAME}: {result.stderr}')
@@ -188,21 +188,24 @@ class KubernetesCOE(COEBase):
             self.logger.debug("Waiting for credentials check thread to close")
             self.cred_check_thread.join(50)
 
-    def remove_engine(self):
+    def remove_engine(self, uuid: NuvlaUUID = None):
         self.logger.debug(f'Removing engine in device {self.device}')
         self.finish_tasks()
 
+        if not self.nuvla_uuid:
+            self.nuvla_uuid = uuid
+        ne_id = self.nuvla_uuid.split('/')[1]
         self.namespaces_running = self.__get_namespaces_running()
         commands: list = ['sudo kubectl delete '
                           'clusterrolebindings.rbac.authorization.k8s.io '
                           'nuvla-crb '
-                          f'nuvlaedge-service-account-cluster-role-binding-{self.nuvla_uuid}']
+                          f'nuvlaedge-service-account-cluster-role-binding-{ne_id}']
 
         for namespace in self.namespaces_running:
             if namespace.__contains__('kube') or namespace == 'default':
                 continue
             commands.append(f'sudo kubectl delete ns {namespace}')
-            commands.append(f'sudo helm uninstall {namespace}')
+            commands.append(f'helm uninstall {namespace}')
 
         for cmd in commands:
             try:
@@ -230,13 +233,13 @@ class KubernetesCOE(COEBase):
                 peripherals.remove(res.group(1))
         return not bool(peripherals)
 
-    def purge_engine(self):
+    def purge_engine(self, uuid: NuvlaUUID = None):
         """
             This will remove all pods and namespaces for kubernetes
         :return:
         """
         self.stop_engine()
-        self.remove_engine()
+        self.remove_engine(uuid)
 
     def __get_current_nuvlaedge_namespace_running(self):
         get_curr_nuvlaedge_namespace_cmd = ('sudo kubectl get namespaces -o json | jq '
