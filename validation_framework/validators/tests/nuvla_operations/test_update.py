@@ -30,7 +30,7 @@ version (Most likely in NuvlaDev)
 
 GH_API_URL = "https://api.github.com/repos/{repo}/releases"
 NUVLA_RELEASE_ENDPOINT = "https://nuvla.io/api/nuvlabox-release"
-MINIMUM_K8S_VERSION = "2.16.0"
+MINIMUM_K8S_VERSION = "2.18.0"
 
 @dataclass
 class FutureResult:
@@ -47,15 +47,19 @@ class UpdateNuvlaEdge(ValidationBase):
 
         self.engines: dict[str, EngineHandler] = {}
         self.uuids: dict[str, str] = {}
+        self.is_skip: bool = False
 
     def run_update(self, origin, target):
+        self.logger.info(f"Starting update from {origin}(Minimum {MINIMUM_K8S_VERSION}) to {target}")
+        self.logger.info("Engine keys are: " + str(self.engines.keys()))
+        self.custom_setup(origin, target)
         engine = self.engines[origin]
 
         if Version(origin) < Version(MINIMUM_K8S_VERSION) and engine.coe_type == 'kubernetes':
             self.logger.info(f"Skipping {origin} to {target} update. Minimum NuvlaEdge version for Kubernetes validation update is {MINIMUM_K8S_VERSION}")
-            return
+            self.is_skip = True
+            self.skipTest("Minimum NuvlaEdge version for Kubernetes validation update is not met")
 
-        self.custom_setup(origin, target)
         uuid = self.uuids[origin]
 
         self.wait_for_commissioned(engine=engine, uuid=NuvlaUUID(uuid))
@@ -203,7 +207,9 @@ class UpdateNuvlaEdge(ValidationBase):
         self.nuvla_client: NuvlaClient = NuvlaClient(reauthenticate=True)
         self.nuvla_client.login_apikey(self.nuvla_api_key, self.nuvla_api_secret)
 
-
+    def tearDown(self) -> None:
+        if not self.is_skip:
+            super().tearDown()
 
 def underscore_to_hyphen(field_name: str) -> str:
     """

@@ -7,8 +7,6 @@ from validation_framework.validators import ValidationBase
 from validation_framework.validators.tests.nuvla_operations import validator
 from nuvla.api.models import CimiResource, CimiResponse
 import time
-from fabric import Result
-from pprint import pprint as pp
 
 
 @validator('EngineReboot')

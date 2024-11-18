@@ -79,6 +79,7 @@ class ParametrizedTests(unittest.TestCase):
             for release in releases:
                 method_name = f"test_update_{release[0].replace(".", "_")}_to_{nuvlaedge_branch}"
                 method = create_update_method(release[0], nuvlaedge_branch)
+                logging.info("Adding method %s to %s", method_name, testcase_class)
                 setattr(testcase_class, method_name, method)
                 setattr(testcase_class, 'release_id', release[1])
 
@@ -314,7 +315,6 @@ class ValidationBase(ParametrizedTests):
                 self.retrieve_logs = True
                 self.logger.error(f'Test failed with exception: {self.failureException}')
 
-        if self.engine_handler:
-            self.engine_handler.stop_engine(retrieve_logs=self.retrieve_logs)
-        if self.uuid:
+        if self.engine_handler and self.uuid:
+            self.engine_handler.stop_engine(retrieve_logs=self.retrieve_logs, uuid=self.uuid)
             self.remove_nuvlaedge_from_nuvla()

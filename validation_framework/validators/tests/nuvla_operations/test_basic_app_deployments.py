@@ -2,14 +2,13 @@
 
 """
 import time
-import unittest
 
 from nuvla.api.resources import Deployment
 
 from validation_framework.validators import ValidationBase
 from validation_framework.validators.tests.nuvla_operations import validator
 from validation_framework.common.constants import DEFAULT_DEPLOYMENTS_TIMEOUT
-from nuvla.api.models import CimiResponse, CimiResource, CimiCollection
+from nuvla.api.models import CimiResource, CimiCollection
 
 
 @validator('BasicAppDeployment')

@@ -2,8 +2,7 @@
 
 """
 import time
-from pprint import pprint as pp
-from nuvla.api.models import CimiResource, CimiResponse, CimiCollection
+from nuvla.api.models import CimiResource, CimiResponse
 
 from validation_framework.validators.tests.nuvla_operations import validator
 from validation_framework.common.constants import DEFAULT_JOBS_TIMEOUT

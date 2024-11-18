@@ -99,7 +99,7 @@ class EngineHandler:
     def restart_engine(self) -> Result:
         return self.coe.restart_system()
 
-    def stop_engine(self, retrieve_logs: bool = False) -> bool:
+    def stop_engine(self, retrieve_logs: bool = False, uuid: NuvlaUUID = None) -> bool:
         """
 
         :return:
@@ -112,7 +112,7 @@ class EngineHandler:
         if retrieve_logs:
             self.coe.get_engine_logs()
 
-        self.coe.purge_engine()
+        self.coe.purge_engine(uuid)
 
     def check_if_peripherals_running(self, peripherals: set) -> bool:
         """
