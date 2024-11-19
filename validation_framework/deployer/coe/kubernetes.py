@@ -194,7 +194,13 @@ class KubernetesCOE(COEBase):
 
         if not self.nuvla_uuid:
             self.nuvla_uuid = uuid
-        ne_id = self.nuvla_uuid.split('/')[1]
+        ne_id = self.nuvla_uuid.split('/')
+        if len(ne_id) > 1:
+            ne_id = ne_id[1]
+        else:
+            self.logger.warning(f"Invalid NuvlaEdge UUID {self.nuvla_uuid}")
+            return
+
         self.namespaces_running = self.__get_namespaces_running()
         commands: list = ['sudo kubectl delete '
                           'clusterrolebindings.rbac.authorization.k8s.io '
