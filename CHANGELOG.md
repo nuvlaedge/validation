@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.3](https://github.com/nuvlaedge/validation/compare/1.5.2...1.5.3) (2024-11-19)
+
+
+### Bug Fixes
+
+* **K8s:** Fixed index out of range error in K8s driver ([da87e58](https://github.com/nuvlaedge/validation/commit/da87e584731d99c71c7e2bcc444a8d6adac214a5))
+
 ## [1.5.2](https://github.com/nuvlaedge/validation/compare/1.5.1...1.5.2) (2024-11-18)
 
 
