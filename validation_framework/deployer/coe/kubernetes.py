@@ -97,7 +97,9 @@ class KubernetesCOE(COEBase):
 
         if self.cred_check_thread is None:
             self.cred_check_thread = CertificateSignCheck(device_config=self.device.target_config,
-                                                          namespace=self.namespace, logger=self.logger)
+                                                          uuid=self.nuvla_uuid,
+                                                          namespace=self.namespace, 
+                                                          logger=self.logger)
             self.cred_check_thread.start()
 
         self.logger.info('Device start command executed')
@@ -317,12 +319,14 @@ def get_environmental_value(device, namespace, pod_name, key, logger):
 
 
 class CertificateSignCheck(Thread):
-    def __init__(self, logger: logging.Logger, device_config: TargetDeviceConfig, namespace):
+    
+    def __init__(self, device_config: TargetDeviceConfig, uuid, namespace, logger: logging.Logger):
         super(CertificateSignCheck, self).__init__()
         self.device = SSHTarget(device_config)
         self.exit_event: Event = Event()
         self.namespace = namespace
         self.logger = logger
+        self.uuid = uuid
 
     def join(self, timeout: float | None = 0):
         self.logger.debug('Exiting Certificate sign check thread')
@@ -340,6 +344,9 @@ class CertificateSignCheck(Thread):
 
         csr_name = get_environmental_value(self.device, self.namespace, credentials_pod,
                                            cte.NUVLAEDGE_KUBE_CSR_NAME_KEY, self.logger)
+
+        if csr_name == 'nuvlaedge-csr':
+            csr_name += '-' + self.uuid
 
         time_to_sleep = 2
         while not self.exit_event.is_set():
