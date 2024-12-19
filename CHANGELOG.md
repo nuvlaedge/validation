@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.5.4](https://github.com/nuvlaedge/validation/compare/1.5.3...1.5.4) (2024-12-19)
+
+
+### Bug Fixes
+
+* **kubernetes.py:** fix csr name by including uuid if needed ([37ae096](https://github.com/nuvlaedge/validation/commit/37ae0968ccb2bc2aed2c0653031adb063202f138))
+
 ## [1.5.3](https://github.com/nuvlaedge/validation/compare/1.5.2...1.5.3) (2024-11-19)
 
 
