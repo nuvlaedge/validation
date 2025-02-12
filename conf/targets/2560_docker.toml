@@ -1,11 +1,11 @@
-alias = "rpi4"
+alias = "one_2560"
 
 # Orchestration engine
 coe = "docker"
 
 # Network data
-address = "192.168.40.13"
-port = 22
+address = "192.168.40.206"
+port = 2222
 hostname = ""
 
 # Naming data

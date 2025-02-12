@@ -188,7 +188,7 @@ class KubernetesCOE(COEBase):
             self.logger.debug("Waiting for credentials check thread to close")
             self.cred_check_thread.join(50)
 
-    def remove_engine(self, uuid: NuvlaUUID = None):
+    def remove_engine(self, uuid: NuvlaUUID = None, black_list: list = None):
         self.logger.debug(f'Removing engine in device {self.device}')
         self.finish_tasks()
 

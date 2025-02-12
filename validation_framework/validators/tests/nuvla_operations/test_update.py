@@ -167,7 +167,7 @@ class UpdateNuvlaEdge(ValidationBase):
             envs['NE_IMAGE_TAG'] = image
             envs['NE_IMAGE_ORGANIZATION'] = 'nuvladev'
         elif engine.coe_type == 'kubernetes':
-            envs['nuvlaedge.image.image'] = image
+            envs['nuvlaedge.image.tag'] = image
             envs['nuvlaedge.image.organization'] = 'nuvladev'
         else:
             raise ValueError(f"Unknown COE type {engine.coe_type}")

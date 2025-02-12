@@ -9,7 +9,7 @@ port = 22
 hostname = ""
 
 # Naming data
-user = "ubuntu"
+user = "root"
 
 # Security data
 pub_key_path = "~/.ssh/id_rsa.pub"

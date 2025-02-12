@@ -105,7 +105,7 @@ class DockerCOE(COEBase):
 
 
     def stop_engine(self):
-        command = 'docker stop $(docker ps -a -q)'
+        command = "docker stop $(docker ps -a --format \"{{.ID}} {{.Names}}\" | grep -vE 'nuvlaedge-agent|sshgateway|shellinabox' | awk '{print $1}')"
         try:
             self.device.run_command(command)
         except Exception as ex:
@@ -179,7 +179,16 @@ class DockerCOE(COEBase):
         result: Result = self.device.run_command(f'docker ps | grep {cte.PROJECT_NAME}')
         return result.stdout.strip() != ''
 
-    def remove_engine(self, uuid: NuvlaUUID = None):
+    def _get_all_containers(self) -> list[dict]:
+        result: Result = self.device.run_command('docker ps --all --format=json')
+        containers = []
+        try:
+            containers: list[dict] = [json.loads(entry) for entry in result.stdout.split("\n")]
+        except:
+            pass
+        return containers
+
+    def remove_engine(self, uuid: NuvlaUUID = None, black_list: list = None):
         """
         Removes docker containers, services, volumes and networks from the device
         :return: None
@@ -189,7 +198,7 @@ class DockerCOE(COEBase):
         command_list: list = ['docker service rm $(docker service ls -q)',
                               'docker rm $(docker ps -a -q)',
                               'docker network prune --force',
-                              'docker volume rm $(docker volume ls -q)']
+                              'docker volume prune --force --all']
 
         for cmd in command_list:
             try:
@@ -205,9 +214,9 @@ class DockerCOE(COEBase):
     def finish_tasks(self):
         pass
 
-    def purge_engine(self, uuid: NuvlaUUID = None):
+    def purge_engine(self, uuid: NuvlaUUID = None, black_list: list = None):
         self.stop_engine()
-        self.remove_engine(uuid)
+        self.remove_engine(uuid, black_list=black_list)
 
     def download_files(self, source, version) -> list[str]:
         self.engine_folder = cte.ROOT_PATH + cte.ENGINE_PATH + version

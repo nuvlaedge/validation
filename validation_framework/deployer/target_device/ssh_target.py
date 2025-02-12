@@ -29,6 +29,8 @@ class SSHTarget(TargetDevice):
         super().__init__(target_config, logging.getLogger(__name__))
         self.logger.info(f'Starting SSH target with configuration '
                          f'{json.dumps(target_config.dict(), indent=4)}')
+        self._port: int = target_config.port if target_config.port else 22
+
         retrials = 0
         maxretrials = 5
         timeout = 3
@@ -48,6 +50,7 @@ class SSHTarget(TargetDevice):
         new_connection: Connection = Connection(
             host=self.address,
             user=self.user,
+            port=self._port,
             connect_timeout=30,
             connect_kwargs={
                 "key_filename":
