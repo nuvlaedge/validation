@@ -52,6 +52,6 @@ jobs:
             PROJECT_URL=${{ github.server_url }}/${{ github.repository }}
           push: true
           tags: >
-            ghcr.io/validation/docker_gateway:latest
+            ghcr.io/nuvlaedge/docker_gateway:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
