@@ -100,7 +100,7 @@ class COEBase(ABC):
         pass
 
     @abstractmethod
-    def remove_engine(self, uuid: NuvlaUUID = None):
+    def remove_engine(self, uuid: NuvlaUUID = None, black_list: list = None):
         pass
 
     @abstractmethod

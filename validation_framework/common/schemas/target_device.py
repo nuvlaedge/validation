@@ -2,7 +2,7 @@
 
 """
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 from validation_framework.common.release import Release
 
@@ -40,3 +40,5 @@ class TargetDeviceConfig(BaseModel):
     private_key_path: str | None = None
 
     password: str | None = None
+
+    excluded_tests: list[str] = Field(default_factory=list)

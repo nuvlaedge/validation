@@ -91,7 +91,7 @@ class EngineHandler:
 
         # 2. Start Engine
         self.logger.info('Download NuvlaEdge related files and images')
-        self.coe.start_engine(nuvlaedge_uuid, False, extra_envs)
+        self.coe.start_engine(nuvlaedge_uuid, remove_old_installation, extra_envs)
 
     def get_system_up_time_in_engine(self) -> float:
         return self.coe.get_system_up_time()

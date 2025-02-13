@@ -16,6 +16,8 @@ from xmlrunner.extra.xunit_plugin import transform
 import xmltodict
 import xml.etree.ElementTree as ET
 
+from validation_framework.common import utils
+from validation_framework.common.schemas.target_device import TargetDeviceConfig
 import validation_framework.common.constants as cte
 from validation_framework.common.logging_config import config_logger
 from validation_framework.validators.validation_base import ParametrizedTests
@@ -37,7 +39,7 @@ def parse_results(results: list[io.BytesIO]) -> list[tuple[bytes, dict]]:
     :return: UnitTests results in dict format
     """
     # Convert bytes into xml string
-    parsed_data: list[tuple] = []
+    parsed_data: list[tuple[bytes, dict]] = []
     for res in results:
         logger.info(f'Results {res}')
         xml_result: bytes = transform(res.getvalue())
@@ -53,9 +55,12 @@ def run_test_on_device(arguments: argparse.Namespace, validator: callable) -> li
 
     # Target version
     device_config_file: str = arguments.target
+    device_config: TargetDeviceConfig = utils.get_model_from_toml(TargetDeviceConfig, cte.DEVICE_CONFIG_PATH / device_config_file)
 
     for name, v in active_validators.items():
-        logger.info(f'Validator: {validator(name)}')
+        if name in device_config.excluded_tests:
+            logger.info(f"Skipping test {name} for device: {device_config.alias}")
+            continue
 
         test_report: io.BytesIO = io.BytesIO()
         runner = xmlrunner.XMLTestRunner(output=test_report, verbosity=1)
@@ -71,7 +76,6 @@ def run_test_on_device(arguments: argparse.Namespace, validator: callable) -> li
                                                     retrieve_logs=arguments.retrieve_logs))
         result = runner.run(suite)
         test_results.append(test_report)
-
     return test_results
 
 
@@ -133,7 +137,7 @@ def parse_arguments() -> argparse.Namespace:
     arguments.add_argument("--secret")
 
     # Logging
-    arguments.add_argument("--log_level", default='INFO', 
+    arguments.add_argument("--log_level", default='INFO',
                            choices=['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'])
     # TODO: Future implementation
     arguments.add_argument("--retrieve_logs", default=False)
