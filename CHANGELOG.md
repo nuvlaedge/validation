@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.6.1](https://github.com/nuvlaedge/validation/compare/1.6.0...1.6.1) (2025-02-14)
+
+
+### Bug Fixes
+
+* **Docker:** Fixed docker cleanup scripts ([ba3be07](https://github.com/nuvlaedge/validation/commit/ba3be07661a09dd6ec5faca8b02d200b424ace9d))
+
 ## [1.6.0](https://github.com/nuvlaedge/validation/compare/1.5.4...1.6.0) (2025-02-13)
 
 
