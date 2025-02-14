@@ -1,5 +1,17 @@
 # Changelog
 
+## [1.6.0](https://github.com/nuvlaedge/validation/compare/1.5.4...1.6.0) (2025-02-13)
+
+
+### Features
+
+* Added integration container and selective cleanup for integration with Ekinops 2560 device ([#68](https://github.com/nuvlaedge/validation/issues/68)) ([8f2a11d](https://github.com/nuvlaedge/validation/commit/8f2a11d59140edbbd5ce07307aac37777cca2b32))
+
+
+### Bug Fixes
+
+* **ci:** Fixed gateway build workflow ([ac170b6](https://github.com/nuvlaedge/validation/commit/ac170b69dd09e5ad0b4590fe9ce64b74ddaabcab))
+
 ## [1.5.4](https://github.com/nuvlaedge/validation/compare/1.5.3...1.5.4) (2024-12-19)
 
 
