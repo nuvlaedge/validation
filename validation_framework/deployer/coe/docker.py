@@ -105,11 +105,14 @@ class DockerCOE(COEBase):
 
 
     def stop_engine(self):
-        command = "docker stop $(docker ps -a --format \"{{.ID}} {{.Names}}\" | grep -vE 'nuvlaedge-agent|sshgateway|shellinabox' | awk '{print $1}')"
+        command = 'docker stop $(docker ps -a --format "{{.ID}} {{.Names}}" | grep -vE "nuvlaedge-agent|sshgateway|shellinabox" | awk "{print $1}")'
         try:
             self.device.run_command(command)
+        except invoke.exceptions.UnexpectedExit:
+            self.logger.debug("No containers to stop")
+            pass
         except Exception as ex:
-            self.logger.warning(f'Unable to run commands on {self.device} {ex}')
+            self.logger.warning(f'Unable to run commands on {self.device} {ex} ')
 
     def get_authorized_keys(self):
         return self.device.run_command("cat ~/.ssh/authorized_keys")
@@ -198,11 +201,14 @@ class DockerCOE(COEBase):
         command_list: list = ['docker service rm $(docker service ls -q)',
                               'docker rm $(docker ps -a -q)',
                               'docker network prune --force',
-                              'docker volume prune --force --all']
+                              'docker volume prune --force']
+        # docker volume rm $(docker volume ls -q)
 
         for cmd in command_list:
             try:
-                self.device.run_command(cmd)
+                result = self.device.run_command(cmd)
+
+                self.logger.info(f'Command {cmd} result: {result.stdout}')
             except invoke.exceptions.UnexpectedExit:
                 pass
             except Exception as ex:
