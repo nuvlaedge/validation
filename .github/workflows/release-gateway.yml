@@ -34,6 +34,7 @@ jobs:
 
       - name: Build temporal authorised keys
         run: |
+          echo "${{ secrets.VALIDATION_MANAGER_KEY }}" > gateway_container/authorized_keys
           echo "${{ secrets.VALIDATION_PUB_KEY }}" > gateway_container/authorized_keys
           echo "${{ secrets.VALIDATION_ADMIN_PUB_KEY }}" >> gateway_container/authorized_keys
 
