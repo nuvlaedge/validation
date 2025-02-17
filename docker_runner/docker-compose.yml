@@ -4,6 +4,8 @@ x-common: &common
     - "validation_runner"
 
 volumes:
+  2560_docker-vol:
+      driver: local
   rpi4_kubernetes-vol:
     driver: local
   rpi4_docker-vol:
@@ -14,6 +16,18 @@ volumes:
     driver: local
 
 services:
+  2560_d:
+    <<: *common
+    hostname: 2560_docker_runner
+    environment:
+      - RUNNER_TOKEN=$RUNNER_TOKEN
+      - ORGANIZATION=$ORGANIZATION
+      - RUNNER_TARGET=2560_docker
+    volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /home/sixsq/.validation_keys:/home/runner/.ssh/
+        - "2560_docker-vol:/home/runner/actions-runner/results"
+        -
   rpi4_k:
     <<: *common
     hostname: rpi4_kubernetes_runner
