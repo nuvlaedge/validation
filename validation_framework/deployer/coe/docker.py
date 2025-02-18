@@ -201,8 +201,7 @@ class DockerCOE(COEBase):
         command_list: list = ['docker service rm $(docker service ls -q)',
                               'docker rm $(docker ps -a -q)',
                               'docker network prune --force',
-                              'docker volume prune --force']
-        # docker volume rm $(docker volume ls -q)
+                              'docker volume rm $(docker volume ls -q)']
 
         for cmd in command_list:
             try:
