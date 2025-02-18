@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.2](https://github.com/nuvlaedge/validation/compare/1.6.1...1.6.2) (2025-02-18)
+
+
+### Bug Fixes
+
+* **Docker:** Fixed docker volume cleanup ([20d70e5](https://github.com/nuvlaedge/validation/commit/20d70e54f7061407228085793e7160131eba528a))
+* **SSH:** Fixed ssh key issue ([39f1ec4](https://github.com/nuvlaedge/validation/commit/39f1ec49b8b782c8b0702c555063eb2d4000d86a))
+
 ## [1.6.1](https://github.com/nuvlaedge/validation/compare/1.6.0...1.6.1) (2025-02-14)
 
 
