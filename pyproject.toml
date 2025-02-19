@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "validation"
-version = "1.6.2"
+version = "1.6.3"
 description = ""
 authors = ["Nacho <nacho@sixsq.com>"]
 packages = [{include = "validation_framework"}]

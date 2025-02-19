@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.6.3](https://github.com/nuvlaedge/validation/compare/1.6.2...1.6.3) (2025-02-19)
+
+
+### Bug Fixes
+
+* **SSH:** Added skip for SSH operation on ONE 2560 devices ([4563bba](https://github.com/nuvlaedge/validation/commit/4563bba644b215b00765557050c450f5a2fb0fc4))
+* **Update:** Added an exception to not run update tests on deployment repository ([8b485be](https://github.com/nuvlaedge/validation/commit/8b485be6d8f0f63c4bf8c264e82255dc169a309c))
+
 ## [1.6.2](https://github.com/nuvlaedge/validation/compare/1.6.1...1.6.2) (2025-02-18)
 
 
