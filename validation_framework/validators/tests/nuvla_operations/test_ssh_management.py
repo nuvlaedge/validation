@@ -8,10 +8,15 @@ from validation_framework.validators.tests.nuvla_operations import validator
 from validation_framework.common.constants import DEFAULT_JOBS_TIMEOUT
 from validation_framework.validators import ValidationBase
 
+EKINOPS_DEVICES_ALIASES = ['one_2560']
+
 
 @validator('SSHKeysManagement')
 class TestSSHKeyManagement(ValidationBase):
     VALIDATION_SSH_ID: str = "credential/41f3180e-dcee-434a-a3f8-88e7520245f8"
+
+    def _is_skip(self) -> bool:
+        return self.engine_handler.device_config.alias in EKINOPS_DEVICES_ALIASES
 
     def manipulate_ssh_key(self, operation: str = 'add-ssh-key') -> bool:
         """
@@ -67,6 +72,10 @@ class TestSSHKeyManagement(ValidationBase):
 
     def test_ssh_key_management(self):
         self.logger.info("Starting SSH key management validation tests")
+
+        if self._is_skip():
+            self.logger.info("Skipping test for one_2560")
+            self.skipTest("SSH management no available in one_2560 devices")
 
         self.wait_for_commissioned()
         self.wait_for_operational()

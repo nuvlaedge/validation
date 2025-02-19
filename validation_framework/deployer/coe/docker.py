@@ -179,7 +179,10 @@ class DockerCOE(COEBase):
                 local_file_path=path / (c_name + '.log'))
 
     def engine_running(self) -> bool:
-        result: Result = self.device.run_command(f'docker ps | grep {cte.PROJECT_NAME}')
+        try:
+            result: Result = self.device.run_command(f'docker ps | grep {cte.PROJECT_NAME}')
+        except invoke.exceptions.UnexpectedExit:
+            return False
         return result.stdout.strip() != ''
 
     def _get_all_containers(self) -> list[dict]:
