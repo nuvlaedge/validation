@@ -9,7 +9,7 @@ from nuvla.api.models import CimiResource, CimiResponse
 import time
 
 
-# @validator('EngineReboot')
+@validator('EngineReboot')
 class TestEngineReboot(ValidationBase):
     WAIT_TIME: float = 400
 

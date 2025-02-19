@@ -10,7 +10,7 @@ COPY --from=docker /usr/local/bin/docker /usr/bin/docker
 COPY --from=docker /usr/local/libexec/docker/cli-plugins/docker-compose /usr/local/libexec/docker/cli-plugins/docker-compose
 
 RUN apt-get update && apt-get upgrade -y
-RUN apt-get install -y openssh-client openssh-server openssl tini
+RUN apt-get install -y openssh-client openssh-server openssl tini jq sudo
 
 RUN sed -i 's/PermitRootLogin prohibit-password/PermitRootLogin yes/' /etc/ssh/sshd_config
 RUN mkdir -p /root/.ssh

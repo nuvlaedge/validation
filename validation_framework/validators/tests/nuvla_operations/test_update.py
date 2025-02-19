@@ -49,13 +49,23 @@ class UpdateNuvlaEdge(ValidationBase):
         self.uuids: dict[str, str] = {}
         self.is_skip: bool = False
 
+    def _is_skip(self, engine, origin, target):
+        if Version(origin) < Version(MINIMUM_K8S_VERSION) and engine.coe_type == 'kubernetes':
+            self.logger.info(f"Skipping {origin} to {target} update. Minimum NuvlaEdge version for Kubernetes validation update is {MINIMUM_K8S_VERSION}")
+            return True
+        # Deployment repository cant be tested in the update operation
+        if self.target_deployment_branch != 'None':
+            self.logger.info(f"Skipping {origin} to {target} update. Deployment branch is set to {self.target_deployment_branch}")
+            return True
+        return False
+
     def run_update(self, origin, target):
         self.logger.info(f"Starting update from {origin}(Minimum {MINIMUM_K8S_VERSION}) to {target}")
         self.logger.info("Engine keys are: " + str(self.engines.keys()))
         self.custom_setup(origin, target)
         engine = self.engines[origin]
 
-        if Version(origin) < Version(MINIMUM_K8S_VERSION) and engine.coe_type == 'kubernetes':
+        if self._is_skip(engine, origin, target):
             self.logger.info(f"Skipping {origin} to {target} update. Minimum NuvlaEdge version for Kubernetes validation update is {MINIMUM_K8S_VERSION}")
             self.is_skip = True
             self.skipTest("Minimum NuvlaEdge version for Kubernetes validation update is not met")
